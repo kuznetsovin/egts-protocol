@@ -1,4 +1,4 @@
-package egts_protocol_data_types
+package egts_auth_service
 
 type EGTS_SR_RECORD_RESPONSE struct {
 	// Подзапись применяется для осуществления подтверждения процесса
@@ -6,7 +6,6 @@ type EGTS_SR_RECORD_RESPONSE struct {
 	// Данный тип подзаписи должен поддерживаться всеми Сервисами.
 	CRN int
 	RST byte
-	*ServiceDataSubrecord
 }
 
 type EGTS_SR_TERM_IDENTITY struct {

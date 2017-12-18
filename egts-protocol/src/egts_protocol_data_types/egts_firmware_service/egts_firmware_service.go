@@ -6,12 +6,10 @@ type EGTS_SR_RECORD_RESPONSE struct {
 	// Данный тип подзаписи должен поддерживаться всеми Сервисами.
 	CRN int
 	RST byte
-	*ServiceDataSubrecord
 }
 
 type EGTS_SR_SERVICE_PART_DATA struct {
 	// Формат заголовка передаваемой сущности подзаписи
-
 
 	// характеристика принадлежности передаваемой сущности
 	OA byte
@@ -36,8 +34,8 @@ type EGTS_SR_SERVICE_PART_DATA struct {
 	// до точки – major version, младший,
 	// (старший байт
 
-		// точки – minor version, например версия 2.34 будет представлена числом 0x0222))
-		//
+	// точки – minor version, например версия 2.34 будет представлена числом 0x0222))
+	//
 	VER int
 
 	// сигнатура (контрольная сумма), всей передаваемой сущности.
@@ -50,7 +48,6 @@ type EGTS_SR_SERVICE_PART_DATA struct {
 
 	// разделитель строковых параметров (всегда имеет значение 0)
 	D byte
-
 }
 
 type EGTS_SR_SERVICE_PART_DATA struct {
@@ -78,8 +75,6 @@ type EGTS_SR_SERVICE_PART_DATA struct {
 
 	// непосредственно данные передаваемой сущности
 	OD string
-
-
 }
 
 type EGTS_SR_SERVICE_FULL_DATA struct {
@@ -97,7 +92,7 @@ type EGTS_FIRMWARE_SERVICE struct {
 	// обновления ПО аппаратной части модулей и блоков самого АТ,
 	// а также периферийного оборудования, подключенного к АТ.
 
-	EGTS_FIRMWARE_SERVICE []EGTS_FIRMWARE_SERVICE
+	EGTS_FIRMWARE_SERVICE     []EGTS_FIRMWARE_SERVICE
 	EGTS_SR_SERVICE_PART_DATA []EGTS_SR_SERVICE_PART_DATA
 	EGTS_SR_SERVICE_FULL_DATA []EGTS_SR_SERVICE_FULL_DATA
 }

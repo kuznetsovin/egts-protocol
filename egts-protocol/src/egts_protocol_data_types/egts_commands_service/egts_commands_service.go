@@ -6,7 +6,6 @@ type EGTS_SR_RECORD_RESPONSE struct {
 	// Данный тип подзаписи должен поддерживаться всеми Сервисами.
 	CRN int
 	RST byte
-	*ServiceDataSubrecord
 }
 
 type EGTS_SR_COMMAND_DATA struct {
@@ -95,7 +94,6 @@ type EGTS_SR_COMMAND_DATA struct {
 	// нулевую длину (отсутствовать) в тех случаях, когда в ответ на команду
 	// или сообщение для АТ не передаются никакие данные.
 	CD string
-
 }
 
 type EGTS_COMMANDS_SERVICE struct {
@@ -103,5 +101,5 @@ type EGTS_COMMANDS_SERVICE struct {
 	// подтверждений, передаваемых между АТ, ТП и клиентскими приложениями.
 
 	EGTS_SR_RECORD_RESPONSE []EGTS_SR_RECORD_RESPONSE
-	EGTS_SR_COMMAND_DATA []EGTS_SR_COMMAND_DATA
+	EGTS_SR_COMMAND_DATA    []EGTS_SR_COMMAND_DATA
 }

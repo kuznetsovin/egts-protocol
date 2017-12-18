@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"egts_auth_service"
 	"egts_package"
 	"encoding/binary"
 	"fmt"
@@ -89,7 +90,84 @@ func main() {
 	// RSOD = 0
 	// SSOD = 0
 
-	sdr := service_data_records.ServiceDataRecord{
+	egtsSRServiceResponse := egts_auth_service.EGTS_SR_RECORD_RESPONSE{
+		CRN: int(136),
+		RST: byte(1),
+	}
+
+	egtsSRTermIdentity := egts_auth_service.EGTS_SR_TERM_IDENTITY{
+		TID:    int(1),
+		HDIDE:  uint8(0),
+		IMEIE:  uint8(1),
+		IMSIE:  uint8(1),
+		LNGCE:  uint8(0),
+		SSRA:   uint8(1),
+		NIDE:   uint8(0),
+		BSE:    uint8(0),
+		MNE:    uint8(1),
+		HDID:   int(0),
+		IMEI:   string("020000000000010"),
+		IMSI:   string("0200000000000103"),
+		LNGC:   string(""),
+		NID:    uint8(0),
+		BS:     int(0),
+		MSISDN: string(""),
+	}
+
+	egtsSRModuleData := egts_auth_service.EGTS_SR_MODULE_DATA{
+		MT:   byte(1),
+		VID:  uint(0),
+		FWV:  uint8(0),
+		SWV:  uint8(0),
+		MD:   byte(0),
+		ST:   byte(1),
+		SRN:  string("123"),
+		D:    byte(0),
+		DSCR: string("description sr module data"),
+	}
+
+	egtsSRVehicleData := egts_auth_service.EGTS_SR_VEHICLE_DATA{
+		VIN:  string("0123"),
+		VHT:  uint(9),
+		VPST: uint(9),
+	}
+
+	egtsSRAuthParams := egts_auth_service.EGTS_SR_AUTH_PARAMS{
+		EXE:  uint8(0),
+		SSE:  uint8(0),
+		MSE:  uint8(0),
+		ISLE: uint8(0),
+		PKE:  uint8(0),
+		ENA:  uint8(0),
+		PKL:  int(0),
+		PBK:  int8(0),
+		ISL:  int(0),
+		MSZ:  int(0),
+		SS:   string(0),
+		D:    byte(0),
+		EXP:  string(0),
+	}
+
+	egtsSRAuthInfo := egts_auth_service.EGTS_SR_AUTH_INFO{
+		UNM:  string("fak"),
+		D:    byte(0),
+		UPSW: string("sssss"),
+		SS:   string(""),
+	}
+
+	egtsSRServiceInfo := egts_auth_service.EGTS_SR_SERVICE_INFO{
+		ST:    uint8(1),
+		SST:   uint8(0),
+		SRVP:  uint8(0),
+		SRVA:  uint8(0),
+		SRVRP: uint8(0),
+	}
+
+	egtsSRResultCode := egts_auth_service.EGTS_SR_RESULT_CODE{
+		RCD: byte(0),
+	}
+
+	egtsServiceDataRecord := service_data_records.ServiceDataRecord{
 		RL:   uint(136),
 		RN:   uint(35267),
 		RFL:  byte(0),
@@ -105,7 +183,7 @@ func main() {
 		TM:   0,
 		SST:  1,
 		RST:  1,
-		RD:   []byte("2010003b001c0e01c38800c3890000c38a30000000c2810746c2a20002021015005ac29cc39f0ec2b662c2b3c2b73834c2b83801c29600c3b600000000001015005ac29cc39f"),
+		RD:   []byte(""),
 	}
 
 	// 	Transport level --------------------
@@ -123,6 +201,23 @@ func main() {
 	// SFRCS (crc) = 40899
 	// Calculated SFRCS(crc) = 64431
 	// b'01002010003b001c0e01c38800c3890000c38a30000000c2810746c2a20002021015005ac29cc39f0ec2b662c2b3c2b73834c2b83801c29600c3b600000000001015005ac29cc39f'
+
+	egtsAuthService := egts_auth_service.EGTS_AUTH_SERVICE{
+		EGTS_SR_RECORD_RESPONSE: egtsSRServiceResponse,
+		EGTS_SR_TERM_IDENTITY:   egtsSRTermIdentity,
+		EGTS_SR_MODULE_DATA:     egtsSRModuleData,
+		EGTS_SR_VEHICLE_DATA:    egtsSRVehicleData,
+		EGTS_SR_AUTH_PARAMS:     egtsSRAuthParams,
+		EGTS_SR_AUTH_INFO:       egtsSRAuthInfo,
+		EGTS_SR_SERVICE_INFO:    egtsSRServiceInfo,
+		EGTS_SR_RESULT_CODE:     egtsSRResultCode,
+	}
+
+	serviceDataSubrecord := service_data_records.ServiceDataSubrecord{
+		SRT: byte(1),
+		SRL: int(160),
+		SRD: StructToBytes(egtsAuthService),
+	}
 
 	pkgg := egts_package.EgtsPkg{
 		PRV:  byte(1),
@@ -142,7 +237,7 @@ func main() {
 		RCA:   uint16(11),
 		TTL:   byte(0),
 		HCS:   byte(195),
-		SFRD:  StructToBytes(sdr),
+		SFRD:  StructToBytes(serviceDataSubrecord),
 		SFRCS: uint16(64431),
 	}
 
