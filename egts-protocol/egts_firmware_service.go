@@ -1,6 +1,6 @@
 package egts_protocol
 
-type EGTS_SR_SERVICE_PART_DATA struct {
+type EGTS_SR_SERVICE_PART_DATA_ODH struct {
 	// Формат заголовка передаваемой сущности подзаписи
 
 	// характеристика принадлежности передаваемой сущности
@@ -63,7 +63,7 @@ type EGTS_SR_SERVICE_PART_DATA struct {
 	// Данный заголовок передаётся только для первой части сущности.
 	// При передаче второй и последующих частей, данное поле не передается.
 	// Структура заголовка ODH представлена в Таблице 25.
-	ODH []EGTS_SR_SERVICE_PART_DATA
+	ODH []EGTS_SR_SERVICE_PART_DATA_ODH
 
 	// непосредственно данные передаваемой сущности
 	OD string
