@@ -1,4 +1,4 @@
-package egts_auth_service
+package egts_protocol
 
 type EGTS_SR_RECORD_RESPONSE struct {
 	// Подзапись применяется для осуществления подтверждения процесса

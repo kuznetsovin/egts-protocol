@@ -1,4 +1,4 @@
-package egts_package
+package egts_protocol
 
 type EgtsPkg struct {
 	//Параметр определяет версию используемой структуры заголовка и должен содержать значение 0x01.

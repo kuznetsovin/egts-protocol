@@ -1,4 +1,4 @@
-package main
+package egts_protocol
 
 import (
 	"bytes"
