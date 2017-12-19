@@ -1,4 +1,4 @@
-package egts
+package main
 
 import (
 	"./egts-protocol"
@@ -17,7 +17,7 @@ const (
 	StopCharacter = "\r\n\r\n"
 )
 
-func SocketClient(ip string, port int, pkgg egts_package.EgtsPkg) {
+func SocketClient(ip string, port int, pkgg egts_protocol.EgtsPkg) {
 	addr := strings.Join([]string{ip, strconv.Itoa(port)}, ":")
 	conn, err := net.Dial("tcp", addr)
 
@@ -165,24 +165,24 @@ func main() {
 		RCD: byte(0),
 	}
 
-	egtsServiceDataRecord := egts_protocol.ServiceDataRecord{
-		RL:   uint(136),
-		RN:   uint(35267),
-		RFL:  byte(0),
-		SSOD: 0,
-		RSOD: 0,
-		GRP:  0,
-		RPP:  0,
-		TMFE: 0,
-		EVFE: 0,
-		OBFE: 0,
-		OID:  0,
-		EVID: 0,
-		TM:   0,
-		SST:  1,
-		RST:  1,
-		RD:   []byte(""),
-	}
+	//egtsServiceDataRecord := egts_protocol.ServiceDataRecord{
+	//	RL:   uint(136),
+	//	RN:   uint(35267),
+	//	RFL:  byte(0),
+	//	SSOD: 0,
+	//	RSOD: 0,
+	//	GRP:  0,
+	//	RPP:  0,
+	//	TMFE: 0,
+	//	EVFE: 0,
+	//	OBFE: 0,
+	//	OID:  0,
+	//	EVID: 0,
+	//	TM:   0,
+	//	SST:  1,
+	//	RST:  1,
+	//	RD:   []byte(""),
+	//}
 
 	// 	Transport level --------------------
 	// Protocol Version = 1
@@ -201,14 +201,14 @@ func main() {
 	// b'01002010003b001c0e01c38800c3890000c38a30000000c2810746c2a20002021015005ac29cc39f0ec2b662c2b3c2b73834c2b83801c29600c3b600000000001015005ac29cc39f'
 
 	egtsAuthService := egts_protocol.EGTS_AUTH_SERVICE{
-		EGTS_SR_RECORD_RESPONSE: egtsSRServiceResponse,
-		EGTS_SR_TERM_IDENTITY:   egtsSRTermIdentity,
-		EGTS_SR_MODULE_DATA:     egtsSRModuleData,
-		EGTS_SR_VEHICLE_DATA:    egtsSRVehicleData,
-		EGTS_SR_AUTH_PARAMS:     egtsSRAuthParams,
-		EGTS_SR_AUTH_INFO:       egtsSRAuthInfo,
-		EGTS_SR_SERVICE_INFO:    egtsSRServiceInfo,
-		EGTS_SR_RESULT_CODE:     egtsSRResultCode,
+		EGTS_SR_RECORD_RESPONSE: []egts_protocol.EGTS_SR_RECORD_RESPONSE{egtsSRServiceResponse},
+		EGTS_SR_TERM_IDENTITY:   []egts_protocol.EGTS_SR_TERM_IDENTITY{egtsSRTermIdentity},
+		EGTS_SR_MODULE_DATA:     []egts_protocol.EGTS_SR_MODULE_DATA{egtsSRModuleData},
+		EGTS_SR_VEHICLE_DATA:    []egts_protocol.EGTS_SR_VEHICLE_DATA{egtsSRVehicleData},
+		EGTS_SR_AUTH_PARAMS:     []egts_protocol.EGTS_SR_AUTH_PARAMS{egtsSRAuthParams},
+		EGTS_SR_AUTH_INFO:       []egts_protocol.EGTS_SR_AUTH_INFO{egtsSRAuthInfo},
+		EGTS_SR_SERVICE_INFO:    []egts_protocol.EGTS_SR_SERVICE_INFO{egtsSRServiceInfo},
+		EGTS_SR_RESULT_CODE:     []egts_protocol.EGTS_SR_RESULT_CODE{egtsSRResultCode},
 	}
 
 	serviceDataSubrecord := egts_protocol.ServiceDataSubrecord{
