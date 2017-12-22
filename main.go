@@ -39,6 +39,20 @@ func SocketClient(ip string, port int, pkgg egts_protocol.EgtsPkg) {
 
 }
 
+// func (s *A) BinSeralise() byte {
+// 	var buffer bytes.Buffer
+// 	for i := 0; i < A.NumField(); i++ {
+// 		buffer.WriteString(field)
+// 		return buffer.Bytes()
+// 	}
+// }
+
+// func (b *B) BinSeralise() []byte {
+// 	// тут будет сериализация в байты основной структуры
+// 	biteFromBits := b.A.BinSeralise()
+// 	return []byte{biteFromBits, 1}
+// }
+
 func StructToBytes(data interface{}) []byte {
 	structType := reflect.ValueOf(data)
 	structKind := structType.Kind()
@@ -59,12 +73,17 @@ func StructToBytes(data interface{}) []byte {
 		case reflect.Struct:
 			binary.Write(bytes, binary.LittleEndian, StructToBytes(field.Interface()))
 		case reflect.Array, reflect.Slice:
-			binary.Write(bytes, binary.LittleEndian, field.Interface())
+			for _, item := range field.Value() {
+				binary.Write(bytes, binary.LittleEndian, StructToBytes(item.Interface()))
+			}
 		case reflect.Uint8:
 			binary.Write(bytes, binary.LittleEndian, uint8(field.Uint()))
 		case reflect.Uint16:
 			binary.Write(bytes, binary.LittleEndian, uint16(field.Uint()))
-
+		case reflect.Uint32:
+			binary.Write(bytes, binary.LittleEndian, uint32(field.Uint()))
+		case reflect.String:
+			binary.Write(bytes, binary.LittleEndian, string(field.Uint()))
 		}
 	}
 	fmt.Printf("%+x", bytes.Bytes())
@@ -165,25 +184,6 @@ func main() {
 		RCD: byte(0),
 	}
 
-	//egtsServiceDataRecord := egts_protocol.ServiceDataRecord{
-	//	RL:   uint(136),
-	//	RN:   uint(35267),
-	//	RFL:  byte(0),
-	//	SSOD: 0,
-	//	RSOD: 0,
-	//	GRP:  0,
-	//	RPP:  0,
-	//	TMFE: 0,
-	//	EVFE: 0,
-	//	OBFE: 0,
-	//	OID:  0,
-	//	EVID: 0,
-	//	TM:   0,
-	//	SST:  1,
-	//	RST:  1,
-	//	RD:   []byte(""),
-	//}
-
 	// 	Transport level --------------------
 	// Protocol Version = 1
 	// Security Key ID = 0
@@ -217,26 +217,39 @@ func main() {
 		SRD: StructToBytes(egtsAuthService),
 	}
 
+	egtsServiceDataRecord := egts_protocol.ServiceDataRecord{
+		RL:   uint(136),
+		RN:   uint(35267),
+		RFL:  byte(0),
+		SSOD: 1,
+		RSOD: 1,
+		GRP:  1,
+		RPP:  1,
+		TMFE: 0,
+		EVFE: 0,
+		OBFE: 0,
+		OID:  1,
+		EVID: 1,
+		TM:   0,
+		SST:  1,
+		RST:  1,
+		RD:   StructToBytes(serviceDataSubrecord),
+	}
 	pkgg := egts_protocol.EgtsPkg{
-		PRV:  byte(1),
-		SKID: byte(0),
-		// PRF:   strconv.ParseInt("00100000", 2, 8),
-		PRF:   uint8(0),
-		RTE:   uint8(0),
-		ENA:   uint8(0),
-		CMP:   uint8(0),
-		PR:    uint8(0),
-		HL:    byte(16),
+		PRV:   byte(1),
+		SKID:  byte(0),
+		PRF:   uint8(7),
+		HL:    byte(11),
 		HE:    byte(0),
 		FDL:   uint16(59),
 		PI:    uint16(3612),
-		PT:    byte(1),
-		PRA:   uint16(72),
-		RCA:   uint16(11),
-		TTL:   byte(0),
-		HCS:   byte(195),
-		SFRD:  StructToBytes(serviceDataSubrecord),
-		SFRCS: uint16(64431),
+		PT:    byte(0),
+		PRA:   uint16(1),
+		RCA:   uint16(1),
+		TTL:   byte(1),
+		HCS:   byte(0),
+		SFRD:  StructToBytes(egtsServiceDataRecord),
+		SFRCS: uint16(0),
 	}
 
 	SocketClient(ip, port, pkgg)
