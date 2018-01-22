@@ -1,4 +1,4 @@
-package egts_protocol
+package main
 
 // type ServiceDataRecord []byte
 type ServiceDataRecord struct {

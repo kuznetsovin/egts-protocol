@@ -1,4 +1,4 @@
-package egts_protocol
+package main
 
 type EGTS_SR_TERM_IDENTITY struct {
 	// Подзапись используется АТ при запросе авторизации на ТП и содержит

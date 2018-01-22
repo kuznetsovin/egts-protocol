@@ -1,4 +1,4 @@
-package egts_protocol
+package main
 
 type EGTS_SR_COMMAND_DATA struct {
 	// Подзапись используется АТ и ТП для передачи команд, информационных

@@ -1,4 +1,4 @@
-package egts_protocol
+package main
 
 type EGTS_SR_SERVICE_PART_DATA_ODH struct {
 	// Формат заголовка передаваемой сущности подзаписи

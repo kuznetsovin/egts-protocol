@@ -1,4 +1,4 @@
-package egts_protocol
+package main
 
 //успешно обработано
 const EGTS_PC_OK = 0
