@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"fmt"
 )
 
 type EgtsPkgHeader struct {
@@ -85,8 +86,7 @@ type EgtsPkgHeader struct {
 
 // метод преобразования структуры в строку байт
 func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
-	//result := []byte{h.PRV, h.SKID}
-	result := make([]byte, 10)
+	result := []byte{}
 
 	buf := new(bytes.Buffer)
 	if err := binary.Write(buf, binary.LittleEndian, h.PRV); err != nil {
@@ -98,7 +98,15 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 	}
 
 	//составной байт
-	// PRF RTE ENA CMP PR
+	flagsByte := fmt.Sprintf("%02b%01b%02b%01b%02b", h.PRF, h.RTE, h.ENA, h.CMP, h.PR)
+	flagByte, err := bitsToByte(flagsByte)
+	if err != nil {
+		return result, err
+	}
+
+	if err := binary.Write(buf, binary.LittleEndian, flagByte); err != nil {
+		return result, err
+	}
 
 	if err := binary.Write(buf, binary.LittleEndian, h.HL); err != nil {
 		return result, err
