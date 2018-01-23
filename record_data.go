@@ -43,15 +43,15 @@ func (rd *RecordData) ToBytes() ([]byte, error) {
 
 type EGTS_SR_POS_DATA struct {
 	//время навигации (количество секунд с 00:00:00 01.01.2010 UTC);
-	NTM uint32
+	NavigationTime uint32
 
 	// широта по модулю, градусы/90*0xFFFFFFFF  и взята целая часть;
-	LAT uint32
+	Latitude uint32
 
 	// долгота по модулю, градусы/180*0xFFFFFFFF  и взята целая часть;
-	LONG uint32
+	Longitude uint32
 
-	// битовый флаг определяет наличие поля ALT в подзаписи: 1 - поле ALT передается; 0 - не передается;
+	// битовый флаг определяет наличие поля Altitude в подзаписи: 1 - поле Altitude передается; 0 - не передается;
 	ALTE uint8
 
 	// битовый флаг определяет полушарие долготы: 0 - восточная долгота; 1 - западная долгота;
@@ -78,52 +78,52 @@ type EGTS_SR_POS_DATA struct {
 	// битовый флаг, признак "валидности" координатных данных: 1 - данные "валидны"; 0 - "невалидные" данные;
 	VLD uint8
 
-	// старший бит (8) параметра DIR;
-	DIRH uint8
+	// старший бит (8) параметра Direction;
+	DirectionHighestBit uint8
 
 	// битовый флаг, определяет высоту относительно уровня моря и имеет  смысл только при установленном флаге ALTE:
 	// 0 - точка выше уровня моря;
 	// 1 - ниже уровня моря;
-	ALTS uint8
+	AltitudeSign uint8
 
 	// скорость в км/ч с дискретностью 0,1 км/ч;
-	SPD uint16
+	Speed uint16
 
 	// направление движения.
-	DIR byte
+	Direction byte
 
 	// пройденное расстояние (пробег) в км, с дискретностью 0,1 км;
-	ODM []byte
+	Odometer []byte
 
 	// битовые флаги, определяют состояние основных дискретных входов 1 .. 8 (если бит равен 1, то соответствующий
 	// вход активен, если 0, то неактивен). Данное поле включено для удобства использования и экономии трафика при
 	// работе в системах мониторинга транспорта базового уровня;
-	DIN byte
+	DigitalInputs byte
 
 	// определяет источник (событие), инициировавший посылку данной навигационной информации
-	SRC byte
+	Source byte
 
 	// высота над уровнем моря, м (опциональный параметр, наличие которого определяется битовым флагом ALTE);
-	ALT [3]byte
+	Altitude []byte
 
-	// данные, характеризующие источник (событие) из поля SRC. Наличие и интерпретация значения данного поля
-	// определяется полем SRC.
-	SRCD int16
+	// данные, характеризующие источник (событие) из поля Source. Наличие и интерпретация значения данного поля
+	// определяется полем Source.
+	SourceData int16
 }
 
 func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 	result := []byte{}
 
 	buf := new(bytes.Buffer)
-	if err := binary.Write(buf, binary.LittleEndian, rd.NTM); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, rd.NavigationTime); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, rd.LAT); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, rd.Latitude); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, rd.LONG); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, rd.Longitude); err != nil {
 		return result, err
 	}
 
@@ -138,24 +138,25 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 	buf.WriteByte(flagByte)
 
 	// скорость
-	bitSPD := strings.Replace(fmt.Sprintf("%b%b%14b", rd.DIRH, rd.ALTS, rd.SPD), " ", "0", -1)
+	bitSPD := strings.Replace(fmt.Sprintf("%b%b%14b", rd.DirectionHighestBit,
+		rd.AltitudeSign, rd.Speed), " ", "0", -1)
 	spd, err := bitsToBytes(bitSPD, 2)
 	if err != nil {
 		return result, err
 	}
 	buf.Write(spd)
 
-	if err := binary.Write(buf, binary.LittleEndian, rd.DIR); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, rd.Direction); err != nil {
 		return result, err
 	}
 
-	buf.Write(rd.ODM)
+	buf.Write(rd.Odometer)
 
-	if err := binary.Write(buf, binary.LittleEndian, rd.DIN); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, rd.DigitalInputs); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, rd.SRC); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, rd.Source); err != nil {
 		return result, err
 	}
 

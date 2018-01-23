@@ -13,30 +13,30 @@ type BinaryData interface {
 type EgtsPkgHeader struct {
 	//Параметр определяет версию используемой структуры заголовка и должен содержать значение 0x01.
 	//Значение данного параметра инкрементируется каждый раз при внесении изменений в структуру заголовка.
-	PRV byte
+	ProtocolVersion byte
 
 	//Параметр определяет идентификатор ключа, используемый при шифровании.
-	SKID byte
+	SecurityKeyID byte
 
 	// Данный параметр определяет префикс заголовка Транспортного Уровня и для данной версии
 	// должен содержать значение 00.
 	PRF uint8
 
 	// Битовое поле определяет необходимость дальнейшей маршрутизации данного пакета на удалённую телематическую
-	// платформу, а также наличие опциональных параметров PRA, RCA, TTL, необходимых для маршрутизации данного пакета.
-	// Если поле имеет значение 1, то необходима маршрутизация, и поля PRA, RCA, TTL присутствуют в пакете.
+	// платформу, а также наличие опциональных параметров PeerAddress, RecipientAddress, TimeToLive, необходимых для маршрутизации данного пакета.
+	// Если поле имеет значение 1, то необходима маршрутизация, и поля PeerAddress, RecipientAddress, TimeToLive присутствуют в пакете.
 	// Данное поле устанавливает Диспетчер той ТП, на которой сгенерирован пакет, или АТ,
 	// сгенерировавший пакет для отправки на ТП, в случае установки в нём параметра «HOME_DISPATCHER_ID»,
 	// определяющего адрес ТП, на которой данный АТ зарегистрирован.
 	RTE uint8
 
-	// // Битовое поле определяет код алгоритма, используемый для шифрования данных из поля SFRD.
-	// // Если поле имеет значение 0 0 , то данные в поле SFRD не шифруются.
+	// // Битовое поле определяет код алгоритма, используемый для шифрования данных из поля ServicesFrameData.
+	// // Если поле имеет значение 0 0 , то данные в поле ServicesFrameData не шифруются.
 	// // Состав и коды алгоритмов не определены в данной версии Протокола
 	ENA uint8
 
-	// // Битовое поле определяет, используется ли сжатие данных из поля SFRD. Если поле имеет значение 1,
-	// // то данные в поле SFRD считаются сжатыми. Алгоритм сжатия не определен в данной версии Протокола.
+	// // Битовое поле определяет, используется ли сжатие данных из поля ServicesFrameData. Если поле имеет значение 1,
+	// // то данные в поле ServicesFrameData считаются сжатыми. Алгоритм сжатия не определен в данной версии Протокола.
 	CMP uint8
 
 	// // Битовое поле определяет приоритет маршрутизации данного пакета и может принимать следующие значения:
@@ -51,41 +51,41 @@ type EgtsPkgHeader struct {
 	// // информации при наступлении критически важных событий.
 	PR uint8
 
-	// Длина заголовка Транспортного Уровня в байтах с учётом байта контрольной суммы (поля HCS).
-	HL byte
+	// Длина заголовка Транспортного Уровня в байтах с учётом байта контрольной суммы (поля HeaderCheckSum).
+	HeaderLength byte
 
 	// Определяет применяемый метод кодирования следующей за данным параметром части заголовка Транспортного Уровня.
-	HE byte
+	HeaderEncoding byte
 
-	// Определяет размер в байтах поля данных SFRD, содержащего информацию Протокола Уровня Поддержки Услуг.
-	FDL uint16
+	// Определяет размер в байтах поля данных ServicesFrameData, содержащего информацию Протокола Уровня Поддержки Услуг.
+	FrameDataLength uint16
 
 	// Содержит номер пакета Транспортного Уровня, увеличивающийся на 1 при отправке каждого нового
 	// пакета на стороне отправителя. Значения в данном поле изменяются по правилам циклического счётчика в
 	// диапазоне от 0 до 65535, т.е. при достижении значения 65535, следующее значение должно быть 0.
-	PID uint16
+	PacketIdentifier uint16
 
-	// Тип пакета Транспортного Уровня. Поле PT может принимать следующие значения:
+	// Тип пакета Транспортного Уровня. Поле PacketType может принимать следующие значения:
 	// 0 – EGTS_PT_RESPONSE (подтверждение на пакет Транспортного Уровня);
 	// 1 – EGTS_PT_APPDATA (пакет, содержащий данные Протокола Уровня Поддержки Услуг);
 	// 2 – EGTS_PT_SIGNED_APPDATA (пакет, содержащий данные Протокола Уровня Поддержки Услуг с цифровой подписью);
-	PT byte
+	PacketType byte
 
 	// Адрес ТП, на которой данный пакет сгенерирован. Данный адрес является уникальным в рамках связной сети и
 	// используется для создания пакета-подтверждения на принимающей стороне.
-	PRA uint16
+	PeerAddress uint16
 
 	// Адрес ТП, для которой данный пакет предназначен. По данному адресу производится идентификация
 	// принадлежности пакета определённой ТП и его маршрутизация при использовании промежуточных ТП.
-	RCA uint16
+	RecipientAddress uint16
 
 	// Время жизни пакета при его маршрутизации между ТП.
-	TTL byte
+	TimeToLive byte
 
-	// Контрольная сумма заголовка Транспортного Уровня (начиная с поля «PRV» до поля «HCS», не включая последнего).
-	// Для подсчёта значения поля HCS ко всем байтам указанной последовательности применяется алгоритм CRC-8.
+	// Контрольная сумма заголовка Транспортного Уровня (начиная с поля «ProtocolVersion» до поля «HeaderCheckSum», не включая последнего).
+	// Для подсчёта значения поля HeaderCheckSum ко всем байтам указанной последовательности применяется алгоритм CRC-8.
 	// Пример программного кода расчета CRC-8 приведен в Приложении 3.
-	HCS byte
+	HeaderCheckSum byte
 }
 
 // метод преобразования структуры в строку байт
@@ -93,11 +93,11 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 	result := []byte{}
 
 	buf := new(bytes.Buffer)
-	if err := binary.Write(buf, binary.LittleEndian, h.PRV); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.ProtocolVersion); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.SKID); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.SecurityKeyID); err != nil {
 		return result, err
 	}
 
@@ -109,35 +109,35 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 	}
 	buf.WriteByte(flagByte)
 
-	if err := binary.Write(buf, binary.LittleEndian, h.HL); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.HeaderLength); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.HE); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.HeaderEncoding); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.FDL); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.FrameDataLength); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.PID); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.PacketIdentifier); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.PT); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.PacketType); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.PRA); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.PeerAddress); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.RCA); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.RecipientAddress); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.TTL); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.TimeToLive); err != nil {
 		return result, err
 	}
 
@@ -145,7 +145,7 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.HCS); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, h.HeaderCheckSum); err != nil {
 		return result, err
 	}
 
@@ -155,7 +155,7 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 
 func (h *EgtsPkgHeader) CalcCRC8() error {
 	// ЭТО ЗАГЛУШКА ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ АЛГОРИТМ!!!!!
-	h.HCS = 202
+	h.HeaderCheckSum = 202
 
 	return nil
 }
@@ -165,13 +165,13 @@ type EgtsPkg struct {
 
 	// Структура данных, зависящая от типа Пакета и содержащая информацию Протокола Уровня Поддержки Услуг.
 	// Формат структуры данных в зависимости от типа Пакета описан в п.8.2.
-	SFRD BinaryData
+	ServicesFrameData BinaryData
 
-	// Контрольная сумма поля уровня Протокола Поддержки Услуг. Для подсчёта контрольной суммы по данным из поля SFRD,
-	// используется алгоритм CRC-16. Данное поле присутствует только в том случае, если есть поле SFRD.
+	// Контрольная сумма поля уровня Протокола Поддержки Услуг. Для подсчёта контрольной суммы по данным из поля ServicesFrameData,
+	// используется алгоритм CRC-16. Данное поле присутствует только в том случае, если есть поле ServicesFrameData.
 	// Пример программного кода расчета CRC-16 приведен в Приложении 2.
 	// Блок схема алгоритма разбора пакета Протокола Транспортного Уровня при приеме представлена на рисунке 3.
-	SFRCS uint16
+	ServicesFrameDataCheckSum uint16
 }
 
 func (p *EgtsPkg) ToBytes() ([]byte, error) {
@@ -184,7 +184,7 @@ func (p *EgtsPkg) ToBytes() ([]byte, error) {
 	}
 	buf.Write(hdr)
 
-	sfrd, err := p.SFRD.ToBytes()
+	sfrd, err := p.ServicesFrameData.ToBytes()
 	if err != nil {
 		return result, err
 	}
@@ -194,7 +194,7 @@ func (p *EgtsPkg) ToBytes() ([]byte, error) {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, p.SFRCS); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, p.ServicesFrameDataCheckSum); err != nil {
 		return result, err
 	}
 
@@ -204,7 +204,7 @@ func (p *EgtsPkg) ToBytes() ([]byte, error) {
 
 func (p *EgtsPkg) CalcCRC16() error {
 	// ЭТО ЗАГЛУШКА ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ АЛГОРИТМ!!!!!
-	p.SFRCS = 10282
+	p.ServicesFrameDataCheckSum = 10282
 
 	return nil
 }
