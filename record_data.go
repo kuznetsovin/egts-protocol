@@ -4,9 +4,42 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
-	//"strconv"
 	"strings"
 )
+
+type RecordData struct {
+	// тип подзаписи
+	SubrecordType byte
+
+	// длина подзаписи в поле SubrecordData
+	SubrecordLength uint16
+
+	// данные позаписи
+	SubrecordData BinaryData
+}
+
+func (rd *RecordData) ToBytes() ([]byte, error) {
+	var result []byte
+
+	buf := new(bytes.Buffer)
+	if err := binary.Write(buf, binary.LittleEndian, rd.SubrecordType); err != nil {
+		return result, err
+	}
+
+	if err := binary.Write(buf, binary.LittleEndian, rd.SubrecordLength); err != nil {
+		return result, err
+	}
+
+	srd, err := rd.SubrecordData.ToBytes()
+	if err != nil {
+		return result, err
+	}
+
+	buf.Write(srd)
+
+	result = buf.Bytes()
+	return result, nil
+}
 
 type EGTS_SR_POS_DATA struct {
 	//время навигации (количество секунд с 00:00:00 01.01.2010 UTC);
@@ -102,15 +135,11 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 	if err != nil {
 		return result, err
 	}
-
-	if err := binary.Write(buf, binary.LittleEndian, flagByte); err != nil {
-		return result, err
-	}
+	buf.WriteByte(flagByte)
 
 	// скорость
 	bitSPD := strings.Replace(fmt.Sprintf("%b%b%14b", rd.DIRH, rd.ALTS, rd.SPD), " ", "0", -1)
 	spd, err := bitsToBytes(bitSPD, 2)
-	fmt.Println(spd)
 	if err != nil {
 		return result, err
 	}

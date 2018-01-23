@@ -6,6 +6,10 @@ import (
 	"fmt"
 )
 
+type BinaryData interface {
+	ToBytes() ([]byte, error)
+}
+
 type EgtsPkgHeader struct {
 	//Параметр определяет версию используемой структуры заголовка и должен содержать значение 0x01.
 	//Значение данного параметра инкрементируется каждый раз при внесении изменений в структуру заголовка.
@@ -103,10 +107,7 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 	if err != nil {
 		return result, err
 	}
-
-	if err := binary.Write(buf, binary.LittleEndian, flagByte); err != nil {
-		return result, err
-	}
+	buf.WriteByte(flagByte)
 
 	if err := binary.Write(buf, binary.LittleEndian, h.HL); err != nil {
 		return result, err
@@ -164,11 +165,46 @@ type EgtsPkg struct {
 
 	// Структура данных, зависящая от типа Пакета и содержащая информацию Протокола Уровня Поддержки Услуг.
 	// Формат структуры данных в зависимости от типа Пакета описан в п.8.2.
-	SFRD []byte
+	SFRD BinaryData
 
 	// Контрольная сумма поля уровня Протокола Поддержки Услуг. Для подсчёта контрольной суммы по данным из поля SFRD,
 	// используется алгоритм CRC-16. Данное поле присутствует только в том случае, если есть поле SFRD.
 	// Пример программного кода расчета CRC-16 приведен в Приложении 2.
 	// Блок схема алгоритма разбора пакета Протокола Транспортного Уровня при приеме представлена на рисунке 3.
 	SFRCS uint16
+}
+
+func (p *EgtsPkg) ToBytes() ([]byte, error) {
+	var result []byte
+	buf := new(bytes.Buffer)
+
+	hdr, err := p.EgtsPkgHeader.ToBytes()
+	if err != nil {
+		return result, err
+	}
+	buf.Write(hdr)
+
+	sfrd, err := p.SFRD.ToBytes()
+	if err != nil {
+		return result, err
+	}
+	buf.Write(sfrd)
+
+	if err := p.CalcCRC16(); err != nil {
+		return result, err
+	}
+
+	if err := binary.Write(buf, binary.LittleEndian, p.SFRCS); err != nil {
+		return result, err
+	}
+
+	result = buf.Bytes()
+	return result, nil
+}
+
+func (p *EgtsPkg) CalcCRC16() error {
+	// ЭТО ЗАГЛУШКА ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ АЛГОРИТМ!!!!!
+	p.SFRCS = 10282
+
+	return nil
 }

@@ -1,65 +1,56 @@
 package main
 
-// type ServiceDataRecord []byte
+import (
+	"bytes"
+	"encoding/binary"
+	"fmt"
+)
+
 type ServiceDataRecord struct {
 	// Параметр определяет размер данных из поля RD (Record Data)
-	// RecordLength, USHORT, 2
-	RL uint
+	RecordLength uint16
 
 	// Номер записи. Значения в данном поле изменяются по правилам циклического
 	// счётчика в диапазоне от 0 до 65535, т.е. при достижении значения 65535,
 	// следующее значение должно быть 0. Значение из данного поля используется
 	// для подтверждения записи
-	// Record Number, USHORT, 2
-	RN uint
-
-	// Cодержит битовые флаги, определяющие наличие в данном пакете полей
-	// OID, EVID и TM, характеризующих содержащиеся в записи данные
-	// Record Flags, BYTE, 1
-	RFL byte
+	RecordNumber uint16
 
 	// Битовый флаг, определяющий расположение Сервиса-отправителя
 	// 1 = Сервис-отправитель расположен на стороне АТ
 	// 0 = Сервис- отправитель расположен на ТП
-	// Source Service On Device, BYTE, 1
-	SSOD byte
+	SourceServiceOnDevice byte
 
 	// Битовый флаг, определяющий расположение Сервиса-получателя
 	// 1 = Сервис-получатель расположен на стороне АТ
 	// 0 = Сервис-получатель расположен на ТП
-	// Recipient Service On Device, BYTE, 1
-	RSOD byte
+	RecipientServiceOnDevice byte
 
 	// Битовый флаг, определяющий принадлежность передаваемых данных определённой группе, идентификатор которой указан в поле OID
 	// 1 = данные предназначены для группы
 	// 0 = принадлежность группе отсутствует
-	// Group, BYTE, 1
-	GRP byte
+	Group byte
 
 	// Битовое поле, определяющее приоритет обработки данной записи Сервисом
 	// 00 – наивысший 01 – высокий
 	// 10 – средний
 	// 11 – низкий
-	// Record Processing Priority, BYTE, 1
-	RPP byte
+	RecordProcessingPriority byte
 
 	// Битовое поле, определяющее наличие в данном пакете поля TM
 	// 0 = поле TM отсутствует
 	// 1 = поле TM присутствует
-	// Time Field Exists, BYTE, 1
-	TMFE byte
+	TimeFieldExists byte
 
 	// Битовое поле, определяющее наличие в данном пакете поля EVID
 	// 1 = поле EVID присутствует
 	// 0 = поле EVID отсутствует
-	// Event ID Field Exists, BYTE, 1
-	EVFE byte
+	EventIDFieldExists byte
 
 	// Битовое поле, определяющее наличие в данном пакете поля OID
 	// 1 = поле OID присутствует
 	// 0 = поле OID отсутствует
-	// Object ID Field Exists, BYTE, 1
-	OBFE byte
+	ObjectIDFieldExists byte
 
 	// Идентификатор объекта, сгенерировавшего данную запись,
 	// или для которого данная запись предназначена (уникальный идентификатор АТ),
@@ -68,8 +59,7 @@ type ServiceDataRecord struct {
 	// для разных сервисов, но от одного и того же объекта,
 	// поле OID может присутствовать только в первой записи,
 	// а в последующих записях может быть опущено.
-	// Object Identifier, UINT, 4
-	OID int
+	ObjectIdentifier uint32
 
 	// Уникальный идентификатор события. Поле EVID задаёт некий глобальный
 	// идентификатор события и применяется, когда необходимо логически связать
@@ -81,54 +71,96 @@ type ServiceDataRecord struct {
 	// серия фотоснимков, поле EVID должно указываться в каждой сервисной записи,
 	// связанной с этим событием на протяжении передачи всех сущностей, связанных
 	// с данным событием, как бы долго не длилась передача всего пула информации.
-	// Event Identifier, UINT, 4
-	EVID int
+	EventIdentifier uint32
 
 	// Время формирования записи на стороне Отправителя (секунды с 00:00:00 01.01.2010 UTC).
 	// Если в одном Пакете Транспортного Уровня передаются несколько записей,
 	// относящихся к одному объекту и моменту времени, то поле метки времени
 	// TM может передаваться только в составе первой записи.
-	// Time, UINT, 4
-	TM int
+	Time uint32
 
 	// Идентификатор тип Сервиса-отправителя, сгенерировавшего данную запись.
 	// Например, Сервис, обрабатывающий навигационные данные на стороне АТ,
 	// Сервис команд на стороне ТП и т.д.
-	// Source Service Type, BYTE, 1
-	SST byte
+	SourceServiceType byte
 
 	// Идентификатор тип Сервиса-получателя данной записи.
 	// Например, Сервис, обрабатывающий навигационные данные на стороне ТП,
 	// Сервис обработки команд на стороне АТ и т.д.
-	// Recipient Service Type, BYTE, 1
-	RST byte
+	RecipientServiceType byte
 
 	// Поле, содержащее информацию, присущую определённому типу
 	// Сервиса (одну или несколько подзаписей Сервиса типа,
 	// указанного в поле SST или RST, в зависимости от вида
 	// передаваемой информации).
-	// Record Data, Binary, 3...65498
-	RD []byte
+	RecordData []RecordData
 }
 
-type ServiceDataSubrecord struct {
-	// Тип подзаписи (подтип передаваемых данных в рамках общего набора типов
-	// одного Сервиса). Тип 0 – специальный, зарезервирован за подзаписью
-	// подтверждения данных для каждого сервиса. Конкретные значения номеров т
-	// ипов подзаписей определяются логикой самого Сервиса. Протокол оговаривает
-	// лишь то, что этот номер должен присутствовать, а нулевой
-	// идентификатор зарезервирован.
-	// Subrecord Type, BYTE, 1
-	SRT byte
+func (sdr *ServiceDataRecord) ToBytes() ([]byte, error) {
+	var result []byte
+	buf := new(bytes.Buffer)
 
-	// Длина данных в байтах подзаписи в поле SRD
-	// Subrecord Length, USHORT, 2
-	SRL int
+	if err := binary.Write(buf, binary.LittleEndian, sdr.RecordLength); err != nil {
+		return result, err
+	}
 
-	// Данные подзаписи. Наполнение данного поля специфично для каждого
-	// сочетания идентификатора Сервиса и типа подзаписи
-	// Subrecord Data, BINARY, 0...65945
-	SRD []byte
+	if err := binary.Write(buf, binary.LittleEndian, sdr.RecordNumber); err != nil {
+		return result, err
+	}
+
+	//составной байт
+	flagsByte := fmt.Sprintf(
+		"%b%b%b%02b%b%b%b",
+		sdr.SourceServiceOnDevice,
+		sdr.RecipientServiceOnDevice,
+		sdr.Group,
+		sdr.RecordProcessingPriority,
+		sdr.TimeFieldExists,
+		sdr.EventIDFieldExists,
+		sdr.ObjectIDFieldExists,
+	)
+	flagByte, err := bitsToByte(flagsByte)
+	if err != nil {
+		return result, err
+	}
+	buf.WriteByte(flagByte)
+
+	if sdr.ObjectIDFieldExists == 1 {
+		if err := binary.Write(buf, binary.LittleEndian, sdr.ObjectIdentifier); err != nil {
+			return result, err
+		}
+	}
+
+	if sdr.EventIDFieldExists == 1 {
+		if err := binary.Write(buf, binary.LittleEndian, sdr.EventIDFieldExists); err != nil {
+			return result, err
+		}
+	}
+
+	if sdr.TimeFieldExists == 1 {
+		if err := binary.Write(buf, binary.LittleEndian, sdr.Time); err != nil {
+			return result, err
+		}
+	}
+
+	if err := binary.Write(buf, binary.LittleEndian, sdr.SourceServiceType); err != nil {
+		return result, err
+	}
+
+	if err := binary.Write(buf, binary.LittleEndian, sdr.RecipientServiceType); err != nil {
+		return result, err
+	}
+
+	for _, rd := range sdr.RecordData {
+		rec, err := rd.ToBytes()
+		if err != nil {
+			return result, err
+		}
+		buf.Write(rec)
+	}
+
+	result = buf.Bytes()
+	return result, nil
 }
 
 type EGTS_PT_APPDATA struct {
@@ -137,7 +169,24 @@ type EGTS_PT_APPDATA struct {
 	// идущих одна за другой. Описание внутреннего состава структур представлено в
 	// документе “Терминал ЭРА ГЛОНАСС, Протокол Обмена Данными, Уровень Поддержки Услуг” и
 	// перечне спецификаций на отдельные сервисы.
-	SDR []ServiceDataRecord
+	ServiceDataRecord []ServiceDataRecord
+}
+
+func (ad *EGTS_PT_APPDATA) ToBytes() ([]byte, error) {
+	var result []byte
+
+	buf := new(bytes.Buffer)
+
+	for _, sdr := range ad.ServiceDataRecord {
+		rec, err := sdr.ToBytes()
+		if err != nil {
+			return result, err
+		}
+		buf.Write(rec)
+	}
+
+	result = buf.Bytes()
+	return result, nil
 }
 
 type EGTS_PT_RESPONSE struct {
