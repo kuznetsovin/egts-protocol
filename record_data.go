@@ -109,21 +109,12 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 
 	// скорость
 	bitSPD := strings.Replace(fmt.Sprintf("%b%b%14b", rd.DIRH, rd.ALTS, rd.SPD), " ", "0", -1)
-	//spd, err := strconv.ParseUint(bitSPD, 2, 16)
-	spd, err := bitsToByte(bitSPD)
+	spd, err := bitsToBytes(bitSPD, 2)
 	fmt.Println(spd)
 	if err != nil {
 		return result, err
 	}
-
-	if err := binary.Write(buf, binary.LittleEndian, spd); err != nil {
-		return result, err
-	}
-
-	//if spd < 255 {
-	//	// если скорость занимает один байт, надо выровнить до 2-х по спецификации
-	//	buf.WriteByte(0)
-	//}
+	buf.Write(spd)
 
 	if err := binary.Write(buf, binary.LittleEndian, rd.DIR); err != nil {
 		return result, err
