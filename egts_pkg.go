@@ -84,7 +84,6 @@ type EgtsPkgHeader struct {
 
 	// Контрольная сумма заголовка Транспортного Уровня (начиная с поля «ProtocolVersion» до поля «HeaderCheckSum», не включая последнего).
 	// Для подсчёта значения поля HeaderCheckSum ко всем байтам указанной последовательности применяется алгоритм CRC-8.
-	// Пример программного кода расчета CRC-8 приведен в Приложении 3.
 	HeaderCheckSum byte
 }
 
@@ -129,35 +128,26 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.PeerAddress); err != nil {
-		return result, err
+	if h.RTE == 1 {
+		if err := binary.Write(buf, binary.LittleEndian, h.PeerAddress); err != nil {
+			return result, err
+		}
+
+		if err := binary.Write(buf, binary.LittleEndian, h.RecipientAddress); err != nil {
+			return result, err
+		}
+
+		if err := binary.Write(buf, binary.LittleEndian, h.TimeToLive); err != nil {
+			return result, err
+		}
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, h.RecipientAddress); err != nil {
-		return result, err
-	}
-
-	if err := binary.Write(buf, binary.LittleEndian, h.TimeToLive); err != nil {
-		return result, err
-	}
-
-	if err := h.CalcCRC8(); err != nil {
-		return result, err
-	}
-
-	if err := binary.Write(buf, binary.LittleEndian, h.HeaderCheckSum); err != nil {
+	if err := binary.Write(buf, binary.LittleEndian, crc8(buf.Bytes())); err != nil {
 		return result, err
 	}
 
 	result = buf.Bytes()
 	return result, nil
-}
-
-func (h *EgtsPkgHeader) CalcCRC8() error {
-	// ЭТО ЗАГЛУШКА ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ АЛГОРИТМ!!!!!
-	h.HeaderCheckSum = 202
-
-	return nil
 }
 
 type EgtsPkg struct {
@@ -188,23 +178,15 @@ func (p *EgtsPkg) ToBytes() ([]byte, error) {
 	if err != nil {
 		return result, err
 	}
-	buf.Write(sfrd)
 
-	if err := p.CalcCRC16(); err != nil {
-		return result, err
-	}
+	if len(sfrd) > 0 {
+		buf.Write(sfrd)
 
-	if err := binary.Write(buf, binary.LittleEndian, p.ServicesFrameDataCheckSum); err != nil {
-		return result, err
+		if err := binary.Write(buf, binary.LittleEndian, crc16(sfrd)); err != nil {
+			return result, err
+		}
 	}
 
 	result = buf.Bytes()
 	return result, nil
-}
-
-func (p *EgtsPkg) CalcCRC16() error {
-	// ЭТО ЗАГЛУШКА ЗАМЕНИТЬ НА НОРМАЛЬНЫЙ АЛГОРИТМ!!!!!
-	p.ServicesFrameDataCheckSum = 10282
-
-	return nil
 }
