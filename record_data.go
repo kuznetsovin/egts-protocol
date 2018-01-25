@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"strings"
+	"time"
 )
 
 type RecordData struct {
@@ -43,13 +44,13 @@ func (rd *RecordData) ToBytes() ([]byte, error) {
 
 type EGTS_SR_POS_DATA struct {
 	//время навигации (количество секунд с 00:00:00 01.01.2010 UTC);
-	NavigationTime uint32
+	NavigationTime time.Time
 
-	// широта по модулю, градусы/90*0xFFFFFFFF  и взята целая часть;
-	Latitude uint32
+	// Значение широты в градусах WGS84
+	Latitude float64
 
-	// долгота по модулю, градусы/180*0xFFFFFFFF  и взята целая часть;
-	Longitude uint32
+	// Значение долготы в градусах WGS84
+	Longitude float64
 
 	// битовый флаг определяет наличие поля Altitude в подзаписи: 1 - поле Altitude передается; 0 - не передается;
 	ALTE uint8
@@ -115,15 +116,19 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 	result := []byte{}
 
 	buf := new(bytes.Buffer)
-	if err := binary.Write(buf, binary.LittleEndian, rd.NavigationTime); err != nil {
+	// Преобразуем время навигации к формату, который требует стандарт: количество секунд с 00:00:00 01.01.2010 UTC
+	startDate := time.Date(2010, time.January, 0, 0, 0, 0, 0, time.UTC)
+	if err := binary.Write(buf, binary.LittleEndian, uint32(rd.NavigationTime.Sub(startDate).Seconds())); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, rd.Latitude); err != nil {
+	// В протоколе значение хранится в виде: широта по модулю, градусы/90*0xFFFFFFFF  и взята целая часть
+	if err := binary.Write(buf, binary.LittleEndian, uint32(rd.Latitude/90*0xFFFFFFFF)); err != nil {
 		return result, err
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, rd.Longitude); err != nil {
+	// В протоколе значение хранится в виде: долгота по модулю, градусы/180*0xFFFFFFFF  и взята целая часть
+	if err := binary.Write(buf, binary.LittleEndian, uint32(rd.Longitude/180*0xFFFFFFFF)); err != nil {
 		return result, err
 	}
 

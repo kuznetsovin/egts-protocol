@@ -246,3 +246,4 @@ func (ad *EGTS_PT_APPDATA) Length() uint16 {
 	}
 	return result
 }
+

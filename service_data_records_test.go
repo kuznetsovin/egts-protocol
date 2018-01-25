@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"testing"
+	"time"
 )
 
 func TestServiceDataRecord_ToBytes(t *testing.T) {
@@ -11,9 +12,9 @@ func TestServiceDataRecord_ToBytes(t *testing.T) {
 			16,
 			21,
 			&EGTS_SR_POS_DATA{
-				NavigationTime:      249535578,
-				Latitude:            3081986742,
-				Longitude:           951596088,
+				NavigationTime:      time.Date(2017, time.November, 27, 3, 26, 18, 0, time.UTC),
+				Latitude:            64.58228613356647,
+				Longitude:           39.880931349443486,
 				ALTE:                0,
 				LOHS:                0,
 				LAHS:                0,
@@ -35,9 +36,9 @@ func TestServiceDataRecord_ToBytes(t *testing.T) {
 			16,
 			21,
 			&EGTS_SR_POS_DATA{
-				NavigationTime:      249535578,
-				Latitude:            3081986742,
-				Longitude:           951596088,
+				NavigationTime:      time.Date(2017, time.November, 27, 3, 26, 18, 0, time.UTC),
+				Latitude:            64.58228613356647,
+				Longitude:           39.880931349443486,
 				ALTE:                0,
 				LOHS:                0,
 				LAHS:                0,
@@ -109,9 +110,9 @@ func TestEGTS_PT_APPDATA_ToBytes(t *testing.T) {
 						16,
 						21,
 						&EGTS_SR_POS_DATA{
-							NavigationTime:      249535578,
-							Latitude:            3081986742,
-							Longitude:           951596088,
+							NavigationTime:      time.Date(2017, time.November, 27, 3, 26, 18, 0, time.UTC),
+							Latitude:            64.58228613356647,
+							Longitude:           39.880931349443486,
 							ALTE:                0,
 							LOHS:                0,
 							LAHS:                0,
@@ -133,9 +134,9 @@ func TestEGTS_PT_APPDATA_ToBytes(t *testing.T) {
 						16,
 						21,
 						&EGTS_SR_POS_DATA{
-							NavigationTime:      249535578,
-							Latitude:            3081986742,
-							Longitude:           951596088,
+							NavigationTime:      time.Date(2017, time.November, 27, 3, 26, 18, 0, time.UTC),
+							Latitude:            64.58228613356647,
+							Longitude:           39.880931349443486,
 							ALTE:                0,
 							LOHS:                0,
 							LAHS:                0,
