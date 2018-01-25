@@ -42,29 +42,30 @@ func TestEGTS_SR_POS_DATA_ToBytes(t *testing.T) {
 }
 
 func TestRecordData_ToBytes(t *testing.T) {
+	esrpd := EGTS_SR_POS_DATA{
+		NavigationTime:      249535578,
+		Latitude:            3081986742,
+		Longitude:           951596088,
+		ALTE:                0,
+		LOHS:                0,
+		LAHS:                0,
+		MV:                  0,
+		BB:                  0,
+		CS:                  0,
+		FIX:                 0,
+		VLD:                 1,
+		DirectionHighestBit: 0,
+		AltitudeSign:        0,
+		Speed:               150,
+		Direction:           246,
+		Odometer:            []byte{0x00, 0x00, 0x00},
+		DigitalInputs:       0,
+		Source:              0,
+	}
 	rd := RecordData{
 		16,
-		21,
-		&EGTS_SR_POS_DATA{
-			NavigationTime:      249535578,
-			Latitude:            3081986742,
-			Longitude:           951596088,
-			ALTE:                0,
-			LOHS:                0,
-			LAHS:                0,
-			MV:                  0,
-			BB:                  0,
-			CS:                  0,
-			FIX:                 0,
-			VLD:                 1,
-			DirectionHighestBit: 0,
-			AltitudeSign:        0,
-			Speed:               150,
-			Direction:           246,
-			Odometer:            []byte{0x00, 0x00, 0x00},
-			DigitalInputs:       0,
-			Source:              0,
-		},
+		esrpd.Length(),
+		&esrpd,
 	}
 
 	resultBytes, err := rd.ToBytes()

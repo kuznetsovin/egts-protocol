@@ -8,6 +8,7 @@ import (
 
 type BinaryData interface {
 	ToBytes() ([]byte, error)
+	Length() uint16
 }
 
 type EgtsPkgHeader struct {

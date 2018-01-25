@@ -6,6 +6,37 @@ import (
 	"fmt"
 )
 
+type RecordDataField []RecordData
+
+func (f *RecordDataField) ToBytes() ([]byte, error) {
+	var result []byte
+	buf := new(bytes.Buffer)
+
+	for _, rd := range *f {
+		rec, err := rd.ToBytes()
+		if err != nil {
+			return result, err
+		}
+		buf.Write(rec)
+	}
+
+	result = buf.Bytes()
+
+	return result, nil
+}
+
+func (f *RecordDataField) Length() uint16 {
+	var result uint16
+
+	if bytes, err := f.ToBytes(); err != nil {
+		result = uint16(0)
+	} else {
+		result = uint16(len(bytes))
+	}
+
+	return result
+}
+
 type ServiceDataRecord struct {
 	// Параметр определяет размер данных из поля RD (Record Data)
 	RecordLength uint16
@@ -93,7 +124,7 @@ type ServiceDataRecord struct {
 	// Сервиса (одну или несколько подзаписей Сервиса типа,
 	// указанного в поле SST или RST, в зависимости от вида
 	// передаваемой информации).
-	RecordData []RecordData
+	RecordData RecordDataField
 }
 
 func (sdr *ServiceDataRecord) ToBytes() ([]byte, error) {
@@ -151,13 +182,11 @@ func (sdr *ServiceDataRecord) ToBytes() ([]byte, error) {
 		return result, err
 	}
 
-	for _, rd := range sdr.RecordData {
-		rec, err := rd.ToBytes()
-		if err != nil {
-			return result, err
-		}
-		buf.Write(rec)
+	rd, err := sdr.RecordData.ToBytes()
+	if err != nil {
+		return result, err
 	}
+	buf.Write(rd)
 
 	result = buf.Bytes()
 	return result, nil
@@ -187,6 +216,17 @@ func (ad *EGTS_PT_APPDATA) ToBytes() ([]byte, error) {
 
 	result = buf.Bytes()
 	return result, nil
+}
+
+func (ad *EGTS_PT_APPDATA) Length() uint16 {
+	var result uint16
+
+	if bytes, err := ad.ToBytes(); err != nil {
+		result = uint16(0)
+	} else {
+		result = uint16(len(bytes))
+	}
+	return result
 }
 
 type EGTS_PT_RESPONSE struct {
