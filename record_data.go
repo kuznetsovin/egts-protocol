@@ -3,8 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
-	"strings"
 	"time"
 )
 
@@ -133,22 +131,21 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 	}
 
 	//байт флагов
-	flagsByte := fmt.Sprintf("%b%b%b%b%b%b%b%b", rd.ALTE, rd.LOHS, rd.LAHS, rd.MV, rd.BB,
-		rd.CS, rd.FIX, rd.VLD)
-
-	flagByte, err := bitsToByte(flagsByte)
-	if err != nil {
-		return result, err
-	}
-	buf.WriteByte(flagByte)
+	flagsByte := byte(0) | rd.VLD      // 0 бит
+	flagsByte = flagsByte | rd.FIX<<1  // 1 бит
+	flagsByte = flagsByte | rd.CS<<2   // 2 бит
+	flagsByte = flagsByte | rd.BB<<3   // 3 бит
+	flagsByte = flagsByte | rd.MV<<4   // 4 бит
+	flagsByte = flagsByte | rd.LAHS<<5 // 5 бит
+	flagsByte = flagsByte | rd.LOHS<<6 // 6 бит
+	flagsByte = flagsByte | rd.ALTE<<7 // 7 бит
+	buf.WriteByte(flagsByte)
 
 	// скорость
-	bitSPD := strings.Replace(fmt.Sprintf("%b%b%14b", rd.DirectionHighestBit,
-		rd.AltitudeSign, rd.Speed), " ", "0", -1)
-	spd, err := bitsToBytes(bitSPD, 2)
-	if err != nil {
-		return result, err
-	}
+	speed := rd.Speed | uint16(rd.DirectionHighestBit)<<15 // 15 бит
+	speed = speed | uint16(rd.AltitudeSign)<<14            //14 бит
+	spd := make([]byte, 2)
+	binary.LittleEndian.PutUint16(spd, speed)
 	buf.Write(spd)
 
 	if err := binary.Write(buf, binary.LittleEndian, rd.Direction); err != nil {

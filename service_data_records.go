@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 )
 
 type RecordDataSet []RecordData
@@ -171,20 +170,13 @@ func (sdr *ServiceDataRecord) ToBytes() ([]byte, error) {
 	}
 
 	//составной байт
-	flagsByte := fmt.Sprintf(
-		"%b%b%b%02b%b%b%b",
-		sdr.SourceServiceOnDevice,
-		sdr.RecipientServiceOnDevice,
-		sdr.Group,
-		sdr.RecordProcessingPriority,
-		sdr.TimeFieldExists,
-		sdr.EventIDFieldExists,
-		sdr.ObjectIDFieldExists,
-	)
-	flagByte, err := bitsToByte(flagsByte)
-	if err != nil {
-		return result, err
-	}
+	flagByte := byte(0) | sdr.ObjectIDFieldExists         // 0 бит
+	flagByte = flagByte | sdr.EventIDFieldExists<<1       // 1 бит
+	flagByte = flagByte | sdr.TimeFieldExists<<2          // 2 бит
+	flagByte = flagByte | sdr.RecordProcessingPriority<<4 // 3-4 бит
+	flagByte = flagByte | sdr.Group<<5                    // 5 бит
+	flagByte = flagByte | sdr.RecipientServiceOnDevice<<6 // 6 бит
+	flagByte = flagByte | sdr.SourceServiceOnDevice<<7    // 7 бит
 	buf.WriteByte(flagByte)
 
 	if sdr.ObjectIDFieldExists == 1 {

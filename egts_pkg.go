@@ -3,7 +3,6 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 )
 
 type BinaryData interface {
@@ -102,12 +101,12 @@ func (h *EgtsPkgHeader) ToBytes() ([]byte, error) {
 	}
 
 	//составной байт
-	flagsByte := fmt.Sprintf("%02b%01b%02b%01b%02b", h.PRF, h.RTE, h.ENA, h.CMP, h.PR)
-	flagByte, err := bitsToByte(flagsByte)
-	if err != nil {
-		return result, err
-	}
-	buf.WriteByte(flagByte)
+	flagsByte := byte(0) | h.PR<<1   // 0-1 бит
+	flagsByte = flagsByte | h.CMP<<2 // 2 бит
+	flagsByte = flagsByte | h.ENA<<4 // 3-4 бит
+	flagsByte = flagsByte | h.RTE<<5 // 5 бит
+	flagsByte = flagsByte | h.PRF<<5 // 6-7 бит
+	buf.WriteByte(flagsByte)
 
 	if err := binary.Write(buf, binary.LittleEndian, h.HeaderLength); err != nil {
 		return result, err
