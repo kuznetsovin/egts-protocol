@@ -6,7 +6,7 @@ import (
 )
 
 func TestServiceDataRecord_ToBytes(t *testing.T) {
-	recDataField := RecordDataField{
+	recDataField := RecordDataSet{
 		{
 			16,
 			21,
@@ -69,7 +69,7 @@ func TestServiceDataRecord_ToBytes(t *testing.T) {
 		ObjectIdentifier:         10634759,
 		SourceServiceType:        2,
 		RecipientServiceType:     2,
-		RecordData: recDataField,
+		RecordDataSet: recDataField,
 	}
 
 	result, err := srd.ToBytes()
@@ -104,7 +104,7 @@ func TestEGTS_PT_APPDATA_ToBytes(t *testing.T) {
 				ObjectIdentifier:         10634759,
 				SourceServiceType:        2,
 				RecipientServiceType:     2,
-				RecordData: []RecordData{
+				RecordDataSet: RecordDataSet{
 					{
 						16,
 						21,

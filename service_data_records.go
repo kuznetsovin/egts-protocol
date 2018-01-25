@@ -6,9 +6,9 @@ import (
 	"fmt"
 )
 
-type RecordDataField []RecordData
+type RecordDataSet []RecordData
 
-func (f *RecordDataField) ToBytes() ([]byte, error) {
+func (f *RecordDataSet) ToBytes() ([]byte, error) {
 	var result []byte
 	buf := new(bytes.Buffer)
 
@@ -25,7 +25,38 @@ func (f *RecordDataField) ToBytes() ([]byte, error) {
 	return result, nil
 }
 
-func (f *RecordDataField) Length() uint16 {
+func (f *RecordDataSet) Length() uint16 {
+	var result uint16
+
+	if bytes, err := f.ToBytes(); err != nil {
+		result = uint16(0)
+	} else {
+		result = uint16(len(bytes))
+	}
+
+	return result
+}
+
+type ServiceDataSet []ServiceDataRecord
+
+func (f *ServiceDataSet) ToBytes() ([]byte, error) {
+	var result []byte
+	buf := new(bytes.Buffer)
+
+	for _, rd := range *f {
+		rec, err := rd.ToBytes()
+		if err != nil {
+			return result, err
+		}
+		buf.Write(rec)
+	}
+
+	result = buf.Bytes()
+
+	return result, nil
+}
+
+func (f *ServiceDataSet) Length() uint16 {
 	var result uint16
 
 	if bytes, err := f.ToBytes(); err != nil {
@@ -124,7 +155,7 @@ type ServiceDataRecord struct {
 	// Сервиса (одну или несколько подзаписей Сервиса типа,
 	// указанного в поле SST или RST, в зависимости от вида
 	// передаваемой информации).
-	RecordData RecordDataField
+	RecordDataSet
 }
 
 func (sdr *ServiceDataRecord) ToBytes() ([]byte, error) {
@@ -182,7 +213,7 @@ func (sdr *ServiceDataRecord) ToBytes() ([]byte, error) {
 		return result, err
 	}
 
-	rd, err := sdr.RecordData.ToBytes()
+	rd, err := sdr.RecordDataSet.ToBytes()
 	if err != nil {
 		return result, err
 	}
@@ -198,24 +229,11 @@ type EGTS_PT_APPDATA struct {
 	// идущих одна за другой. Описание внутреннего состава структур представлено в
 	// документе “Терминал ЭРА ГЛОНАСС, Протокол Обмена Данными, Уровень Поддержки Услуг” и
 	// перечне спецификаций на отдельные сервисы.
-	ServiceDataRecord []ServiceDataRecord
+	ServiceDataSet
 }
 
 func (ad *EGTS_PT_APPDATA) ToBytes() ([]byte, error) {
-	var result []byte
-
-	buf := new(bytes.Buffer)
-
-	for _, sdr := range ad.ServiceDataRecord {
-		rec, err := sdr.ToBytes()
-		if err != nil {
-			return result, err
-		}
-		buf.Write(rec)
-	}
-
-	result = buf.Bytes()
-	return result, nil
+	return ad.ServiceDataSet.ToBytes()
 }
 
 func (ad *EGTS_PT_APPDATA) Length() uint16 {
@@ -241,7 +259,7 @@ type EGTS_PT_RESPONSE struct {
 
 	// Структуры, содержащие информацию Уровня Поддержки Услуг. Таких структур может быть одна или
 	// несколько, идущих одна за другой.
-	SDR []ServiceDataRecord
+	ServiceDataSet
 }
 
 type EGTS_PT_SIGNED_APPDATA struct {
@@ -253,7 +271,7 @@ type EGTS_PT_SIGNED_APPDATA struct {
 
 	// Структуры, содержащие информацию Уровня Поддержки Услуг.
 	// Таких структур может быть одна или несколько, идущих одна за другой.
-	SDR []ServiceDataRecord
+	ServiceDataSet
 }
 
 type EGTS_SR_RECORD_RESPONSE struct {

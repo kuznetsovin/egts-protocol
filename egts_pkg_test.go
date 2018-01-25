@@ -71,7 +71,7 @@ func TestEgtsPkg_ToBytes(t *testing.T) {
 					ObjectIdentifier:         10634759,
 					SourceServiceType:        2,
 					RecipientServiceType:     2,
-					RecordData: []RecordData{
+					RecordDataSet: RecordDataSet{
 						{
 							16,
 							21,
