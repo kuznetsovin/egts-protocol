@@ -172,10 +172,10 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 func (rd *EGTS_SR_POS_DATA) Length() uint16 {
 	var result uint16
 
-	if bytes, err := rd.ToBytes(); err != nil {
+	if recBytes, err := rd.ToBytes(); err != nil {
 		result = uint16(0)
 	} else {
-		result = uint16(len(bytes))
+		result = uint16(len(recBytes))
 	}
 
 	return result

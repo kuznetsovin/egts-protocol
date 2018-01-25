@@ -28,10 +28,10 @@ func (f *RecordDataSet) ToBytes() ([]byte, error) {
 func (f *RecordDataSet) Length() uint16 {
 	var result uint16
 
-	if bytes, err := f.ToBytes(); err != nil {
+	if recBytes, err := f.ToBytes(); err != nil {
 		result = uint16(0)
 	} else {
-		result = uint16(len(bytes))
+		result = uint16(len(recBytes))
 	}
 
 	return result
@@ -59,10 +59,10 @@ func (f *ServiceDataSet) ToBytes() ([]byte, error) {
 func (f *ServiceDataSet) Length() uint16 {
 	var result uint16
 
-	if bytes, err := f.ToBytes(); err != nil {
+	if recBytes, err := f.ToBytes(); err != nil {
 		result = uint16(0)
 	} else {
-		result = uint16(len(bytes))
+		result = uint16(len(recBytes))
 	}
 
 	return result
@@ -239,11 +239,10 @@ func (ad *EGTS_PT_APPDATA) ToBytes() ([]byte, error) {
 func (ad *EGTS_PT_APPDATA) Length() uint16 {
 	var result uint16
 
-	if bytes, err := ad.ToBytes(); err != nil {
+	if recBytes, err := ad.ToBytes(); err != nil {
 		result = uint16(0)
 	} else {
-		result = uint16(len(bytes))
+		result = uint16(len(recBytes))
 	}
 	return result
 }
-
