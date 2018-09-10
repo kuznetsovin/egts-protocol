@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/binary"
 	"time"
+	"strconv"
+	"fmt"
 )
 
 type RecordData struct {
@@ -17,7 +19,7 @@ type RecordData struct {
 	SubrecordData BinaryData
 }
 
-func (rd *RecordData) ToBytes() ([]byte, error) {
+func (rd *RecordData) Encode() ([]byte, error) {
 	var result []byte
 
 	buf := new(bytes.Buffer)
@@ -29,7 +31,7 @@ func (rd *RecordData) ToBytes() ([]byte, error) {
 		return result, err
 	}
 
-	srd, err := rd.SubrecordData.ToBytes()
+	srd, err := rd.SubrecordData.Encode()
 	if err != nil {
 		return result, err
 	}
@@ -41,77 +43,32 @@ func (rd *RecordData) ToBytes() ([]byte, error) {
 }
 
 type EGTS_SR_POS_DATA struct {
-	//время навигации (количество секунд с 00:00:00 01.01.2010 UTC);
-	NavigationTime time.Time
-
-	// Значение широты в градусах WGS84
-	Latitude float64
-
-	// Значение долготы в градусах WGS84
-	Longitude float64
-
-	// битовый флаг определяет наличие поля Altitude в подзаписи: 1 - поле Altitude передается; 0 - не передается;
-	ALTE uint8
-
-	// битовый флаг определяет полушарие долготы: 0 - восточная долгота; 1 - западная долгота;
-	LOHS uint8
-
-	//  битовый флаг определяет полушарие широты: 0 - северная широта; 1 - южная широта;
-	LAHS uint8
-
-	// битовый флаг, признак движения: 1 - движение; 0 - транспортное средство находится в режиме стоянки;
-	MV uint8
-
-	// битовый флаг, признак отправки данных из памяти ("черный ящик"): 0 - актуальные данные;
-	// 1 - данные из памяти ("черного ящика");
-	BB uint8
-
-	// битовое поле, тип определения координат: 0 - 2D fix; 1 - 3D fix;
-	CS uint8
-
-	// битовое поле, тип используемой системы:
-	// 0 - система координат WGS-84;
-	// 1 - государственная геоцентрическая система координат (ПЗ-90.02);
-	FIX uint8
-
-	// битовый флаг, признак "валидности" координатных данных: 1 - данные "валидны"; 0 - "невалидные" данные;
-	VLD uint8
-
-	// старший бит (8) параметра Direction;
+	NavigationTime      time.Time
+	Latitude            float64
+	Longitude           float64
+	ALTE                string
+	LOHS                string
+	LAHS                string
+	MV                  string
+	BB                  string
+	CS                  string
+	FIX                 string
+	VLD                 string
 	DirectionHighestBit uint8
-
-	// битовый флаг, определяет высоту относительно уровня моря и имеет  смысл только при установленном флаге ALTE:
-	// 0 - точка выше уровня моря;
-	// 1 - ниже уровня моря;
-	AltitudeSign uint8
-
-	// скорость в км/ч с дискретностью 0,1 км/ч;
-	Speed uint16
-
-	// направление движения.
-	Direction byte
-
-	// пройденное расстояние (пробег) в км, с дискретностью 0,1 км;
-	Odometer []byte
-
-	// битовые флаги, определяют состояние основных дискретных входов 1 .. 8 (если бит равен 1, то соответствующий
-	// вход активен, если 0, то неактивен). Данное поле включено для удобства использования и экономии трафика при
-	// работе в системах мониторинга транспорта базового уровня;
-	DigitalInputs byte
-
-	// определяет источник (событие), инициировавший посылку данной навигационной информации
-	Source byte
-
-	// высота над уровнем моря, м (опциональный параметр, наличие которого определяется битовым флагом ALTE);
-	Altitude []byte
-
-	// данные, характеризующие источник (событие) из поля Source. Наличие и интерпретация значения данного поля
-	// определяется полем Source.
-	SourceData int16
+	AltitudeSign        uint8
+	Speed               uint16
+	Direction           byte
+	Odometer            []byte
+	DigitalInputs       byte
+	Source              byte
+	Altitude            []byte
+	SourceData          int16
 }
 
-func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
-	result := []byte{}
+func (rd *EGTS_SR_POS_DATA) Encode() ([]byte, error) {
+	var (
+		result []byte
+	)
 
 	buf := new(bytes.Buffer)
 	// Преобразуем время навигации к формату, который требует стандарт: количество секунд с 00:00:00 01.01.2010 UTC
@@ -131,15 +88,13 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 	}
 
 	//байт флагов
-	flagsByte := byte(0) | rd.VLD      // 0 бит
-	flagsByte = flagsByte | rd.FIX<<1  // 1 бит
-	flagsByte = flagsByte | rd.CS<<2   // 2 бит
-	flagsByte = flagsByte | rd.BB<<3   // 3 бит
-	flagsByte = flagsByte | rd.MV<<4   // 4 бит
-	flagsByte = flagsByte | rd.LAHS<<5 // 5 бит
-	flagsByte = flagsByte | rd.LOHS<<6 // 6 бит
-	flagsByte = flagsByte | rd.ALTE<<7 // 7 бит
-	buf.WriteByte(flagsByte)
+	flags, err := strconv.ParseUint(rd.VLD + rd.FIX + rd.CS + rd.BB + rd.MV + rd.LAHS + rd.LOHS + rd.ALTE, 2, 8)
+	if err != nil {
+		return result, fmt.Errorf("Не удалось сгенерировать байт флагов: %v\n", err)
+	}
+	if err := buf.WriteByte(uint8(flags)); err != nil {
+		return result, fmt.Errorf("Не удалось записать флаги: %v\n", err)
+	}
 
 	// скорость
 	speed := rd.Speed | uint16(rd.DirectionHighestBit)<<15 // 15 бит
@@ -169,7 +124,7 @@ func (rd *EGTS_SR_POS_DATA) ToBytes() ([]byte, error) {
 func (rd *EGTS_SR_POS_DATA) Length() uint16 {
 	var result uint16
 
-	if recBytes, err := rd.ToBytes(); err != nil {
+	if recBytes, err := rd.Encode(); err != nil {
 		result = uint16(0)
 	} else {
 		result = uint16(len(recBytes))
