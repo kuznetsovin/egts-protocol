@@ -37,7 +37,7 @@ func (rd *RecordData) Encode() ([]byte, error) {
 	return result, nil
 }
 
-type EGTS_SR_POS_DATA struct {
+type EgtsSrPosData struct {
 	NavigationTime      time.Time
 	Latitude            float64
 	Longitude           float64
@@ -60,7 +60,7 @@ type EGTS_SR_POS_DATA struct {
 	SourceData          int16
 }
 
-func (rd *EGTS_SR_POS_DATA) Encode() ([]byte, error) {
+func (rd *EgtsSrPosData) Encode() ([]byte, error) {
 	var (
 		result []byte
 	)
@@ -85,10 +85,11 @@ func (rd *EGTS_SR_POS_DATA) Encode() ([]byte, error) {
 	//байт флагов
 	flags, err := strconv.ParseUint(rd.VLD+rd.FIX+rd.CS+rd.BB+rd.MV+rd.LAHS+rd.LOHS+rd.ALTE, 2, 8)
 	if err != nil {
-		return result, fmt.Errorf("Не удалось сгенерировать байт флагов: %v\n", err)
+		return result, fmt.Errorf("Не удалось сгенерировать байт флагов: %v", err)
 	}
+
 	if err := buf.WriteByte(uint8(flags)); err != nil {
-		return result, fmt.Errorf("Не удалось записать флаги: %v\n", err)
+		return result, fmt.Errorf("Не удалось записать флаги: %v", err)
 	}
 
 	// скорость
@@ -116,7 +117,7 @@ func (rd *EGTS_SR_POS_DATA) Encode() ([]byte, error) {
 	return result, nil
 }
 
-func (rd *EGTS_SR_POS_DATA) Length() uint16 {
+func (rd *EgtsSrPosData) Length() uint16 {
 	var result uint16
 
 	if recBytes, err := rd.Encode(); err != nil {
