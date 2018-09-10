@@ -2,11 +2,12 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"encoding/binary"
+	"fmt"
 	"strconv"
 )
 
+//EgtsHeader структура описывает формат заголовка пакета ЕГТС
 type EgtsHeader struct {
 	ProtocolVersion  byte
 	SecurityKeyID    byte
@@ -34,16 +35,16 @@ func (eh *EgtsHeader) Decode(header []byte) error {
 	)
 	buf := bytes.NewReader(header)
 	if eh.ProtocolVersion, err = buf.ReadByte(); err != nil {
-		return fmt.Errorf("Не удалось получить версию протокола: %v\n", err)
+		return fmt.Errorf("Не удалось получить версию протокола: %v", err)
 	}
 
 	if eh.SecurityKeyID, err = buf.ReadByte(); err != nil {
-		return fmt.Errorf("Не удалось получить идентификатор ключа: %v\n", err)
+		return fmt.Errorf("Не удалось получить идентификатор ключа: %v", err)
 	}
 
 	//разбираем флаги
 	if flags, err = buf.ReadByte(); err != nil {
-		return fmt.Errorf("Не удалось флаги: %v\n", err)
+		return fmt.Errorf("Не удалось флаги: %v", err)
 	}
 	flagBits := fmt.Sprintf("%08b", flags)
 	eh.Prefix = flagBits[:2]         // flags << 7, flags << 6
@@ -53,46 +54,46 @@ func (eh *EgtsHeader) Decode(header []byte) error {
 	eh.Priority = flagBits[6:]       // flags << 1, flags << 0
 
 	if eh.HeaderLength, err = buf.ReadByte(); err != nil {
-		return fmt.Errorf("Не удалось получить длину заголовка: %v\n", err)
+		return fmt.Errorf("Не удалось получить длину заголовка: %v", err)
 	}
 
 	if eh.HeaderEncoding, err = buf.ReadByte(); err != nil {
-		return fmt.Errorf("Не удалось получить метод кодирования: %v\n", err)
+		return fmt.Errorf("Не удалось получить метод кодирования: %v", err)
 	}
 
 	tmpIntBuf := make([]byte, 2)
 	if _, err = buf.Read(tmpIntBuf); err != nil {
-		return fmt.Errorf("Не удалось получить длину секции данных: %v\n", err)
+		return fmt.Errorf("Не удалось получить длину секции данных: %v", err)
 	}
 	eh.FrameDataLength = binary.LittleEndian.Uint16(tmpIntBuf)
 
 	if _, err = buf.Read(tmpIntBuf); err != nil {
-		return fmt.Errorf("Не удалось получить идентификатор пакета: %v\n", err)
+		return fmt.Errorf("Не удалось получить идентификатор пакета: %v", err)
 	}
 	eh.PacketIdentifier = binary.LittleEndian.Uint16(tmpIntBuf)
 
 	if eh.PacketType, err = buf.ReadByte(); err != nil {
-		return fmt.Errorf("Не удалось получить идентификатор пакета: %v\n", err)
+		return fmt.Errorf("Не удалось получить идентификатор пакета: %v", err)
 	}
 
 	if eh.Route == "1" {
 		if _, err = buf.Read(tmpIntBuf); err != nil {
-			return fmt.Errorf("Не удалось получить адрес апк отправителя: %v\n", err)
+			return fmt.Errorf("Не удалось получить адрес апк отправителя: %v", err)
 		}
 		eh.PeerAddress = binary.LittleEndian.Uint16(tmpIntBuf)
 
 		if _, err = buf.Read(tmpIntBuf); err != nil {
-			return fmt.Errorf("Не удалось получить адрес апк получателя: %v\n", err)
+			return fmt.Errorf("Не удалось получить адрес апк получателя: %v", err)
 		}
 		eh.RecipientAddress = binary.LittleEndian.Uint16(tmpIntBuf)
 
 		if eh.TimeToLive, err = buf.ReadByte(); err != nil {
-			return fmt.Errorf("Не удалось получить TTL пакета: %v\n", err)
+			return fmt.Errorf("Не удалось получить TTL пакета: %v", err)
 		}
 	}
 
 	if eh.HeaderCheckSum, err = buf.ReadByte(); err != nil {
-		return fmt.Errorf("Не удалось получить crc: %v\n", err)
+		return fmt.Errorf("Не удалось получить crc: %v", err)
 	}
 
 	return err
@@ -108,34 +109,34 @@ func (eh *EgtsHeader) Encode() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
 	if err = buf.WriteByte(eh.ProtocolVersion); err != nil {
-		return nil, fmt.Errorf("Не удалось записать версию протокола: %v\n", err)
+		return nil, fmt.Errorf("Не удалось записать версию протокола: %v", err)
 	}
 	if err = buf.WriteByte(eh.SecurityKeyID); err != nil {
-		return nil, fmt.Errorf("Не удалось записать  идентификатор ключа: %v\n", err)
+		return nil, fmt.Errorf("Не удалось записать  идентификатор ключа: %v", err)
 	}
 
 	//собираем флаги
 	flagsBits := eh.Prefix + eh.Prefix + eh.Route + eh.EncryptionAlg + eh.Compression + eh.Priority
 	if flags, err = strconv.ParseUint(flagsBits, 2, 8); err != nil {
-		return nil, fmt.Errorf("Не удалось сгенерировать байт флагов: %v\n", err)
+		return nil, fmt.Errorf("Не удалось сгенерировать байт флагов: %v", err)
 	}
 
 	if err = buf.WriteByte(uint8(flags)); err != nil {
-		return nil, fmt.Errorf("Не удалось записать флаги: %v\n", err)
+		return nil, fmt.Errorf("Не удалось записать флаги: %v", err)
 	}
 
 	if err = buf.WriteByte(eh.HeaderLength); err != nil {
-		return nil, fmt.Errorf("Не удалось записать длину заголовка: %v\n", err)
+		return nil, fmt.Errorf("Не удалось записать длину заголовка: %v", err)
 	}
 
 	if err = buf.WriteByte(eh.HeaderEncoding); err != nil {
-		return nil, fmt.Errorf("Не удалось записать метод кодирования: %v\n", err)
+		return nil, fmt.Errorf("Не удалось записать метод кодирования: %v", err)
 	}
 
 	tmpIntBuf := make([]byte, 2)
 	binary.LittleEndian.PutUint16(tmpIntBuf, eh.FrameDataLength)
 	if _, err = buf.Write(tmpIntBuf); err != nil {
-		return nil, fmt.Errorf("Не удалось записать длину секции данных: %v\n", err)
+		return nil, fmt.Errorf("Не удалось записать длину секции данных: %v", err)
 	}
 
 	binary.LittleEndian.PutUint16(tmpIntBuf, eh.PacketIdentifier)
@@ -144,22 +145,22 @@ func (eh *EgtsHeader) Encode() ([]byte, error) {
 	}
 
 	if err = buf.WriteByte(eh.PacketType); err != nil {
-		return nil, fmt.Errorf("Не удалось записать идентификатор пакета: %v\n", err)
+		return nil, fmt.Errorf("Не удалось записать идентификатор пакета: %v", err)
 	}
 
 	if eh.Route == "1" {
 		binary.LittleEndian.PutUint16(tmpIntBuf, eh.PeerAddress)
 		if _, err = buf.Write(tmpIntBuf); err != nil {
-			return nil, fmt.Errorf("Не удалось записать адрес апк отправителя: %v\n", err)
+			return nil, fmt.Errorf("Не удалось записать адрес апк отправителя: %v", err)
 		}
 
 		binary.LittleEndian.PutUint16(tmpIntBuf, eh.RecipientAddress)
 		if _, err = buf.Write(tmpIntBuf); err != nil {
-			return nil, fmt.Errorf("Не удалось записать адрес апк получателя: %v\n", err)
+			return nil, fmt.Errorf("Не удалось записать адрес апк получателя: %v", err)
 		}
 
 		if err = buf.WriteByte(eh.TimeToLive); err != nil {
-			return nil, fmt.Errorf("Не удалось записать TTL пакета: %v\n", err)
+			return nil, fmt.Errorf("Не удалось записать TTL пакета: %v", err)
 		}
 	}
 
@@ -168,4 +169,3 @@ func (eh *EgtsHeader) Encode() ([]byte, error) {
 
 	return header, err
 }
-

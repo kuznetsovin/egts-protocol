@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 )
 
@@ -10,7 +9,7 @@ func Test_crc8(t *testing.T) {
 	checkVal := byte(0x7F)
 
 	if crc != checkVal {
-		fmt.Errorf("Incorrect value: %x != %x\n", crc, checkVal)
+		t.Errorf("Incorrect value: %x != %x\n", crc, checkVal)
 	}
 }
 
@@ -19,6 +18,6 @@ func Test_crc16(t *testing.T) {
 	checkVal := uint16(0x29b1)
 
 	if crc != checkVal {
-		fmt.Errorf("Incorrect value: %x != %x\n", crc, checkVal)
+		t.Errorf("Incorrect value: %x != %x\n", crc, checkVal)
 	}
 }

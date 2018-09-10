@@ -3,20 +3,15 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"time"
-	"strconv"
 	"fmt"
+	"strconv"
+	"time"
 )
 
 type RecordData struct {
-	// тип подзаписи
-	SubrecordType byte
-
-	// длина подзаписи в поле SubrecordData
+	SubrecordType   byte
 	SubrecordLength uint16
-
-	// данные позаписи
-	SubrecordData BinaryData
+	SubrecordData   BinaryData
 }
 
 func (rd *RecordData) Encode() ([]byte, error) {
@@ -88,7 +83,7 @@ func (rd *EGTS_SR_POS_DATA) Encode() ([]byte, error) {
 	}
 
 	//байт флагов
-	flags, err := strconv.ParseUint(rd.VLD + rd.FIX + rd.CS + rd.BB + rd.MV + rd.LAHS + rd.LOHS + rd.ALTE, 2, 8)
+	flags, err := strconv.ParseUint(rd.VLD+rd.FIX+rd.CS+rd.BB+rd.MV+rd.LAHS+rd.LOHS+rd.ALTE, 2, 8)
 	if err != nil {
 		return result, fmt.Errorf("Не удалось сгенерировать байт флагов: %v\n", err)
 	}

@@ -5,19 +5,21 @@ import (
 	"encoding/binary"
 )
 
+// BinaryData интерфейс для работы с бинарными секциями
 type BinaryData interface {
-	Decode() error
 	Encode() ([]byte, error)
 	Length() uint16
 }
 
-type EgtsPkg struct {
+// EgtsPackage стуркура для описания пакета ЕГТС
+type EgtsPackage struct {
 	EgtsHeader
-	ServicesFrameData BinaryData
+	ServicesFrameData         BinaryData
 	ServicesFrameDataCheckSum uint16
 }
 
-func (p *EgtsPkg) ToBytes() ([]byte, error) {
+// Encode кодирует струткуру в байтовую строку
+func (p *EgtsPackage) Encode() ([]byte, error) {
 	var result []byte
 	buf := new(bytes.Buffer)
 
