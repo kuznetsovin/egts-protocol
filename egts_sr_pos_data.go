@@ -37,7 +37,6 @@ func (e *EgtsSrPosData) Decode(content []byte) error {
 		flags byte
 		speed uint64
 	)
-
 	buf := bytes.NewReader(content)
 
 	// Преобразуем время навигации к формату, который требует стандарт: количество секунд с 00:00:00 01.01.2010 UTC
@@ -87,7 +86,7 @@ func (e *EgtsSrPosData) Decode(content []byte) error {
 	e.DirectionHighestBit = uint8(spd >> 15 & 0x1)
 	e.AltitudeSign = uint8(spd >> 14 & 0x1)
 
-	speedBits := fmt.Sprintf("%16b", spd)
+	speedBits := fmt.Sprintf("%016b", spd)
 	if speed, err = strconv.ParseUint(speedBits[2:], 2, 16); err != nil {
 		return fmt.Errorf("Не удалось расшифровать скорость из битов: %v", err)
 	}
