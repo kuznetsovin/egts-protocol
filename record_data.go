@@ -35,7 +35,7 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 		subRecordBytes := buf.Next(int(rd.SubrecordLength))
 
 		switch rd.SubrecordType {
-		case EGTS_SR_POS_DATA:
+		case egtsSrPosData:
 			rd.SubrecordData = &EgtsSrPosData{}
 		default:
 			return fmt.Errorf("Не известный тип подзаписи: %d", rd.SubrecordType)

@@ -33,17 +33,17 @@ func (s *ServiceDataSet) Decode(serviceDS []byte) error {
 		sdr := ServiceDataRecord{}
 		tmpIntBuf := make([]byte, 2)
 		if _, err = buf.Read(tmpIntBuf); err != nil {
-			return fmt.Errorf("Не удалось получить длину записи sdr: %v", err)
+			return fmt.Errorf("Не удалось получить длину записи SDR: %v", err)
 		}
 		sdr.RecordLength = binary.LittleEndian.Uint16(tmpIntBuf)
 
 		if _, err = buf.Read(tmpIntBuf); err != nil {
-			return fmt.Errorf("Не удалось получить номер записи sdr: %v", err)
+			return fmt.Errorf("Не удалось получить номер записи SDR: %v", err)
 		}
 		sdr.RecordNumber = binary.LittleEndian.Uint16(tmpIntBuf)
 
 		if flags, err = buf.ReadByte(); err != nil {
-			return fmt.Errorf("Не удалось считать байт флагов srd: %v", err)
+			return fmt.Errorf("Не удалось считать байт флагов SDR: %v", err)
 		}
 		flagBits := fmt.Sprintf("%08b", flags)
 		sdr.SourceServiceOnDevice = flagBits[:1]
@@ -57,7 +57,7 @@ func (s *ServiceDataSet) Decode(serviceDS []byte) error {
 		if sdr.ObjectIDFieldExists == "1" {
 			oid := make([]byte, 4)
 			if _, err := buf.Read(oid); err != nil {
-				return fmt.Errorf("Не удалось получить идентификатор объекта sdr: %v", err)
+				return fmt.Errorf("Не удалось получить идентификатор объекта SDR: %v", err)
 			}
 			sdr.ObjectIdentifier = binary.LittleEndian.Uint32(oid)
 		}
@@ -65,7 +65,7 @@ func (s *ServiceDataSet) Decode(serviceDS []byte) error {
 		if sdr.EventIDFieldExists == "1" {
 			event := make([]byte, 4)
 			if _, err := buf.Read(event); err != nil {
-				return fmt.Errorf("Не удалось получить идентификатор события sdr: %v", err)
+				return fmt.Errorf("Не удалось получить идентификатор события SDR: %v", err)
 			}
 			sdr.EventIdentifier = binary.LittleEndian.Uint32(event)
 		}
@@ -73,17 +73,17 @@ func (s *ServiceDataSet) Decode(serviceDS []byte) error {
 		if sdr.TimeFieldExists == "1" {
 			tm := make([]byte, 4)
 			if _, err := buf.Read(tm); err != nil {
-				return fmt.Errorf("Не удалось получить время формирования записи на стороне отправителя sdr: %v", err)
+				return fmt.Errorf("Не удалось получить время формирования записи на стороне отправителя SDR: %v", err)
 			}
 			sdr.Time = binary.LittleEndian.Uint32(tm)
 		}
 
 		if sdr.SourceServiceType, err = buf.ReadByte(); err != nil {
-			return fmt.Errorf("Не удалось считать идентификатор тип сервиса-отправителя sdr: %v", err)
+			return fmt.Errorf("Не удалось считать идентификатор тип сервиса-отправителя SDR: %v", err)
 		}
 
 		if sdr.RecipientServiceType, err = buf.ReadByte(); err != nil {
-			return fmt.Errorf("Не удалось считать идентификатор тип сервиса-получателя srd: %v", err)
+			return fmt.Errorf("Не удалось считать идентификатор тип сервиса-получателя SDR: %v", err)
 		}
 
 		if buf.Len() != 0 {
@@ -94,7 +94,7 @@ func (s *ServiceDataSet) Decode(serviceDS []byte) error {
 			}
 
 			if err = rds.Decode(rdsBytes); err != nil {
-				return fmt.Errorf("Не удалось расшифровать record data set: %v", err)
+				return err
 			}
 			sdr.RecordDataSet = rds
 		}

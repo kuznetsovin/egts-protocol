@@ -110,15 +110,18 @@ func (p *EgtsPackage) Decode(pkg []byte) (int, error) {
 		return egtsPcIncDataform, fmt.Errorf("Не считать тело пакета: %v", err)
 	}
 	switch p.PacketType {
-	case 1:
-		sfd := ServiceDataSet{}
-		if err = sfd.Decode(dataFrameBytes); err != nil {
-			return egtsPcDecryptError, err
-		}
-		p.ServicesFrameData = &sfd
+	case egtsPtAppdata:
+		p.ServicesFrameData = &ServiceDataSet{}
+		break
+	case egtsPtResponse:
+		p.ServicesFrameData = &EgtsPtResponse{}
 		break
 	default:
 		return egtsPcUnsType, fmt.Errorf("Неизвестный тип пакета: %d", p.PacketType)
+	}
+
+	if err = p.ServicesFrameData.Decode(dataFrameBytes); err != nil {
+		return egtsPcDecryptError, err
 	}
 
 	crcBytes := make([]byte, 2)
@@ -165,14 +168,11 @@ func (p *EgtsPackage) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось записать метод кодирования: %v", err)
 	}
 
-	tmpIntBuf := make([]byte, 2)
-	binary.LittleEndian.PutUint16(tmpIntBuf, p.FrameDataLength)
-	if _, err = buf.Write(tmpIntBuf); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, p.FrameDataLength); err != nil {
 		return result, fmt.Errorf("Не удалось записать длину секции данных: %v", err)
 	}
 
-	binary.LittleEndian.PutUint16(tmpIntBuf, p.PacketIdentifier)
-	if _, err = buf.Write(tmpIntBuf); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, p.PacketIdentifier); err != nil {
 		return result, fmt.Errorf("Не удалось записать идентификатор пакета: %v", err)
 	}
 
@@ -181,13 +181,11 @@ func (p *EgtsPackage) Encode() ([]byte, error) {
 	}
 
 	if p.Route == "1" {
-		binary.LittleEndian.PutUint16(tmpIntBuf, p.PeerAddress)
-		if _, err = buf.Write(tmpIntBuf); err != nil {
+		if err = binary.Write(buf, binary.LittleEndian, p.PeerAddress); err != nil {
 			return result, fmt.Errorf("Не удалось записать адрес апк отправителя: %v", err)
 		}
 
-		binary.LittleEndian.PutUint16(tmpIntBuf, p.RecipientAddress)
-		if _, err = buf.Write(tmpIntBuf); err != nil {
+		if err = binary.Write(buf, binary.LittleEndian, p.RecipientAddress); err != nil {
 			return result, fmt.Errorf("Не удалось записать адрес апк получателя: %v", err)
 		}
 
@@ -198,16 +196,18 @@ func (p *EgtsPackage) Encode() ([]byte, error) {
 
 	buf.WriteByte(crc8(buf.Bytes()))
 
-	sfrd, err := p.ServicesFrameData.Encode()
-	if err != nil {
-		return result, err
-	}
+	if p.ServicesFrameData != nil {
+		sfrd, err := p.ServicesFrameData.Encode()
+		if err != nil {
+			return result, err
+		}
 
-	if len(sfrd) > 0 {
-		buf.Write(sfrd)
+		if len(sfrd) > 0 {
+			buf.Write(sfrd)
 
-		if err := binary.Write(buf, binary.LittleEndian, crc16(sfrd)); err != nil {
-			return result, fmt.Errorf("Не удалось записать crc16 пакета: %v", err)
+			if err := binary.Write(buf, binary.LittleEndian, crc16(sfrd)); err != nil {
+				return result, fmt.Errorf("Не удалось записать crc16 пакета: %v", err)
+			}
 		}
 	}
 
