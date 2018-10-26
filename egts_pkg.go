@@ -37,12 +37,12 @@ type EgtsPackage struct {
 }
 
 // Encode кодирует струткуру в байтовую строку
-func (p *EgtsPackage) Decode(pkg []byte) (int, error) {
+func (p *EgtsPackage) Decode(content []byte) (int, error) {
 	var (
 		err   error
 		flags byte
 	)
-	buf := bytes.NewReader(pkg)
+	buf := bytes.NewReader(content)
 	if p.ProtocolVersion, err = buf.ReadByte(); err != nil {
 		return egtsPcIncHeaderform, fmt.Errorf("Не удалось получить версию протокола: %v", err)
 	}
@@ -105,6 +105,10 @@ func (p *EgtsPackage) Decode(pkg []byte) (int, error) {
 		return egtsPcIncHeaderform, fmt.Errorf("Не удалось получить crc заголовка: %v", err)
 	}
 
+	if p.HeaderCheckSum != crc8(content[:p.HeaderLength-1]) {
+		return egtsPcHeadercrcError, fmt.Errorf("Не верная сумма заголовка пакета")
+	}
+
 	dataFrameBytes := make([]byte, p.FrameDataLength)
 	if _, err = buf.Read(dataFrameBytes); err != nil {
 		return egtsPcIncDataform, fmt.Errorf("Не считать тело пакета: %v", err)
@@ -130,7 +134,9 @@ func (p *EgtsPackage) Decode(pkg []byte) (int, error) {
 	}
 	p.ServicesFrameDataCheckSum = binary.LittleEndian.Uint16(crcBytes)
 
-	//TODO: добавить обработку ошибок (resultCode) по протоколу
+	if p.ServicesFrameDataCheckSum != crc16(content[p.HeaderLength:len(content) - 2]) {
+		return egtsPcHeadercrcError, fmt.Errorf("Не верная сумма тела пакета")
+	}
 	return egtsPcOk, err
 }
 
