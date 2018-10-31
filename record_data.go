@@ -37,8 +37,10 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 		switch rd.SubrecordType {
 		case egtsSrPosData:
 			rd.SubrecordData = &EgtsSrPosData{}
+		case egtsSrTermIdentity:
+			rd.SubrecordData = &EgtsSrTermIdentity{}
 		default:
-			return fmt.Errorf("Не известный тип подзаписи: %d", rd.SubrecordType)
+			return fmt.Errorf("Не известный пакета: %d", rd.SubrecordType)
 		}
 
 		if err = rd.SubrecordData.Decode(subRecordBytes); err != nil {
@@ -53,7 +55,7 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 func (rds *RecordDataSet) Encode() ([]byte, error) {
 	var (
 		result []byte
-		err error
+		err    error
 	)
 	buf := new(bytes.Buffer)
 

@@ -23,7 +23,7 @@ var (
 		HeaderCheckSum:   74,
 		ServicesFrameData: &EgtsPtResponse{
 			ResponsePacketID: 14357,
-			ProcessingResult: 0,
+			ProcessingResult: egtsPcOk,
 		},
 		ServicesFrameDataCheckSum: 59443,
 	}

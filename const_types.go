@@ -1,5 +1,6 @@
 package main
 
+const egtsSrTermIdentity = 1
 const egtsSrRecordResponse = 0
 const egtsSrPosData = 16
 const egtsSrExtPosData = 17
@@ -16,3 +17,5 @@ const egtsSrPassengersCounters = 28
 
 const egtsPtAppdata = 1
 const egtsPtResponse = 0
+
+const egtsAuthService = 1

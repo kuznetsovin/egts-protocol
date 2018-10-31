@@ -127,34 +127,35 @@ func (e *EgtsSrPosData) Decode(content []byte) error {
 func (e *EgtsSrPosData) Encode() ([]byte, error) {
 	var (
 		err    error
+		flags  uint64
 		result []byte
 	)
 
 	buf := new(bytes.Buffer)
 	// Преобразуем время навигации к формату, который требует стандарт: количество секунд с 00:00:00 01.01.2010 UTC
 	startDate := time.Date(2010, time.January, 0, 0, 0, 0, 0, time.UTC)
-	if err := binary.Write(buf, binary.LittleEndian, uint32(e.NavigationTime.Sub(startDate).Seconds())); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, uint32(e.NavigationTime.Sub(startDate).Seconds())); err != nil {
 		return result, fmt.Errorf("Не удалось записать время навигации: %v", err)
 	}
 
 	// В протоколе значение хранится в виде: широта по модулю, градусы/90*0xFFFFFFFF  и взята целая часть
-	if err := binary.Write(buf, binary.LittleEndian, uint32(e.Latitude/90*0xFFFFFFFF)); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, uint32(e.Latitude/90*0xFFFFFFFF)); err != nil {
 		return result, fmt.Errorf("Не удалось записать широту: %v", err)
 	}
 
 
 	// В протоколе значение хранится в виде: долгота по модулю, градусы/180*0xFFFFFFFF  и взята целая часть
-	if err := binary.Write(buf, binary.LittleEndian, uint32(e.Longitude/180*0xFFFFFFFF)); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, uint32(e.Longitude/180*0xFFFFFFFF)); err != nil {
 		return result, fmt.Errorf("Не удалось записать долготу: %v", err)
 	}
 
 	//байт флагов
-	flags, err := strconv.ParseUint(e.ALTE+e.LOHS+e.LAHS+e.MV+e.BB+e.CS+e.FIX+e.VLD, 2, 8)
+	flags, err = strconv.ParseUint(e.ALTE+e.LOHS+e.LAHS+e.MV+e.BB+e.CS+e.FIX+e.VLD, 2, 8)
 	if err != nil {
 		return result, fmt.Errorf("Не удалось сгенерировать байт флагов: %v", err)
 	}
 
-	if err := buf.WriteByte(uint8(flags)); err != nil {
+	if err = buf.WriteByte(uint8(flags)); err != nil {
 		return result, fmt.Errorf("Не удалось записать флаги: %v", err)
 	}
 
@@ -168,7 +169,7 @@ func (e *EgtsSrPosData) Encode() ([]byte, error) {
 	}
 
 	//TODO: разобраться с битом DirectionHighestBit
-	if err := binary.Write(buf, binary.LittleEndian, e.Direction); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, e.Direction); err != nil {
 		return result, fmt.Errorf("Не удалось записать направление движения: %v", err)
 	}
 
@@ -176,11 +177,11 @@ func (e *EgtsSrPosData) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось запсиать пройденное расстояние (пробег) в км: %v", err)
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, e.DigitalInputs); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, e.DigitalInputs); err != nil {
 		return result, fmt.Errorf("Не удалось записать битовые флаги, определяют состояние основных дискретных входов: %v", err)
 	}
 
-	if err := binary.Write(buf, binary.LittleEndian, e.Source); err != nil {
+	if err = binary.Write(buf, binary.LittleEndian, e.Source); err != nil {
 		return result, fmt.Errorf("Не удалось записать источник (событие), инициировавший посылку: %v", err)
 	}
 
