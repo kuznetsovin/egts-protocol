@@ -43,6 +43,8 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &EgtsSrResponse{}
 		case egtsSrResultCode:
 			rd.SubrecordData = &EgtsSrResultCode{}
+		case egtsSrExtPosData:
+			rd.SubrecordData = &EgtsSrExtPosData{}
 		default:
 			return fmt.Errorf("Не известный пакета: %d", rd.SubrecordType)
 		}

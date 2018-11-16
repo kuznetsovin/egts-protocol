@@ -152,7 +152,7 @@ func (e *EgtsSrPosData) Encode() ([]byte, error) {
 	//байт флагов
 	flags, err = strconv.ParseUint(e.ALTE+e.LOHS+e.LAHS+e.MV+e.BB+e.CS+e.FIX+e.VLD, 2, 8)
 	if err != nil {
-		return result, fmt.Errorf("Не удалось сгенерировать байт флагов: %v", err)
+		return result, fmt.Errorf("Не удалось сгенерировать байт флагов pos_data: %v", err)
 	}
 
 	if err = buf.WriteByte(uint8(flags)); err != nil {
