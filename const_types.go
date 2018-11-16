@@ -2,6 +2,7 @@ package main
 
 const egtsSrTermIdentity = 1
 const egtsSrRecordResponse = 0
+const egtsSrResultCode = 9
 const egtsSrPosData = 16
 const egtsSrExtPosData = 17
 const egtsSrAdSensorsData = 18
