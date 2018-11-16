@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
 )
@@ -61,8 +61,9 @@ func TestRecordDataSet_Decode(t *testing.T) {
 		t.Errorf("Ошибка декадирования: %v\n", err)
 	}
 
-	if !reflect.DeepEqual(rds, testRecordDataSet) {
-		t.Errorf("Запись не совпадают: %v != %v ", rds, testRecordDataSet)
+	if diff := cmp.Diff(rds, testRecordDataSet); diff != "" {
+		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
 	}
+
 
 }

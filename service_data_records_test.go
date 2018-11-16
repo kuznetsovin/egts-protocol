@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 )
 
@@ -44,8 +44,7 @@ func TestServiceDataRecord_Decode(t *testing.T) {
 		t.Errorf("Ошибка декадирования: %v\n", err)
 	}
 
-	if !reflect.DeepEqual(sdr, testServiceDataRecord) {
-		t.Errorf("Запись не совпадают: %v != %v ", sdr, testServiceDataRecord)
+	if diff := cmp.Diff(sdr, testServiceDataRecord); diff != "" {
+		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
 	}
-
 }

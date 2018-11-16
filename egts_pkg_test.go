@@ -2,7 +2,7 @@ package main
 
 import (
 	"bytes"
-	"reflect"
+	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
 )
@@ -94,7 +94,7 @@ func TestEgtsPackagePosData_Decode(t *testing.T) {
 		t.Errorf("Ошибка декадирования: %v\n", err)
 	}
 
-	if !reflect.DeepEqual(egtsPkg, egtsPkgPosData) {
-		t.Errorf("Пакеты не совпадают")
+	if diff := cmp.Diff(egtsPkg, egtsPkgPosData); diff != "" {
+		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
 	}
 }

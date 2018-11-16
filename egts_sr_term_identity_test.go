@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"github.com/google/go-cmp/cmp"
 	"reflect"
 	"testing"
 )
@@ -163,10 +164,9 @@ func TestEgtsSrTermIdentityPkg_Decode(t *testing.T) {
 		t.Errorf("Ошибка декадирования: %v\n", err)
 	}
 
-	if !reflect.DeepEqual(srTermIdentPkg, testEgtsSrTermIdentityPkg) {
-
+	if diff := cmp.Diff(srTermIdentPkg, testEgtsSrTermIdentityPkg); diff != "" {
+		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
 	}
-
 }
 
 /*

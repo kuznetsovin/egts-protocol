@@ -20,14 +20,12 @@ func (s *EgtsPtResponse) Decode(content []byte) error {
 
 	tmpIntBuf := make([]byte, 2)
 	if _, err = buf.Read(tmpIntBuf); err != nil {
-		fmt.Println("Не удалось получить идентификатор пакета из ответа")
-		return err
+		return fmt.Errorf("Не удалось получить идентификатор пакета из ответа: %v", err)
 	}
 	s.ResponsePacketID = binary.LittleEndian.Uint16(tmpIntBuf)
 
 	if s.ProcessingResult, err = buf.ReadByte(); err != nil {
-		fmt.Println("Не удалось получить код обработки")
-		return err
+		return fmt.Errorf("Не удалось получить код обработки: %v", err)
 	}
 
 	sfd := ServiceDataSet{}
