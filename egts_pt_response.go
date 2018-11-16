@@ -28,10 +28,14 @@ func (s *EgtsPtResponse) Decode(content []byte) error {
 		return fmt.Errorf("Не удалось получить код обработки: %v", err)
 	}
 
-	sfd := ServiceDataSet{}
-	if err = sfd.Decode(buf.Bytes()); err != nil {
-		return err
+	// если имеется о сервисном уровне, так как она необязательна
+	if buf.Len() > 0 {
+		s.SDR = &ServiceDataSet{}
+		if err = s.SDR.Decode(buf.Bytes()); err != nil {
+			return err
+		}
 	}
+
 	return err
 }
 
