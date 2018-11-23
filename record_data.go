@@ -47,6 +47,8 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &EgtsSrExtPosData{}
 		case egtsSrAdSensorsData:
 			rd.SubrecordData = &EgtsSrAdSensorsData{}
+		case egtsSrStateData:
+			rd.SubrecordData = &EgtsSrStateData{}
 		default:
 			return fmt.Errorf("Не известный пакета: %d", rd.SubrecordType)
 		}
