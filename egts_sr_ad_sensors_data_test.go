@@ -40,13 +40,13 @@ var (
 )
 
 func TestEgtsSrAdSensorsData_Encode(t *testing.T) {
-	posDataBytes, err := testEgtsSrAdSensorsData.Encode()
+	sensDataBytes, err := testEgtsSrAdSensorsData.Encode()
 	if err != nil {
 		t.Errorf("Ошибка кодирования: %v\n", err)
 	}
 
-	if !bytes.Equal(posDataBytes, srAdSensorsDataBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", posDataBytes, extPosDataBytes)
+	if !bytes.Equal(sensDataBytes, srAdSensorsDataBytes) {
+		t.Errorf("Байтовые строки не совпадают: %v != %v ", sensDataBytes, srAdSensorsDataBytes)
 	}
 }
 
@@ -68,7 +68,7 @@ func TestEgtsSrAdSensorsDataaRs(t *testing.T) {
 	adSensDataRD := RecordDataSet{
 		RecordData{
 			SubrecordType:   egtsSrAdSensorsData,
-			SubrecordLength: 28,
+			SubrecordLength: testEgtsSrAdSensorsData.Length(),
 			SubrecordData:   &testEgtsSrAdSensorsData,
 		},
 	}
