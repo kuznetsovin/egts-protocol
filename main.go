@@ -2,28 +2,36 @@ package main
 
 import (
 	"log"
+	"net"
+	"os"
 )
 
+var (
+	config   Config
+)
 func main() {
-	msg := []byte{}
-	log.Printf("Send: %s", msg)
+	if len(os.Args) == 2 {
+		if err := config.Load(os.Args[1]); err != nil {
+			log.Fatalf("Ошибка парсинга конфига: %v\n", err)
+		}
+	} else {
+		log.Fatalf("Не задан путь до конфига")
+	}
 
-	//addr := strings.Join([]string{ip, strconv.Itoa(port)}, ":")
-	//conn, err := net.Dial("tcp", addr)
-	//
-	//defer conn.Close()
-	//
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//
-	//// conn.Write([]byte(message))
-	//conn.Write([]byte(msg))
-	//conn.Write([]byte(StopCharacter))
-	//log.Printf("Send: %s", msg)
-	//
-	//buff := make([]byte, 1024)
-	//n, _ := conn.Read(buff)
-	//log.Printf("Receive: %s", buff[:n])
+	l, err := net.Listen("tcp", config.GetListenAddress())
+	if err != nil {
+		log.Fatalf("Не удалось открыть соединение: %v\n", err)
+	}
+	defer l.Close()
 
+	log.Printf("Запущен сервер %s...\n", config.GetListenAddress())
+	for {
+		conn, err := l.Accept()
+		if err != nil {
+			log.Printf("Ошибка соединения: %v\n", err)
+		} else {
+			go handleRecvPkg(conn)
+
+		}
+	}
 }

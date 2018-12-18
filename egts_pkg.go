@@ -134,7 +134,7 @@ func (p *EgtsPackage) Decode(content []byte) (int, error) {
 	}
 	p.ServicesFrameDataCheckSum = binary.LittleEndian.Uint16(crcBytes)
 
-	if p.ServicesFrameDataCheckSum != crc16(content[p.HeaderLength:len(content) - 2]) {
+	if p.ServicesFrameDataCheckSum != crc16(content[p.HeaderLength:uint16(p.HeaderLength)+p.FrameDataLength]) {
 		return egtsPcHeadercrcError, fmt.Errorf("Не верная сумма тела пакета")
 	}
 	return egtsPcOk, err
