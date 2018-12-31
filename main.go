@@ -7,8 +7,9 @@ import (
 )
 
 var (
-	config   Config
+	config Config
 )
+
 func main() {
 	if len(os.Args) == 2 {
 		if err := config.Load(os.Args[1]); err != nil {

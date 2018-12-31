@@ -36,8 +36,8 @@ func (s *EgtsSrResponse) Decode(content []byte) error {
 
 func (s *EgtsSrResponse) Encode() ([]byte, error) {
 	var (
-		result   []byte
-		err      error
+		result []byte
+		err    error
 	)
 	buf := new(bytes.Buffer)
 
@@ -63,4 +63,28 @@ func (s *EgtsSrResponse) Length() uint16 {
 	}
 
 	return result
+}
+
+func createSrRecordResponse(pkgNum, recordNum uint16) ([]byte, error) {
+	respSection := EgtsSrResponse{
+		ConfirmedRecordNumber: recordNum,
+		RecordStatus:          egtsPcOk,
+	}
+	respPkg := EgtsPackage{
+		ProtocolVersion:   1,
+		SecurityKeyID:     0,
+		Prefix:            "00",
+		Route:             "0",
+		EncryptionAlg:     "00",
+		Compression:       "0",
+		Priority:          "00",
+		HeaderLength:      11,
+		HeaderEncoding:    0,
+		FrameDataLength:   respSection.Length(),
+		PacketIdentifier:  pkgNum,
+		PacketType:        egtsPtAppdata,
+		ServicesFrameData: &respSection,
+	}
+
+	return respPkg.Encode()
 }
