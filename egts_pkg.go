@@ -5,6 +5,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 // BinaryData интерфейс для работы с бинарными секциями
@@ -219,4 +220,28 @@ func (p *EgtsPackage) Encode() ([]byte, error) {
 
 	result = buf.Bytes()
 	return result, err
+}
+
+type EgtsExportPacket struct {
+	PacketID       uint32
+	NavigationTime time.Time
+	Latitude       float64
+	Longitude      float64
+	LiquidSensor   []Sensor
+}
+
+// функция сохранения пакета наружу
+func (eep *EgtsExportPacket) Save() error {
+	var err error
+
+	fmt.Println(eep)
+
+	return err
+}
+
+type Sensor struct {
+	SensorNumber uint8
+	ErrorFlag    string
+	ValueMm      uint32
+	ValueL       uint32
 }
