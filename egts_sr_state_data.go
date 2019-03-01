@@ -7,13 +7,13 @@ import (
 )
 
 type EgtsSrStateData struct {
-	State                  uint8
-	MainPowerSourceVoltage uint8
-	BackUpBatteryVoltage   uint8
-	InternalBatteryVoltage uint8
-	NMS                    string
-	IBU                    string
-	BBU                    string
+	State                  uint8  `json:"ST"`
+	MainPowerSourceVoltage uint8  `json:"MPSV"`
+	BackUpBatteryVoltage   uint8  `json:"BBV"`
+	InternalBatteryVoltage uint8  `json:"IBV"`
+	NMS                    string `json:"NMS"`
+	IBU                    string `json:"IBU"`
+	BBU                    string `json:"BBU"`
 }
 
 func (e *EgtsSrStateData) Decode(content []byte) error {

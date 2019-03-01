@@ -6,7 +6,7 @@ import (
 )
 
 type EgtsSrResultCode struct {
-	ResultCode uint8
+	ResultCode uint8 `json:"RCD"`
 }
 
 func (s *EgtsSrResultCode) Decode(content []byte) error {
@@ -47,28 +47,4 @@ func (s *EgtsSrResultCode) Length() uint16 {
 	}
 
 	return result
-}
-
-func createSrResultCode(pkgNum uint16) ([]byte, error) {
-	respSection := EgtsSrResultCode{
-		ResultCode: egtsPcOk,
-	}
-
-	respPkg := EgtsPackage{
-		ProtocolVersion:   1,
-		SecurityKeyID:     0,
-		Prefix:            "00",
-		Route:             "0",
-		EncryptionAlg:     "00",
-		Compression:       "0",
-		Priority:          "00",
-		HeaderLength:      11,
-		HeaderEncoding:    0,
-		FrameDataLength:   respSection.Length(),
-		PacketIdentifier:  pkgNum + 1,
-		PacketType:        egtsPtAppdata,
-		ServicesFrameData: &respSection,
-	}
-
-	return respPkg.Encode()
 }

@@ -7,10 +7,10 @@ import (
 )
 
 var (
-	srAbsCntrDataBytes = []byte{0x06, 0x75, 0x1D, 0x70}
+	srAbsCntrDataBytes    = []byte{0x06, 0x75, 0x1D, 0x70}
 	testEgtsSrAbsCntrData = EgtsSrAbsCntrData{
 		CounterNumber: 6,
-		CounterValue: 7347573,
+		CounterValue:  7347573,
 	}
 )
 

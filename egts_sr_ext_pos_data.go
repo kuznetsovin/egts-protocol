@@ -8,16 +8,16 @@ import (
 )
 
 type EgtsSrExtPosData struct {
-	NavigationSystemFieldExists   string
-	SatellitesFieldExists         string
-	PdopFieldExists               string
-	HdopFieldExists               string
-	VdopFieldExists               string
-	VerticalDilutionOfPrecision   uint16
-	HorizontalDilutionOfPrecision uint16
-	PositionDilutionOfPrecision   uint16
-	Satellites                    uint8
-	NavigationSystem              uint16
+	NavigationSystemFieldExists   string `json:"NSFE"`
+	SatellitesFieldExists         string `json:"SFE"`
+	PdopFieldExists               string `json:"PFE"`
+	HdopFieldExists               string `json:"HFE"`
+	VdopFieldExists               string `json:"VFE"`
+	VerticalDilutionOfPrecision   uint16 `json:"VDOP"`
+	HorizontalDilutionOfPrecision uint16 `json:"HDOP"`
+	PositionDilutionOfPrecision   uint16 `json:"PDOP"`
+	Satellites                    uint8  `json:"SAT"`
+	NavigationSystem              uint16 `json:"NS"`
 }
 
 func (e *EgtsSrExtPosData) Decode(content []byte) error {

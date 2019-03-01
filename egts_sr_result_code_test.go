@@ -27,7 +27,7 @@ var (
 				RecordNumber:             14357,
 				SourceServiceOnDevice:    "0",
 				RecipientServiceOnDevice: "0",
-				Group: "1",
+				Group:                    "1",
 				RecordProcessingPriority: "00",
 				TimeFieldExists:          "0",
 				EventIDFieldExists:       "0",

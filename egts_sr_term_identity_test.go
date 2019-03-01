@@ -42,7 +42,7 @@ var (
 				RecordNumber:             95,
 				SourceServiceOnDevice:    "1",
 				RecipientServiceOnDevice: "0",
-				Group: "0",
+				Group:                    "0",
 				RecordProcessingPriority: "11",
 				TimeFieldExists:          "0",
 				EventIDFieldExists:       "0",
@@ -109,5 +109,3 @@ func TestEgtsSrTermIdentityPkg_Decode(t *testing.T) {
 		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
 	}
 }
-
-

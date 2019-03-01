@@ -8,39 +8,39 @@ import (
 )
 
 type EgtsSrAdSensorsData struct {
-	DigitalInputsOctetExists1     string
-	DigitalInputsOctetExists2     string
-	DigitalInputsOctetExists3     string
-	DigitalInputsOctetExists4     string
-	DigitalInputsOctetExists5     string
-	DigitalInputsOctetExists6     string
-	DigitalInputsOctetExists7     string
-	DigitalInputsOctetExists8     string
-	DigitalOutputs                byte
-	AnalogSensorFieldExists1      string
-	AnalogSensorFieldExists2      string
-	AnalogSensorFieldExists3      string
-	AnalogSensorFieldExists4      string
-	AnalogSensorFieldExists5      string
-	AnalogSensorFieldExists6      string
-	AnalogSensorFieldExists7      string
-	AnalogSensorFieldExists8      string
-	AdditionalDigitalInputsOctet1 byte
-	AdditionalDigitalInputsOctet2 byte
-	AdditionalDigitalInputsOctet3 byte
-	AdditionalDigitalInputsOctet4 byte
-	AdditionalDigitalInputsOctet5 byte
-	AdditionalDigitalInputsOctet6 byte
-	AdditionalDigitalInputsOctet7 byte
-	AdditionalDigitalInputsOctet8 byte
-	AnalogSensor1                 uint32
-	AnalogSensor2                 uint32
-	AnalogSensor3                 uint32
-	AnalogSensor4                 uint32
-	AnalogSensor5                 uint32
-	AnalogSensor6                 uint32
-	AnalogSensor7                 uint32
-	AnalogSensor8                 uint32
+	DigitalInputsOctetExists1     string `json:"DIOE1"`
+	DigitalInputsOctetExists2     string `json:"DIOE2"`
+	DigitalInputsOctetExists3     string `json:"DIOE3"`
+	DigitalInputsOctetExists4     string `json:"DIOE4"`
+	DigitalInputsOctetExists5     string `json:"DIOE5"`
+	DigitalInputsOctetExists6     string `json:"DIOE6"`
+	DigitalInputsOctetExists7     string `json:"DIOE7"`
+	DigitalInputsOctetExists8     string `json:"DIOE8"`
+	DigitalOutputs                byte   `json:"DOUT"`
+	AnalogSensorFieldExists1      string `json:"ASFE1"`
+	AnalogSensorFieldExists2      string `json:"ASFE2"`
+	AnalogSensorFieldExists3      string `json:"ASFE3"`
+	AnalogSensorFieldExists4      string `json:"ASFE4"`
+	AnalogSensorFieldExists5      string `json:"ASFE5"`
+	AnalogSensorFieldExists6      string `json:"ASFE6"`
+	AnalogSensorFieldExists7      string `json:"ASFE7"`
+	AnalogSensorFieldExists8      string `json:"ASFE8"`
+	AdditionalDigitalInputsOctet1 byte   `json:"ADIO1"`
+	AdditionalDigitalInputsOctet2 byte   `json:"ADIO2"`
+	AdditionalDigitalInputsOctet3 byte   `json:"ADIO3"`
+	AdditionalDigitalInputsOctet4 byte   `json:"ADIO4"`
+	AdditionalDigitalInputsOctet5 byte   `json:"ADIO5"`
+	AdditionalDigitalInputsOctet6 byte   `json:"ADIO6"`
+	AdditionalDigitalInputsOctet7 byte   `json:"ADIO7"`
+	AdditionalDigitalInputsOctet8 byte   `json:"ADIO8"`
+	AnalogSensor1                 uint32 `json:"ANS1"`
+	AnalogSensor2                 uint32 `json:"ANS2"`
+	AnalogSensor3                 uint32 `json:"ANS3"`
+	AnalogSensor4                 uint32 `json:"ANS4"`
+	AnalogSensor5                 uint32 `json:"ANS5"`
+	AnalogSensor6                 uint32 `json:"ANS6"`
+	AnalogSensor7                 uint32 `json:"ANS7"`
+	AnalogSensor8                 uint32 `json:"ANS8"`
 }
 
 func (e *EgtsSrAdSensorsData) Decode(content []byte) error {

@@ -7,8 +7,8 @@ import (
 )
 
 type EgtsSrAbsCntrData struct {
-	CounterNumber uint8
-	CounterValue  uint32
+	CounterNumber uint8  `json:"CN"`
+	CounterValue  uint32 `json:"CNV"`
 }
 
 func (e *EgtsSrAbsCntrData) Decode(content []byte) error {

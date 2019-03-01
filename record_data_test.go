@@ -8,14 +8,16 @@ import (
 )
 
 var (
+	testRecordDataBytes = []byte{0x10, 0x15, 0x00, 0xD5, 0x3F, 0x01, 0x10, 0x6F, 0x1C, 0x05, 0x9E, 0x7A, 0xB5,
+		0x3C, 0x35, 0x01, 0xD0, 0x87, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00}
 	testRecordDataSet = RecordDataSet{
 		RecordData{
 			SubrecordType:   16,
 			SubrecordLength: 21,
 			SubrecordData: &EgtsSrPosData{
 				NavigationTime:      time.Date(2018, time.July, 4, 20, 8, 53, 0, time.UTC),
-				Latitude:            55,
-				Longitude:           37,
+				Latitude:            55.55389399769574,
+				Longitude:           37.43236696287812,
 				ALTE:                "0",
 				LOHS:                "0",
 				LAHS:                "0",
@@ -37,10 +39,6 @@ var (
 )
 
 func TestRecordDataSet_Encode(t *testing.T) {
-	//из-за преобразования float64 в формат пакета просхоит погрешность поэтому тестовый пакет немного изменяется
-	testRecordDataBytes := []byte{0x10, 0x15, 0x00, 0xD5, 0x3F, 0x01, 0x10, 0x1b, 0xc7, 0x71, 0x9c, 0xf4, 0x49, 0x9f,
-		0x34, 0x01, 0xD0, 0x87, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00}
-
 	rdBytes, err := testRecordDataSet.Encode()
 	if err != nil {
 		t.Errorf("Ошибка кодирования: %v\n", err)
@@ -52,9 +50,6 @@ func TestRecordDataSet_Encode(t *testing.T) {
 }
 
 func TestRecordDataSet_Decode(t *testing.T) {
-	testRecordDataBytes := []byte{0x10, 0x15, 0x00, 0xD5, 0x3F, 0x01, 0x10, 0x6F, 0x1C, 0x05, 0x9E, 0x7A, 0xB5,
-		0x3C, 0x35, 0x01, 0xD0, 0x87, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00}
-
 	rds := RecordDataSet{}
 
 	if err := rds.Decode(testRecordDataBytes); err != nil {
@@ -64,6 +59,5 @@ func TestRecordDataSet_Decode(t *testing.T) {
 	if diff := cmp.Diff(rds, testRecordDataSet); diff != "" {
 		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
 	}
-
 
 }

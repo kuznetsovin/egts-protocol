@@ -9,26 +9,26 @@ import (
 )
 
 type EgtsSrPosData struct {
-	NavigationTime      time.Time
-	Latitude            float64
-	Longitude           float64
-	ALTE                string
-	LOHS                string
-	LAHS                string
-	MV                  string
-	BB                  string
-	CS                  string
-	FIX                 string
-	VLD                 string
-	DirectionHighestBit uint8
-	AltitudeSign        uint8
-	Speed               uint16
-	Direction           byte
-	Odometer            []byte
-	DigitalInputs       byte
-	Source              byte
-	Altitude            []byte
-	SourceData          int16
+	NavigationTime      time.Time `json:"NTM"`
+	Latitude            float64   `json:"LAT"`
+	Longitude           float64   `json:"LONG"`
+	ALTE                string    `json:"ALTE"`
+	LOHS                string    `json:"LOHS"`
+	LAHS                string    `json:"LAHS"`
+	MV                  string    `json:"MV"`
+	BB                  string    `json:"BB"`
+	CS                  string    `json:"CS"`
+	FIX                 string    `json:"FIX"`
+	VLD                 string    `json:"VLD"`
+	DirectionHighestBit uint8     `json:"DIRH"`
+	AltitudeSign        uint8     `json:"ALTS"`
+	Speed               uint16    `json:"SPD"`
+	Direction           byte      `json:"DIR"`
+	Odometer            []byte    `json:"ODM"`
+	DigitalInputs       byte      `json:"DIN"`
+	Source              byte      `json:"SRC"`
+	Altitude            []byte    `json:"ALT"`
+	SourceData          int16     `json:"SRCD"`
 }
 
 func (e *EgtsSrPosData) Decode(content []byte) error {
@@ -54,14 +54,14 @@ func (e *EgtsSrPosData) Decode(content []byte) error {
 	}
 
 	preFieldVal = binary.LittleEndian.Uint32(tmpUint32Buf)
-	e.Latitude = float64(int(preFieldVal) * 90 / 0xFFFFFFFF)
+	e.Latitude = float64(float64(preFieldVal) * 90 / 0xFFFFFFFF)
 
 	// В протоколе значение хранится в виде: долгота по модулю, градусы/180*0xFFFFFFFF  и взята целая часть
 	if _, err = buf.Read(tmpUint32Buf); err != nil {
 		return fmt.Errorf("Не удалось получить время долгату: %v", err)
 	}
 	preFieldVal = binary.LittleEndian.Uint32(tmpUint32Buf)
-	e.Longitude = float64(int(preFieldVal) * 180 / 0xFFFFFFFF)
+	e.Longitude = float64(float64(preFieldVal) * 180 / 0xFFFFFFFF)
 
 	//байт флагов
 	if flags, err = buf.ReadByte(); err != nil {
@@ -143,7 +143,6 @@ func (e *EgtsSrPosData) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось записать широту: %v", err)
 	}
 
-
 	// В протоколе значение хранится в виде: долгота по модулю, градусы/180*0xFFFFFFFF  и взята целая часть
 	if err = binary.Write(buf, binary.LittleEndian, uint32(e.Longitude/180*0xFFFFFFFF)); err != nil {
 		return result, fmt.Errorf("Не удалось записать долготу: %v", err)
@@ -160,8 +159,8 @@ func (e *EgtsSrPosData) Encode() ([]byte, error) {
 	}
 
 	// скорость
-	speed := e.Speed * 10 | uint16(e.DirectionHighestBit)<<15 // 15 бит
-	speed = speed | uint16(e.AltitudeSign)<<14           //14 бит
+	speed := e.Speed*10 | uint16(e.DirectionHighestBit)<<15 // 15 бит
+	speed = speed | uint16(e.AltitudeSign)<<14              //14 бит
 	spd := make([]byte, 2)
 	binary.LittleEndian.PutUint16(spd, speed)
 	if _, err = buf.Write(spd); err != nil {

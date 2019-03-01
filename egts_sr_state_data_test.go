@@ -8,13 +8,13 @@ import (
 
 var (
 	testEgtsSrStateData = EgtsSrStateData{
-		State: 2,
+		State:                  2,
 		MainPowerSourceVoltage: 127,
 		BackUpBatteryVoltage:   0,
 		InternalBatteryVoltage: 41,
-		NMS: "1",
-		IBU: "0",
-		BBU: "0",
+		NMS:                    "1",
+		IBU:                    "0",
+		BBU:                    "0",
 	}
 	testSrStateDataBytes = []byte{0x02, 0x7F, 0x00, 0x29, 0x04}
 )
@@ -45,7 +45,7 @@ func TestEgtsPkgSrStateData_Decode(t *testing.T) {
 
 // проверяем что рекордсет работает правильно с данным типом подзаписи
 func TestEgtsSrStateDataRs(t *testing.T) {
-	stateDataRDBytes := append([]byte{0x14, 0x05, 0x00,}, testSrStateDataBytes...)
+	stateDataRDBytes := append([]byte{0x14, 0x05, 0x00}, testSrStateDataBytes...)
 	stateDataRD := RecordDataSet{
 		RecordData{
 			SubrecordType:   egtsSrStateData,

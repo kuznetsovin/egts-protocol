@@ -8,22 +8,22 @@ import (
 )
 
 type EgtsSrTermIdentity struct {
-	TerminalIdentifier       uint32
-	MNE                      string
-	BSE                      string
-	NIDE                     string
-	SSRA                     string
-	LNGCE                    string
-	IMSIE                    string
-	IMEIE                    string
-	HDIDE                    string
-	HomeDispatcherIdentifier uint16
-	IMEI                     string
-	IMSI                     string
-	LanguageCode             string
-	NetworkIdentifier        []byte
-	BufferSize               uint16
-	MobileNumber             string
+	TerminalIdentifier       uint32 `json:"TID"`
+	MNE                      string `json:"MNE"`
+	BSE                      string `json:"BSE"`
+	NIDE                     string `json:"NIDE"`
+	SSRA                     string `json:"SSRA"`
+	LNGCE                    string `json:"LNGCE"`
+	IMSIE                    string `json:"IMSIE"`
+	IMEIE                    string `json:"IMEIE"`
+	HDIDE                    string `json:"HDIDE"`
+	HomeDispatcherIdentifier uint16 `json:"HDID"`
+	IMEI                     string `json:"IMEI"`
+	IMSI                     string `json:"IMSI"`
+	LanguageCode             string `json:"LNGC"`
+	NetworkIdentifier        []byte `json:"NID"`
+	BufferSize               uint16 `json:"BS"`
+	MobileNumber             string `json:"MSISDN"`
 }
 
 func (e *EgtsSrTermIdentity) Decode(content []byte) error {

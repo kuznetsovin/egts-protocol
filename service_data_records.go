@@ -185,19 +185,19 @@ func (s *ServiceDataSet) Length() uint16 {
 }
 
 type ServiceDataRecord struct {
-	RecordLength             uint16
-	RecordNumber             uint16
-	SourceServiceOnDevice    string
-	RecipientServiceOnDevice string
-	Group                    string
-	RecordProcessingPriority string
-	TimeFieldExists          string
-	EventIDFieldExists       string
-	ObjectIDFieldExists      string
-	ObjectIdentifier         uint32
-	EventIdentifier          uint32
-	Time                     uint32
-	SourceServiceType        byte
-	RecipientServiceType     byte
-	RecordDataSet
+	RecordLength             uint16 `json:"RL"`
+	RecordNumber             uint16 `json:"RN"`
+	SourceServiceOnDevice    string `json:"SSOD"`
+	RecipientServiceOnDevice string `json:"RSOD"`
+	Group                    string `json:"GRP"`
+	RecordProcessingPriority string `json:"RPP"`
+	TimeFieldExists          string `json:"TMFE"`
+	EventIDFieldExists       string `json:"EVFE"`
+	ObjectIDFieldExists      string `json:"OBFE"`
+	ObjectIdentifier         uint32 `json:"OID"`
+	EventIdentifier          uint32 `json:"EVID"`
+	Time                     uint32 `json:"TM"` //TODO: сделать time также как в pos_data
+	SourceServiceType        byte   `json:"SST"`
+	RecipientServiceType     byte   `json:"RST"`
+	RecordDataSet            `json:"RD"`
 }

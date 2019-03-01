@@ -8,10 +8,12 @@ import (
 )
 
 var (
+	testEgtsSrPosDataBytes = []byte{0xD5, 0x3F, 0x01, 0x10, 0x6F, 0x1C, 0x05, 0x9E, 0x7A, 0xB5, 0x3C, 0x35,
+		0x01, 0xD0, 0x87, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00}
 	testEgtsSrPosData = EgtsSrPosData{
 		NavigationTime:      time.Date(2018, time.July, 4, 20, 8, 53, 0, time.UTC),
-		Latitude:            55,
-		Longitude:           37,
+		Latitude:            55.55389399769574,
+		Longitude:           37.43236696287812,
 		ALTE:                "0",
 		LOHS:                "0",
 		LAHS:                "0",
@@ -31,10 +33,6 @@ var (
 )
 
 func TestEgtsSrPosData_Encode(t *testing.T) {
-	//из-за преобразования float64 в формат пакета просхоит погрешность поэтому тестовый пакет немного изменяется
-	testEgtsSrPosDataBytes := []byte{0xD5, 0x3F, 0x01, 0x10, 0x1b, 0xc7, 0x71, 0x9c, 0xf4, 0x49, 0x9f, 0x34,
-		0x01, 0xD0, 0x87, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00}
-
 	posDataBytes, err := testEgtsSrPosData.Encode()
 	if err != nil {
 		t.Errorf("Ошибка кодирования: %v\n", err)
@@ -46,9 +44,6 @@ func TestEgtsSrPosData_Encode(t *testing.T) {
 }
 
 func TestEgtsSrPosData_Decode(t *testing.T) {
-	testEgtsSrPosDataBytes := []byte{0xD5, 0x3F, 0x01, 0x10, 0x6F, 0x1C, 0x05, 0x9E, 0x7A, 0xB5, 0x3C, 0x35,
-		0x01, 0xD0, 0x87, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00}
-
 	posData := EgtsSrPosData{}
 
 	if err := posData.Decode(testEgtsSrPosDataBytes); err != nil {

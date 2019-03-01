@@ -19,7 +19,7 @@ var (
 		HeaderEncoding:   0,
 		FrameDataLength:  3,
 		PacketIdentifier: 137,
-		PacketType:       0,
+		PacketType:       egtsPtResponse,
 		HeaderCheckSum:   74,
 		ServicesFrameData: &EgtsPtResponse{
 			ResponsePacketID: 14357,
@@ -30,9 +30,7 @@ var (
 	testEgtsPkgBytes = []byte{0x01, 0x00, 0x03, 0x0B, 0x00, 0x03, 0x00, 0x89, 0x00, 0x00, 0x4A, 0x15, 0x38, 0x00, 0x33, 0xE8}
 )
 
-
 func TestEgtsPkgResp_Encode(t *testing.T) {
-
 
 	posDataBytes, err := egtsPkgResp.Encode()
 	if err != nil {
@@ -55,4 +53,3 @@ func TestEgtsPkgResp_Decode(t *testing.T) {
 		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
 	}
 }
-

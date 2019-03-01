@@ -4,6 +4,7 @@ const egtsSrRecordResponse = 0
 const egtsSrTermIdentity = 1
 const egtsSrResultCode = 9
 const egtsSrAuthInfo = 7
+const egtsSrEgtsPlusData = 15
 const egtsSrPosData = 16
 const egtsSrExtPosData = 17
 const egtsSrAdSensorsData = 18
@@ -21,3 +22,4 @@ const egtsPtAppdata = 1
 const egtsPtResponse = 0
 
 const egtsAuthService = 1
+const egtsTeledataService = 2

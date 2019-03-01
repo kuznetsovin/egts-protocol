@@ -8,12 +8,12 @@ import (
 )
 
 type EgtsSrLiquidLevelSensor struct {
-	LiquidLevelSensorErrorFlag string
-	LiquidLevelSensorValueUnit string
-	RawDataFlag                string
-	LiquidLevelSensorNumber    uint8
-	ModuleAddress              uint16
-	LiquidLevelSensorData      uint32
+	LiquidLevelSensorErrorFlag string `json:"LLSEF"`
+	LiquidLevelSensorValueUnit string `json:"LLSVU"`
+	RawDataFlag                string `json:"RDF"`
+	LiquidLevelSensorNumber    uint8  `json:"LLSN"`
+	ModuleAddress              uint16 `json:"MADDR"`
+	LiquidLevelSensorData      uint32 `json:"LLSD"`
 }
 
 func (e *EgtsSrLiquidLevelSensor) Decode(content []byte) error {

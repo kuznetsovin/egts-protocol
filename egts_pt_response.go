@@ -7,9 +7,9 @@ import (
 )
 
 type EgtsPtResponse struct {
-	ResponsePacketID uint16
-	ProcessingResult uint8
-	SDR              BinaryData
+	ResponsePacketID uint16     `json:"RPID"`
+	ProcessingResult uint8      `json:"PR"`
+	SDR              BinaryData `json:"SDR"`
 }
 
 func (s *EgtsPtResponse) Decode(content []byte) error {
@@ -76,29 +76,4 @@ func (s *EgtsPtResponse) Length() uint16 {
 	}
 
 	return result
-}
-
-func createPtResponse(resultCode uint8, pkgNum uint16) ([]byte, error) {
-	respSection := EgtsPtResponse{
-		ResponsePacketID: pkgNum,
-		ProcessingResult: resultCode,
-	}
-
-	respPkg := EgtsPackage{
-		ProtocolVersion:   1,
-		SecurityKeyID:     0,
-		Prefix:            "00",
-		Route:             "0",
-		EncryptionAlg:     "00",
-		Compression:       "0",
-		Priority:          "11",
-		HeaderLength:      11,
-		HeaderEncoding:    0,
-		FrameDataLength:   respSection.Length(),
-		PacketIdentifier:  pkgNum + 1,
-		PacketType:        egtsPtResponse,
-		ServicesFrameData: &respSection,
-	}
-
-	return respPkg.Encode()
 }

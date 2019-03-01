@@ -7,9 +7,9 @@ import (
 )
 
 type RecordData struct {
-	SubrecordType   byte
-	SubrecordLength uint16
-	SubrecordData   BinaryData
+	SubrecordType   byte       `json:"SRT"`
+	SubrecordLength uint16     `json:"SRL"`
+	SubrecordData   BinaryData `json:"SRD"`
 }
 
 //RecordDataSet описывает массив с подзаписями протокола ЕГТС
@@ -53,6 +53,10 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &EgtsSrLiquidLevelSensor{}
 		case egtsSrAbsCntrData:
 			rd.SubrecordData = &EgtsSrAbsCntrData{}
+		case egtsSrAuthInfo:
+			rd.SubrecordData = &EgtsSrAuthInfo{}
+		case egtsSrEgtsPlusData:
+			rd.SubrecordData = &StorageRecord{}
 		default:
 			return fmt.Errorf("Не известный пакета: %d", rd.SubrecordType)
 		}

@@ -3,7 +3,9 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
+	"encoding/json"
 	"fmt"
+	"github.com/streadway/amqp"
 	"strconv"
 	"time"
 )
@@ -17,28 +19,28 @@ type BinaryData interface {
 
 // EgtsPackage стуркура для описания пакета ЕГТС
 type EgtsPackage struct {
-	ProtocolVersion           byte
-	SecurityKeyID             byte
-	Prefix                    string
-	Route                     string
-	EncryptionAlg             string
-	Compression               string
-	Priority                  string
-	HeaderLength              byte
-	HeaderEncoding            byte
-	FrameDataLength           uint16
-	PacketIdentifier          uint16
-	PacketType                byte
-	PeerAddress               uint16
-	RecipientAddress          uint16
-	TimeToLive                byte
-	HeaderCheckSum            byte
-	ServicesFrameData         BinaryData
-	ServicesFrameDataCheckSum uint16
+	ProtocolVersion           byte       `json:"PRV"`
+	SecurityKeyID             byte       `json:"SKID"`
+	Prefix                    string     `json:"PRF"`
+	Route                     string     `json:"RTE"`
+	EncryptionAlg             string     `json:"RTE"`
+	Compression               string     `json:"CMP"`
+	Priority                  string     `json:"PR"`
+	HeaderLength              byte       `json:"HL"`
+	HeaderEncoding            byte       `json:"HE"`
+	FrameDataLength           uint16     `json:"FDL"`
+	PacketIdentifier          uint16     `json:"PID"`
+	PacketType                byte       `json:"PT"`
+	PeerAddress               uint16     `json:"PRA"`
+	RecipientAddress          uint16     `json:"RCA"`
+	TimeToLive                byte       `json:"TTL"`
+	HeaderCheckSum            byte       `json:"HCS"`
+	ServicesFrameData         BinaryData `json:"SFRD"`
+	ServicesFrameDataCheckSum uint16     `json:"SFRCS"`
 }
 
 // Encode кодирует струткуру в байтовую строку
-func (p *EgtsPackage) Decode(content []byte) (int, error) {
+func (p *EgtsPackage) Decode(content []byte) (uint8, error) {
 	var (
 		err   error
 		flags byte
@@ -222,26 +224,152 @@ func (p *EgtsPackage) Encode() ([]byte, error) {
 	return result, err
 }
 
-type EgtsExportPacket struct {
-	PacketID       uint32
-	NavigationTime time.Time
-	Latitude       float64
-	Longitude      float64
-	LiquidSensor   []Sensor
+func (p *EgtsPackage) CreatePtResponse(resultCode, serviceType uint8, srResponses RecordDataSet) ([]byte, error) {
+	respSection := EgtsPtResponse{
+		ResponsePacketID: p.PacketIdentifier,
+		ProcessingResult: resultCode,
+	}
+
+	if srResponses != nil {
+		respSection.SDR = &ServiceDataSet{
+			ServiceDataRecord{
+				RecordLength:             srResponses.Length(),
+				RecordNumber:             getNextRN(),
+				SourceServiceOnDevice:    "0",
+				RecipientServiceOnDevice: "0",
+				Group:                    "1",
+				RecordProcessingPriority: "00",
+				TimeFieldExists:          "0",
+				EventIDFieldExists:       "0",
+				ObjectIDFieldExists:      "0",
+				SourceServiceType:        serviceType,
+				RecipientServiceType:     serviceType,
+				RecordDataSet:            srResponses,
+			},
+		}
+	}
+
+	respPkg := EgtsPackage{
+		ProtocolVersion:   1,
+		SecurityKeyID:     0,
+		Prefix:            "00",
+		Route:             "0",
+		EncryptionAlg:     "00",
+		Compression:       "0",
+		Priority:          "00",
+		HeaderLength:      11,
+		HeaderEncoding:    0,
+		FrameDataLength:   respSection.Length(),
+		PacketIdentifier:  getNextPid(),
+		PacketType:        egtsPtResponse,
+		ServicesFrameData: &respSection,
+	}
+
+	return respPkg.Encode()
 }
 
-// функция сохранения пакета наружу
-func (eep *EgtsExportPacket) Save() error {
-	var err error
+func (p *EgtsPackage) CreateSrResultCode(resultCode uint8) ([]byte, error) {
+	rds := RecordDataSet{
+		RecordData{
+			SubrecordType:   egtsSrResultCode,
+			SubrecordLength: uint16(1),
+			SubrecordData: &EgtsSrResultCode{
+				ResultCode: resultCode,
+			},
+		},
+	}
 
-	fmt.Println(eep)
+	sfd := ServiceDataSet{
+		ServiceDataRecord{
+			RecordLength:             rds.Length(),
+			RecordNumber:             getNextRN(),
+			SourceServiceOnDevice:    "0",
+			RecipientServiceOnDevice: "0",
+			Group:                    "1",
+			RecordProcessingPriority: "00",
+			TimeFieldExists:          "0",
+			EventIDFieldExists:       "0",
+			ObjectIDFieldExists:      "0",
+			SourceServiceType:        egtsAuthService,
+			RecipientServiceType:     egtsAuthService,
+			RecordDataSet:            rds,
+		},
+	}
 
+	respPkg := EgtsPackage{
+		ProtocolVersion:   1,
+		SecurityKeyID:     0,
+		Prefix:            "00",
+		Route:             "0",
+		EncryptionAlg:     "00",
+		Compression:       "0",
+		Priority:          "00",
+		HeaderLength:      11,
+		HeaderEncoding:    0,
+		FrameDataLength:   sfd.Length(),
+		PacketIdentifier:  getNextPid(),
+		PacketType:        egtsPtAppdata,
+		ServicesFrameData: &sfd,
+	}
+
+	return respPkg.Encode()
+}
+
+func (p *EgtsPackage) Save(channel *amqp.Channel) error {
+	innerPkg, err := json.Marshal(p)
+	if err != nil {
+		return fmt.Errorf("Ошибка сериализации сырого пакета: %v", err)
+	}
+	if err = channel.Publish(
+		config.RabbitMQ.Exchange,
+		"raw",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        innerPkg,
+		}); err != nil {
+		return fmt.Errorf("Ошибка отправки сырого пакета в RabbitMQ: %v", err)
+	}
 	return err
 }
 
-type Sensor struct {
-	SensorNumber uint8
-	ErrorFlag    string
-	ValueMm      uint32
-	ValueL       uint32
+type EgtsExportPacket struct {
+	Client         uint32         `json:"client"`
+	PacketID       uint32         `json:"packet_id"`
+	NavigationTime time.Time      `json:"navigation_time"`
+	Latitude       float64        `json:"latitude"`
+	Longitude      float64        `json:"longitude"`
+	LiquidSensors  []LiquidSensor `json:"liquid_sensors"`
+}
+
+// функция сохранения пакета наружу
+func (eep *EgtsExportPacket) Save(channel *amqp.Channel) error {
+	var err error
+
+	logger.Debug(*eep)
+	innerPkg, err := json.Marshal(eep)
+	if err != nil {
+		return fmt.Errorf("Ошибка сериализации  пакета: %v", err)
+	}
+	logger.Debug(string(innerPkg))
+	if err = channel.Publish(
+		config.RabbitMQ.Exchange,
+		"export",
+		false,
+		false,
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        innerPkg,
+		}); err != nil {
+		return fmt.Errorf("Ошибка сериализации пакета: %v", err)
+	}
+	return err
+}
+
+type LiquidSensor struct {
+	SensorNumber uint8  `json:"sensor_number"`
+	ErrorFlag    string `json:"error_flag"`
+	ValueMm      uint32 `json:"value_mm"`
+	ValueL       uint32 `json:"value_l"`
 }

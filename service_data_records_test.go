@@ -14,7 +14,7 @@ var (
 			RecordNumber:             97,
 			SourceServiceOnDevice:    "1",
 			RecipientServiceOnDevice: "0",
-			Group: "0",
+			Group:                    "0",
 			RecordProcessingPriority: "11",
 			TimeFieldExists:          "0",
 			EventIDFieldExists:       "0",

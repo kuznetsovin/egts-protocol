@@ -1,3 +1,13 @@
 [srv]
 host = "127.0.0.1"
-port = "3333"
+port = "5555"
+
+[rabbitmq]
+host = "localhost"
+port = "5672"
+user = "guest"
+password = "guest"
+exchange = "receiver"
+
+[log]
+level = "DEBUG"
