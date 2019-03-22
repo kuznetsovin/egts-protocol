@@ -1,6 +1,7 @@
 [srv]
 host = "127.0.0.1"
-port = "5555"
+port = "6000"
+con_live_sec = 3
 
 [rabbitmq]
 host = "localhost"
@@ -8,6 +9,7 @@ port = "5672"
 user = "guest"
 password = "guest"
 exchange = "receiver"
+exchange_type = "topic"
 
 [log]
 level = "DEBUG"

@@ -2,38 +2,59 @@ package main
 
 import (
 	"encoding/binary"
-	"github.com/streadway/amqp"
+	"io"
 	"net"
 	"time"
 )
 
-func handleRecvPkg(conn net.Conn, rmqChanel *amqp.Channel) {
+func handleRecvPkg(conn net.Conn, store Connector) {
 	var (
 		isPkgSave         bool
+		isPkgBackup       bool
 		srResultCodePkg   []byte
 		serviceType       uint8
 		srResponsesRecord RecordDataSet
-		err               error
 	)
 	buf := make([]byte, 1024)
+
+	if store == nil {
+		logger.Errorf("Не корректная ссылка на объект хранилища")
+		conn.Close()
+		return
+	}
+	logger.Warnf("Установлено соединение с %s", conn.RemoteAddr())
 
 	for {
 	Received:
 		serviceType = 0
-		isPkgSave = false
 		srResponsesRecord = nil
 		srResultCodePkg = nil
+		isPkgBackup = false
 
-		if _, err = conn.Read(buf); err != nil {
-			logger.Errorf("Ошибка чтения из сетевого буфера: %v", err)
-			time.Sleep(1 * time.Second)
-			goto Received
+		pkgLen, err := conn.Read(buf)
+
+		connTimer := time.NewTimer(config.Srv.getEmptyConnTTL())
+		switch err {
+		case nil:
+			connTimer.Reset(config.Srv.getEmptyConnTTL())
+			logger.Debugf("Принят пакет: %X\v", buf[:pkgLen])
+			break
+		case io.EOF:
+			<-connTimer.C
+			conn.Close()
+			logger.Warnf("Соединение %s закрыто по таймауту", conn.RemoteAddr())
+			return
+		default:
+			logger.Errorf("Ошибка при получении:", err)
+			conn.Close()
+			return
 		}
+
 		logger.Debugf("Принят пакет: %X\v", buf)
 		//printDecodePackage(buf)
 
 		pkg := EgtsPackage{}
-		resultCode, err := pkg.Decode(buf)
+		resultCode, err := pkg.Decode(buf[:pkgLen])
 		if err != nil {
 			logger.Errorf("Не удалось расшифровать пакет: %v", err)
 
@@ -56,6 +77,7 @@ func handleRecvPkg(conn net.Conn, rmqChanel *amqp.Channel) {
 			logger.Info("Тип пакета EGTS_PT_APPDATA")
 
 			for _, rec := range *pkg.ServicesFrameData.(*ServiceDataSet) {
+				isPkgSave = false
 				packetIdBytes := make([]byte, 4)
 
 				srResponsesRecord = append(srResponsesRecord, RecordData{
@@ -90,6 +112,7 @@ func handleRecvPkg(conn net.Conn, rmqChanel *amqp.Channel) {
 					case *EgtsSrPosData:
 						logger.Info("Разбор подзаписи EGTS_SR_POS_DATA")
 						isPkgSave = true
+						isPkgBackup = true
 
 						exportPacket.NavigationTime = subRecData.NavigationTime
 						exportPacket.Latitude = subRecData.Latitude
@@ -132,13 +155,16 @@ func handleRecvPkg(conn net.Conn, rmqChanel *amqp.Channel) {
 						exportPacket.LiquidSensors = append(exportPacket.LiquidSensors, sensorData)
 					}
 				}
+
+				if isPkgSave {
+					if err := store.Save(&exportPacket, config.GetExportStoreKey()); err != nil {
+						logger.Error(err)
+					}
+				}
 			}
 
-			if isPkgSave {
-				if err := pkg.Save(rmqChanel); err != nil {
-					logger.Error(err)
-				}
-				if err := exportPacket.Save(rmqChanel); err != nil {
+			if isPkgBackup {
+				if err := store.Save(&pkg, config.GetRawStoreKey()); err != nil {
 					logger.Error(err)
 				}
 			}

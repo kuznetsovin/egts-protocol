@@ -5,7 +5,6 @@ import (
 	"encoding/binary"
 	"encoding/json"
 	"fmt"
-	"github.com/streadway/amqp"
 	"strconv"
 	"time"
 )
@@ -315,23 +314,8 @@ func (p *EgtsPackage) CreateSrResultCode(resultCode uint8) ([]byte, error) {
 	return respPkg.Encode()
 }
 
-func (p *EgtsPackage) Save(channel *amqp.Channel) error {
-	innerPkg, err := json.Marshal(p)
-	if err != nil {
-		return fmt.Errorf("Ошибка сериализации сырого пакета: %v", err)
-	}
-	if err = channel.Publish(
-		config.RabbitMQ.Exchange,
-		"raw",
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        innerPkg,
-		}); err != nil {
-		return fmt.Errorf("Ошибка отправки сырого пакета в RabbitMQ: %v", err)
-	}
-	return err
+func (p *EgtsPackage) ToBytes() ([]byte, error) {
+	return json.Marshal(p)
 }
 
 type EgtsExportPacket struct {
@@ -343,28 +327,8 @@ type EgtsExportPacket struct {
 	LiquidSensors  []LiquidSensor `json:"liquid_sensors"`
 }
 
-// функция сохранения пакета наружу
-func (eep *EgtsExportPacket) Save(channel *amqp.Channel) error {
-	var err error
-
-	logger.Debug(*eep)
-	innerPkg, err := json.Marshal(eep)
-	if err != nil {
-		return fmt.Errorf("Ошибка сериализации  пакета: %v", err)
-	}
-	logger.Debug(string(innerPkg))
-	if err = channel.Publish(
-		config.RabbitMQ.Exchange,
-		"export",
-		false,
-		false,
-		amqp.Publishing{
-			ContentType: "text/plain",
-			Body:        innerPkg,
-		}); err != nil {
-		return fmt.Errorf("Ошибка сериализации пакета: %v", err)
-	}
-	return err
+func (eep *EgtsExportPacket) ToBytes() ([]byte, error) {
+	return json.Marshal(eep)
 }
 
 type LiquidSensor struct {

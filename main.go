@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/labstack/gommon/log"
-	"github.com/streadway/amqp"
 	"net"
 	"os"
 )
@@ -24,29 +23,11 @@ func main() {
 	}
 	logger.SetLevel(config.GetLogLevel())
 
-	conn, err := amqp.Dial(config.RabbitMQ.GetConnectionString())
-	if err != nil {
-		logger.Fatalf("Не удалось подключится к RabbitMq: %v", err)
+	store := RabbitMQConnectorImpl{config: &config.RabbitMQ}
+	if err := store.Init(); err != nil {
+		logger.Fatal(err)
 	}
-	defer conn.Close()
-
-	rmqChannel, err := conn.Channel()
-	if err != nil {
-		logger.Fatalf("Не открыть канал RabbitMq: %v", err)
-	}
-	defer rmqChannel.Close()
-
-	if err = rmqChannel.ExchangeDeclare(
-		config.RabbitMQ.Exchange,
-		"direct",
-		true,
-		false,
-		false,
-		false,
-		nil,
-	); err != nil {
-		logger.Fatalf("Не удалось открыть exchange: %v", err)
-	}
+	defer store.Close()
 
 	l, err := net.Listen("tcp", config.GetListenAddress())
 	if err != nil {
@@ -60,7 +41,7 @@ func main() {
 		if err != nil {
 			logger.Errorf("Ошибка соединения: %v", err)
 		} else {
-			go handleRecvPkg(conn, rmqChannel)
+			go handleRecvPkg(conn, &store)
 
 		}
 	}

@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/BurntSushi/toml"
 	"github.com/labstack/gommon/log"
+	"time"
 )
 
 type Config struct {
@@ -32,11 +33,23 @@ func (c *Config) GetLogLevel() log.Lvl {
 	return c.Log.getLevel()
 }
 
-type service struct {
-	Host string
-	Port string
+func (c *Config) GetRawStoreKey() string {
+	return "raw"
 }
 
+func (c *Config) GetExportStoreKey() string {
+	return "export"
+}
+
+type service struct {
+	Host       string
+	Port       string
+	ConLiveSec int `toml:con_live_sec`
+}
+
+func (s *service) getEmptyConnTTL() time.Duration {
+	return time.Duration(s.ConLiveSec) * time.Second
+}
 func (s *service) getServerAddress() string {
 	return s.Host + ":" + s.Port
 }
@@ -45,6 +58,7 @@ type broker struct {
 	Host           string
 	Port           string
 	Exchange       string
+	ExchangeType   string `toml:"exchange_type"`
 	User           string
 	Password       string
 	RequestTimeout int `toml:"request_timeout"`
