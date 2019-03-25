@@ -44,7 +44,7 @@ func (c *Config) GetExportStoreKey() string {
 type service struct {
 	Host       string
 	Port       string
-	ConLiveSec int `toml:con_live_sec`
+	ConLiveSec int `toml:"con_live_sec"`
 }
 
 func (s *service) getEmptyConnTTL() time.Duration {

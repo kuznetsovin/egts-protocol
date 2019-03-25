@@ -1,7 +1,7 @@
 [srv]
 host = "127.0.0.1"
 port = "6000"
-con_live_sec = 3
+con_live_sec = 10
 
 [rabbitmq]
 host = "localhost"
