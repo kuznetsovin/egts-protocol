@@ -23,7 +23,8 @@ func main() {
 	}
 	logger.SetLevel(config.GetLogLevel())
 
-	store := RabbitMQConnectorImpl{config: &config.RabbitMQ}
+	store := RabbitMQConnector{config: &config.RabbitMQ}
+	//store := DebugConnector{}
 	if err := store.Init(); err != nil {
 		logger.Fatal(err)
 	}

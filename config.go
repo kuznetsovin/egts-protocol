@@ -33,14 +33,6 @@ func (c *Config) GetLogLevel() log.Lvl {
 	return c.Log.getLevel()
 }
 
-func (c *Config) GetRawStoreKey() string {
-	return "raw"
-}
-
-func (c *Config) GetExportStoreKey() string {
-	return "export"
-}
-
 type service struct {
 	Host       string
 	Port       string

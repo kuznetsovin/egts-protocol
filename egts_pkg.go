@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"time"
 )
 
 // BinaryData интерфейс для работы с бинарными секциями
@@ -316,24 +315,4 @@ func (p *EgtsPackage) CreateSrResultCode(resultCode uint8) ([]byte, error) {
 
 func (p *EgtsPackage) ToBytes() ([]byte, error) {
 	return json.Marshal(p)
-}
-
-type EgtsExportPacket struct {
-	Client         uint32         `json:"client"`
-	PacketID       uint32         `json:"packet_id"`
-	NavigationTime time.Time      `json:"navigation_time"`
-	Latitude       float64        `json:"latitude"`
-	Longitude      float64        `json:"longitude"`
-	LiquidSensors  []LiquidSensor `json:"liquid_sensors"`
-}
-
-func (eep *EgtsExportPacket) ToBytes() ([]byte, error) {
-	return json.Marshal(eep)
-}
-
-type LiquidSensor struct {
-	SensorNumber uint8  `json:"sensor_number"`
-	ErrorFlag    string `json:"error_flag"`
-	ValueMm      uint32 `json:"value_mm"`
-	ValueL       uint32 `json:"value_l"`
 }

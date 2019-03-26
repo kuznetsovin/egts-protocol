@@ -10,7 +10,6 @@ import (
 func handleRecvPkg(conn net.Conn, store Connector) {
 	var (
 		isPkgSave         bool
-		isPkgBackup       bool
 		srResultCodePkg   []byte
 		serviceType       uint8
 		srResponsesRecord RecordDataSet
@@ -29,7 +28,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		serviceType = 0
 		srResponsesRecord = nil
 		srResultCodePkg = nil
-		isPkgBackup = false
 
 		pkgLen, err := conn.Read(buf)
 
@@ -69,14 +67,15 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			goto Received
 		}
 
-		exportPacket := EgtsExportPacket{
-			PacketID: uint32(pkg.PacketIdentifier),
-		}
 		switch pkg.PacketType {
 		case egtsPtAppdata:
 			logger.Info("Тип пакета EGTS_PT_APPDATA")
 
 			for _, rec := range *pkg.ServicesFrameData.(*ServiceDataSet) {
+				exportPacket := EgtsParsePacket{
+					PacketID: uint32(pkg.PacketIdentifier),
+				}
+
 				isPkgSave = false
 				packetIdBytes := make([]byte, 4)
 
@@ -93,32 +92,48 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 
 				exportPacket.Client = rec.ObjectIdentifier
 
-				// проверяем не пришел ли пакет авторизации
 				for _, subRec := range rec.RecordDataSet {
 					switch subRecData := subRec.SubrecordData.(type) {
 					case *EgtsSrTermIdentity:
-						logger.Info("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
+						logger.Debugf("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
 						if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
 							logger.Printf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 						}
 					case *EgtsSrAuthInfo:
-						logger.Info("Разбор подзаписи EGTS_SR_AUTH_INFO")
+						logger.Debugf("Разбор подзаписи EGTS_SR_AUTH_INFO")
 						if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
 							logger.Printf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 						}
 					case *EgtsSrResponse:
-						logger.Info("Разбор подзаписи EGTS_SR_RESPONSE")
+						logger.Debugf("Разбор подзаписи EGTS_SR_RESPONSE")
 						goto Received
 					case *EgtsSrPosData:
-						logger.Info("Разбор подзаписи EGTS_SR_POS_DATA")
+						logger.Debugf("Разбор подзаписи EGTS_SR_POS_DATA")
 						isPkgSave = true
-						isPkgBackup = true
 
 						exportPacket.NavigationTime = subRecData.NavigationTime
 						exportPacket.Latitude = subRecData.Latitude
 						exportPacket.Longitude = subRecData.Longitude
+						exportPacket.Speed = subRecData.Speed
+					case *EgtsSrExtPosData:
+						logger.Debugf("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
+						exportPacket.Nsat = subRecData.Satellites
+						exportPacket.Pdop = subRecData.PositionDilutionOfPrecision
+
+					case *EgtsSrAdSensorsData:
+						logger.Debugf("Разбор подзаписи EGTS_SR_AD_SENSORS_DATA")
+
+						exportPacket.AnSensors = make(map[uint8]uint32)
+						exportPacket.AnSensors[1] = subRecData.AnalogSensor1
+						exportPacket.AnSensors[2] = subRecData.AnalogSensor2
+						exportPacket.AnSensors[3] = subRecData.AnalogSensor3
+						exportPacket.AnSensors[4] = subRecData.AnalogSensor4
+						exportPacket.AnSensors[5] = subRecData.AnalogSensor5
+						exportPacket.AnSensors[6] = subRecData.AnalogSensor6
+						exportPacket.AnSensors[7] = subRecData.AnalogSensor7
+						exportPacket.AnSensors[8] = subRecData.AnalogSensor8
 					case *EgtsSrAbsCntrData:
-						logger.Info("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
+						logger.Debugf("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
 
 						switch subRecData.CounterNumber {
 						case 110:
@@ -139,7 +154,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 							exportPacket.PacketID = binary.LittleEndian.Uint32(packetIdBytes)
 						}
 					case *EgtsSrLiquidLevelSensor:
-						logger.Info("Разбор подзаписи EGTS_SR_LIQUID_LEVEL_SENSOR")
+						logger.Debugf("Разбор подзаписи EGTS_SR_LIQUID_LEVEL_SENSOR")
 						sensorData := LiquidSensor{
 							SensorNumber: subRecData.LiquidLevelSensorNumber,
 							ErrorFlag:    subRecData.LiquidLevelSensorErrorFlag,
@@ -157,15 +172,9 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				}
 
 				if isPkgSave {
-					if err := store.Save(&exportPacket, config.GetExportStoreKey()); err != nil {
+					if err := store.Save(&exportPacket); err != nil {
 						logger.Error(err)
 					}
-				}
-			}
-
-			if isPkgBackup {
-				if err := store.Save(&pkg, config.GetRawStoreKey()); err != nil {
-					logger.Error(err)
 				}
 			}
 
