@@ -27,17 +27,22 @@ func main() {
 	}
 	logger.SetLevel(config.GetLogLevel())
 
-	plug, err := plugin.Open(config.Store["plugin"])
-	if err != nil {
-		logger.Fatalf("Не удалость загрузить плагин хранилища: %v", err)
+	if config.Store != nil {
+		plug, err := plugin.Open(config.Store["plugin"])
+		if err != nil {
+			logger.Fatalf("Не удалость загрузить плагин хранилища: %v", err)
+		}
+
+		connector, err := plug.Lookup("Connector")
+		if err != nil {
+			logger.Fatalf("Не удалось загрузить коннектор: %v", err)
+		}
+
+		store = connector.(Connector)
+	} else {
+		store = defaultConnector{}
 	}
 
-	connector, err := plug.Lookup("Connector")
-	if err != nil {
-		logger.Fatalf("Не удалось загрузить коннектор: %v", err)
-	}
-
-	store = connector.(Connector)
 	if err := store.Init(config.Store); err != nil {
 		logger.Fatal(err)
 	}

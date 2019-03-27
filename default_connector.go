@@ -4,13 +4,13 @@ import (
 	"fmt"
 )
 
-type debugConnector struct{}
+type defaultConnector struct{}
 
-func (c debugConnector) Init(cfg map[string]string) error {
+func (c defaultConnector) Init(cfg map[string]string) error {
 	return nil
 }
 
-func (c debugConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c defaultConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	innerPkg, err := msg.ToBytes()
 	if err != nil {
 		return fmt.Errorf("Ошибка сериализации  пакета: %v", err)
@@ -20,8 +20,6 @@ func (c debugConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	return nil
 }
 
-func (c debugConnector) Close() error {
+func (c defaultConnector) Close() error {
 	return nil
 }
-
-var Connector debugConnector
