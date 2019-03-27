@@ -97,12 +97,12 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 					case *EgtsSrTermIdentity:
 						logger.Debugf("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
 						if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
-							logger.Printf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
+							logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 						}
 					case *EgtsSrAuthInfo:
 						logger.Debugf("Разбор подзаписи EGTS_SR_AUTH_INFO")
 						if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
-							logger.Printf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
+							logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 						}
 					case *EgtsSrResponse:
 						logger.Debugf("Разбор подзаписи EGTS_SR_RESPONSE")
