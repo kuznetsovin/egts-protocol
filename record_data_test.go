@@ -29,7 +29,7 @@ var (
 				DirectionHighestBit: 1,
 				AltitudeSign:        0,
 				Speed:               200,
-				Direction:           44,
+				Direction:           172,
 				Odometer:            []byte{0x01, 0x00, 0x00},
 				DigitalInputs:       0,
 				Source:              0,

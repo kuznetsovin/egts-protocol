@@ -94,10 +94,11 @@ func (e *EgtsSrPosData) Decode(content []byte) error {
 	// т.к. скорость с дискретностью 0,1 км
 	e.Speed = uint16(speed) / 10
 
-	//TODO: разобраться с битом DirectionHighestBit
 	if e.Direction, err = buf.ReadByte(); err != nil {
 		return fmt.Errorf("Не удалось получить направление движения: %v", err)
 	}
+	e.Direction |= e.DirectionHighestBit << 7
+	fmt.Println(e.Direction)
 
 	bytesTmpBuf := make([]byte, 3)
 	if _, err = buf.Read(bytesTmpBuf); err != nil {
@@ -167,8 +168,8 @@ func (e *EgtsSrPosData) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось записать скорость: %v", err)
 	}
 
-	//TODO: разобраться с битом DirectionHighestBit
-	if err = binary.Write(buf, binary.LittleEndian, e.Direction); err != nil {
+	dir := e.Direction &^ (1 << 7)
+	if err = binary.Write(buf, binary.LittleEndian, dir); err != nil {
 		return result, fmt.Errorf("Не удалось записать направление движения: %v", err)
 	}
 
