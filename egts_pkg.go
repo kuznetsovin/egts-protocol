@@ -8,13 +8,6 @@ import (
 	"strconv"
 )
 
-// BinaryData интерфейс для работы с бинарными секциями
-type BinaryData interface {
-	Decode([]byte) error
-	Encode() ([]byte, error)
-	Length() uint16
-}
-
 // EgtsPackage стуркура для описания пакета ЕГТС
 type EgtsPackage struct {
 	ProtocolVersion           byte       `json:"PRV"`

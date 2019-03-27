@@ -4,13 +4,13 @@ import (
 	"fmt"
 )
 
-type DebugConnector struct{}
+type debugConnector struct{}
 
-func (c *DebugConnector) Init() error {
+func (c debugConnector) Init(cfg map[string]string) error {
 	return nil
 }
 
-func (c *DebugConnector) Save(msg EgtsSavePacket) error {
+func (c debugConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	innerPkg, err := msg.ToBytes()
 	if err != nil {
 		return fmt.Errorf("Ошибка сериализации  пакета: %v", err)
@@ -20,6 +20,8 @@ func (c *DebugConnector) Save(msg EgtsSavePacket) error {
 	return nil
 }
 
-func (c *DebugConnector) Close() error {
+func (c debugConnector) Close() error {
 	return nil
 }
+
+var Connector debugConnector

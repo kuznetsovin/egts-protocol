@@ -14,6 +14,7 @@ type EgtsParsePacket struct {
 	Speed          uint16           `json:"speed"`
 	Pdop           uint16           `json:"pdop"`
 	Nsat           uint8            `json:"nsat"`
+	Course         uint8            `json:"course"`
 	AnSensors      map[uint8]uint32 `json:"an_sensors"`
 	LiquidSensors  []LiquidSensor   `json:"liquid_sensors"`
 }

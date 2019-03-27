@@ -12,9 +12,9 @@ import (
 )
 
 type Config struct {
-	Srv      service
-	RabbitMQ broker `toml:"rabbitmq"`
-	Log      logSection
+	Srv   service
+	Store map[string]string
+	Log   logSection
 }
 
 func (c *Config) Load(confPath string) error {
@@ -44,20 +44,6 @@ func (s *service) getEmptyConnTTL() time.Duration {
 }
 func (s *service) getServerAddress() string {
 	return s.Host + ":" + s.Port
-}
-
-type broker struct {
-	Host           string
-	Port           string
-	Exchange       string
-	ExchangeType   string `toml:"exchange_type"`
-	User           string
-	Password       string
-	RequestTimeout int `toml:"request_timeout"`
-}
-
-func (b *broker) GetConnectionString() string {
-	return fmt.Sprintf("amqp://%s:%s@%s:%s/", b.User, b.Password, b.Host, b.Port)
 }
 
 type logSection struct {

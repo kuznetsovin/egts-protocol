@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"net"
 	"os"
+	"plugin"
 )
 
 var (
@@ -12,6 +13,9 @@ var (
 )
 
 func main() {
+	var (
+		store Connector
+	)
 	logger = log.New("-")
 
 	if len(os.Args) == 2 {
@@ -23,9 +27,18 @@ func main() {
 	}
 	logger.SetLevel(config.GetLogLevel())
 
-	store := RabbitMQConnector{config: &config.RabbitMQ}
-	//store := DebugConnector{}
-	if err := store.Init(); err != nil {
+	plug, err := plugin.Open(config.Store["plugin"])
+	if err != nil {
+		logger.Fatalf("Не удалость загрузить плагин хранилища: %v", err)
+	}
+
+	connector, err := plug.Lookup("Connector")
+	if err != nil {
+		logger.Fatalf("Не удалось загрузить коннектор: %v", err)
+	}
+
+	store = connector.(Connector)
+	if err := store.Init(config.Store); err != nil {
 		logger.Fatal(err)
 	}
 	defer store.Close()
@@ -42,7 +55,7 @@ func main() {
 		if err != nil {
 			logger.Errorf("Ошибка соединения: %v", err)
 		} else {
-			go handleRecvPkg(conn, &store)
+			go handleRecvPkg(conn, store)
 
 		}
 	}

@@ -115,6 +115,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						exportPacket.Latitude = subRecData.Latitude
 						exportPacket.Longitude = subRecData.Longitude
 						exportPacket.Speed = subRecData.Speed
+						exportPacket.Course = subRecData.Direction
 					case *EgtsSrExtPosData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
 						exportPacket.Nsat = subRecData.Satellites
