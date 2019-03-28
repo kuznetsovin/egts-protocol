@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 )
 
@@ -11,12 +12,12 @@ func (c defaultConnector) Init(cfg map[string]string) error {
 }
 
 func (c defaultConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
-	innerPkg, err := msg.ToBytes()
+	jsonPkg, err := json.MarshalIndent(msg, "", "    ")
 	if err != nil {
-		return fmt.Errorf("Ошибка сериализации  пакета: %v", err)
+		return fmt.Errorf("Не сформировать отладочный json:\n %v\n", err)
 	}
 
-	fmt.Println("Export packet: ", string(innerPkg))
+	fmt.Println("Export packet: ", string(jsonPkg))
 	return nil
 }
 
