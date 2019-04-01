@@ -1,5 +1,20 @@
 package main
 
+/*
+Плагин для работы с RabbitMQ через amqp.
+
+Раздел настроек, которые должны забавать в конфиге для подключения плагина:
+
+[store]
+plugin = "rabbitmq.so"
+host = "localhost"
+port = "5672"
+user = "guest"
+password = "guest"
+exchange = "receiver"
+exchange_type = "topic"
+*/
+
 import (
 	"fmt"
 	"github.com/streadway/amqp"
