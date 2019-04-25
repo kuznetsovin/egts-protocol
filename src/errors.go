@@ -34,7 +34,7 @@ const egtsPcDblProc = uint8(135)
 const egtsPcProcSrcDenied = uint8(136)
 
 //ошибка контрольной суммы заголовка
-const egtsPcHeadercrcError = uint8(137)
+const egtsPcHeaderCrcError = uint8(137)
 
 //ошибка контрольной суммы данных
 const egtsPcDatacrcError = uint8(138)

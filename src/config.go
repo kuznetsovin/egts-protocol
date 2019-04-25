@@ -33,10 +33,21 @@ func (c *Config) GetLogLevel() log.Lvl {
 	return c.Log.getLevel()
 }
 
+type store struct {
+	Host         string `toml:"host"`
+	Port         string `toml:"port"`
+	User         string `toml:"user"`
+	Password     string `toml:"password"`
+	Exchange     string `toml:"exchange"`
+	DeliveryMode string `toml:"delivery_mode"`
+	Queue        string `toml:"queue"`
+}
+
 type service struct {
 	Host       string
 	Port       string
-	ConLiveSec int `toml:"con_live_sec"`
+	ConLiveSec int  `toml:"con_live_sec"`
+	DebugMode  bool `toml:"debug_mode"`
 }
 
 func (s *service) getEmptyConnTTL() time.Duration {

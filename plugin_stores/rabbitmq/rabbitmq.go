@@ -44,18 +44,6 @@ func (c *RabbitMQConnector) Init(cfg map[string]string) error {
 		return fmt.Errorf("Ошибка открытия канала RabbitMQ: %v", err)
 	}
 
-	if err = c.channel.ExchangeDeclare(
-		c.config["exchange"],
-		c.config["exchange_type"],
-		true,
-		false,
-		false,
-		false,
-		nil,
-	); err != nil {
-		return fmt.Errorf("Не удалось открыть exchange: %v", err)
-	}
-
 	return err
 }
 

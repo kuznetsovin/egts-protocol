@@ -17,6 +17,7 @@ func main() {
 		store Connector
 	)
 	logger = log.New("-")
+	logger.SetHeader("${time_rfc3339_nano} {${short_file}:${line}} ${level} -${message}")
 
 	if len(os.Args) == 2 {
 		if err := config.Load(os.Args[1]); err != nil {

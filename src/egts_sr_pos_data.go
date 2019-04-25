@@ -98,7 +98,6 @@ func (e *EgtsSrPosData) Decode(content []byte) error {
 		return fmt.Errorf("Не удалось получить направление движения: %v", err)
 	}
 	e.Direction |= e.DirectionHighestBit << 7
-	fmt.Println(e.Direction)
 
 	bytesTmpBuf := make([]byte, 3)
 	if _, err = buf.Read(bytesTmpBuf); err != nil {

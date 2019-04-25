@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/binary"
+	"github.com/satori/go.uuid"
 	"io"
 	"net"
 	"time"
@@ -52,6 +53,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		//printDecodePackage(buf)
 
 		pkg := EgtsPackage{}
+		receivedTimestamp := time.Now().UTC().Unix()
 		resultCode, err := pkg.Decode(buf[:pkgLen])
 		if err != nil {
 			logger.Errorf("Не удалось расшифровать пакет: %v", err)
@@ -61,7 +63,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				logger.Errorf("Ошибка сборки ответа EGTS_PT_RESPONSE с ошибкой: %v", err)
 				goto Received
 			}
-			conn.Write(resp)
+			_, _ = conn.Write(resp)
 
 			//printDecodePackage("Отправлен пакет EGTS_PT_RESPONSE", resp)
 			goto Received
@@ -111,28 +113,49 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						logger.Debugf("Разбор подзаписи EGTS_SR_POS_DATA")
 						isPkgSave = true
 
-						exportPacket.NavigationTime = subRecData.NavigationTime
+						exportPacket.NavigationTimestamp = subRecData.NavigationTime.Unix()
+						exportPacket.ReceivedTimestamp = receivedTimestamp
 						exportPacket.Latitude = subRecData.Latitude
 						exportPacket.Longitude = subRecData.Longitude
 						exportPacket.Speed = subRecData.Speed
 						exportPacket.Course = subRecData.Direction
+						exportPacket.Guid, _ = uuid.NewV4()
 					case *EgtsSrExtPosData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
 						exportPacket.Nsat = subRecData.Satellites
 						exportPacket.Pdop = subRecData.PositionDilutionOfPrecision
+						exportPacket.Hdop = subRecData.HorizontalDilutionOfPrecision
+						exportPacket.Vdop = subRecData.VerticalDilutionOfPrecision
+						exportPacket.Ns = subRecData.NavigationSystem
 
 					case *EgtsSrAdSensorsData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_AD_SENSORS_DATA")
+						if subRecData.AnalogSensorFieldExists1 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{1, subRecData.AnalogSensor1})
+						}
 
-						exportPacket.AnSensors = make(map[uint8]uint32)
-						exportPacket.AnSensors[1] = subRecData.AnalogSensor1
-						exportPacket.AnSensors[2] = subRecData.AnalogSensor2
-						exportPacket.AnSensors[3] = subRecData.AnalogSensor3
-						exportPacket.AnSensors[4] = subRecData.AnalogSensor4
-						exportPacket.AnSensors[5] = subRecData.AnalogSensor5
-						exportPacket.AnSensors[6] = subRecData.AnalogSensor6
-						exportPacket.AnSensors[7] = subRecData.AnalogSensor7
-						exportPacket.AnSensors[8] = subRecData.AnalogSensor8
+						if subRecData.AnalogSensorFieldExists2 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{2, subRecData.AnalogSensor2})
+						}
+
+						if subRecData.AnalogSensorFieldExists3 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{3, subRecData.AnalogSensor3})
+						}
+						if subRecData.AnalogSensorFieldExists4 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{4, subRecData.AnalogSensor4})
+						}
+						if subRecData.AnalogSensorFieldExists5 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{5, subRecData.AnalogSensor5})
+						}
+						if subRecData.AnalogSensorFieldExists6 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{6, subRecData.AnalogSensor6})
+						}
+						if subRecData.AnalogSensorFieldExists7 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{7, subRecData.AnalogSensor7})
+						}
+						if subRecData.AnalogSensorFieldExists8 == "1" {
+							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{8, subRecData.AnalogSensor8})
+						}
 					case *EgtsSrAbsCntrData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
 
@@ -184,13 +207,13 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				logger.Errorf("Ошибка сборки ответа: %v", err)
 				goto Received
 			}
-			conn.Write(resp)
+			_, _ = conn.Write(resp)
 
 			logger.Debugf("Отправлен пакет EGTS_PT_RESPONSE: %X", resp)
 			//logger.Debug(printDecodePackage(resp))
 
 			if len(srResultCodePkg) > 0 {
-				conn.Write(srResultCodePkg)
+				_, _ = conn.Write(srResultCodePkg)
 				logger.Debugf("Отправлен пакет EGTS_SR_RESULT_CODE: %X", resp)
 				//logger.Debug(printDecodePackage(srResultCodePkg))
 			}

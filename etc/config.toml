@@ -3,14 +3,13 @@ host = "127.0.0.1"
 port = "6000"
 con_live_sec = 10
 
-#[store]
-#plugin = "/Users/kuznetsovin/Projects/go-egts/stores/rabbitmq.so"
-#host = "localhost"
-#port = "5672"
-#user = "guest"
-#password = "guest"
-#exchange = "receiver"
-#exchange_type = "topic"
+[store]
+plugin = "/Users/kuznetsovin/Projects/go-egts/plugin_stores/rabbitmq.so"
+host = "localhost"
+port = "5672"
+user = "guest"
+password = "guest"
+exchange = "receiver"
 
 [log]
 level = "DEBUG"

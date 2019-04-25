@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/google/go-cmp/cmp"
 	"testing"
 )
@@ -49,10 +48,6 @@ func TestStorageRecord_Decode(t *testing.T) {
 	if err := egtsPlus.Decode(srEgtsPlusBytes); err != nil {
 		t.Errorf("Ошибка декадирования: %v\n", err)
 	}
-
-	fmt.Println(*egtsPlus.RecordNumber)
-	fmt.Println(*egtsPlus.TimeStamp)
-	fmt.Println(*egtsPlus.StatusFlags)
 
 	if diff := cmp.Diff(egtsPlus, testEgtsPlusData); diff != "" {
 		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
