@@ -1,6 +1,6 @@
 # EGTS receiver
 
-Simple EGTS receiver example realization. For parsing protocol binary message used library [libegts](github.com/kuznetsovin/libegts).
+Simple example EGTS receiver realization. For parsing protocol binary message used library [libegts](github.com/kuznetsovin/libegts).
 
 For compile required libraries:
 
