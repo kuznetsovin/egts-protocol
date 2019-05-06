@@ -1,12 +1,5 @@
 package main
 
-// BinaryData интерфейс для работы с бинарными секциями
-type BinaryData interface {
-	Decode([]byte) error
-	Encode() ([]byte, error)
-	Length() uint16
-}
-
 //Connector интерфейс для подключения внешних хранилищ
 type Connector interface {
 	// установка соединения с хранилищем
