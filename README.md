@@ -1,9 +1,8 @@
-# ЕГТС приемщик
+# EGTS receiver
 
-Реализация простого приемщика телеметрии по протоколу ЕГТС. Для разбора бинарного пакета в 
-соответствии со спецификацией используется библиотека [libegts](github.com/kuznetsovin/libegts)
+Simple EGTS receiver example realization. For parsing protocol binary message used library [libegts](github.com/kuznetsovin/libegts).
 
-Для компиляции, приложению требуются следующие пакеты:
+For compile required libraries:
 
 - [toml](github.com/BurntSushi/toml)
 - [protobuf](github.com/golang/protobuf/proto)
@@ -11,26 +10,25 @@
 - [go.uuid](github.com/satori/go.uuid)
 - [libegts](github.com/kuznetsovin/libegts)
 
-По умолчаню все принимаемы пакеты выводятся в лог. 
+By default received message output to console if it includes gps coordinates section (EGTS_SR_POS_DATA). 
 
-Данное поведение можно изменить подключанием плагинов, которые задаются в секции ```store``` конфигурационного файла.
-На данный момент есть имеются следующие плагины:
+Besides you can connect different plugins for working with parsing data. This plugins setup in ```store``` section 
+in config file. Receiver have several plugins out of the box:
 
 - [PostgreSQL](plugin_stores/postgresql/README.md)
 - [RabbitMQ](plugin_stores/rabbitmq/README.md)
 
-Для написания своего плагина необходимо реализовать интерфейс:
+If you want create another plugin, then you must implementation ```Connector``` interface in you code:
 
 ```go
-//Connector интерфейс для подключения внешних хранилищ
 type Connector interface {
-	// установка соединения с хранилищем
+	// setup store connection
 	Init(map[string]string) error
 	
-	// сохранение в хранилище
+	// save to store method
 	Save(interface{ ToBytes() ([]byte, error) }) error
 	
-	//закрытие соединения с хранилищем
+	// close connection with store
 	Close() error
 }
 ```
