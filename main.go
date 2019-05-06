@@ -1,4 +1,4 @@
-package main
+package egts_receiver
 
 import (
 	"github.com/labstack/gommon/log"

@@ -1,4 +1,4 @@
-package main
+package egts_receiver
 
 //Connector интерфейс для подключения внешних хранилищ
 type Connector interface {

@@ -1,4 +1,4 @@
-package main
+package egts_receiver
 
 /*
 Описание конфигурационного файла
