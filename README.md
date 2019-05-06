@@ -1,6 +1,7 @@
-# Протокол сбора телеметрии ЕГТС
+# ЕГТС приемщик
 
-Реализация протокола ЕГТС.
+Реализация простого приемщика телеметрии по протоколу ЕГТС. Для разбора бинарного пакета в 
+соответствии со спецификацией используется библиотека [libegts](github.com/kuznetsovin/libegts)
 
 Для компиляции, приложению требуются следующие пакеты:
 
@@ -8,7 +9,7 @@
 - [protobuf](github.com/golang/protobuf/proto)
 - [gommon/log](github.com/labstack/gommon/log)
 - [go.uuid](github.com/satori/go.uuid)
-- [egts](github.com/kuznetsovin/libegts)
+- [libegts](github.com/kuznetsovin/libegts)
 
 По умолчаню все принимаемы пакеты выводятся в лог. 
 
