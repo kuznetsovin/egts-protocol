@@ -9,7 +9,9 @@ import (
 	"time"
 )
 
-const egtsPcOk = 0
+const (
+	egtsPcOk = 0
+)
 
 func handleRecvPkg(conn net.Conn, store Connector) {
 	var (
@@ -53,7 +55,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		}
 
 		logger.Debugf("Принят пакет: %X\v", buf)
-		//printDecodePackage(buf)
 
 		pkg := egts.Package{}
 		receivedTimestamp := time.Now().UTC().Unix()
@@ -68,12 +69,11 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			}
 			_, _ = conn.Write(resp)
 
-			//printDecodePackage("Отправлен пакет EGTS_PT_RESPONSE", resp)
 			goto Received
 		}
 
 		switch pkg.PacketType {
-		case egtsPtAppdata:
+		case egts.PtAppdataPacket:
 			logger.Info("Тип пакета EGTS_PT_APPDATA")
 
 			for _, rec := range *pkg.ServicesFrameData.(*egts.ServiceDataSet) {
@@ -85,7 +85,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				packetIdBytes := make([]byte, 4)
 
 				srResponsesRecord = append(srResponsesRecord, egts.RecordData{
-					SubrecordType:   egtsSrRecordResponse,
+					SubrecordType:   egts.SrRecordResponseType,
 					SubrecordLength: 3,
 					SubrecordData: &egts.SrResponse{
 						ConfirmedRecordNumber: rec.RecordNumber,
@@ -213,14 +213,12 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			_, _ = conn.Write(resp)
 
 			logger.Debugf("Отправлен пакет EGTS_PT_RESPONSE: %X", resp)
-			//logger.Debug(printDecodePackage(resp))
 
 			if len(srResultCodePkg) > 0 {
 				_, _ = conn.Write(srResultCodePkg)
 				logger.Debugf("Отправлен пакет EGTS_SR_RESULT_CODE: %X", resp)
-				//logger.Debug(printDecodePackage(srResultCodePkg))
 			}
-		case egtsPtResponse:
+		case egts.PtResponsePacket:
 			logger.Printf("Тип пакета EGTS_PT_RESPONSE")
 		}
 

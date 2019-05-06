@@ -1,8 +1,6 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
 	"github.com/kuznetsovin/libegts"
 	"sync/atomic"
 )
@@ -11,22 +9,6 @@ var (
 	pidCounter uint32 = 0
 	rnCounter  uint32 = 0
 )
-
-func printDecodePackage(bytesPkg []byte) string {
-	pkg := egts.Package{}
-
-	_, err := pkg.Decode(bytesPkg)
-	if err != nil {
-		return fmt.Sprintf("Не удалось расшифровать пакет:\n %v\n", err)
-	}
-
-	jsonPkg, err := json.MarshalIndent(pkg, "", "    ")
-	if err != nil {
-		return fmt.Sprintf("Не сформировать отладочный json:\n %v\n", err)
-	}
-
-	return string(jsonPkg)
-}
 
 func getNextPid() uint16 {
 	if pidCounter < 65535 {
@@ -83,7 +65,7 @@ func createPtResponse(p *egts.Package, resultCode, serviceType uint8, srResponse
 		HeaderEncoding:    0,
 		FrameDataLength:   respSection.Length(),
 		PacketIdentifier:  getNextPid(),
-		PacketType:        egtsPtResponse,
+		PacketType:        egts.PtResponsePacket,
 		ServicesFrameData: &respSection,
 	}
 
@@ -93,7 +75,7 @@ func createPtResponse(p *egts.Package, resultCode, serviceType uint8, srResponse
 func createSrResultCode(p *egts.Package, resultCode uint8) ([]byte, error) {
 	rds := egts.RecordDataSet{
 		egts.RecordData{
-			SubrecordType:   egtsSrResultCode,
+			SubrecordType:   egts.SrResultCodeType,
 			SubrecordLength: uint16(1),
 			SubrecordData: &egts.SrResultCode{
 				ResultCode: resultCode,
@@ -112,8 +94,8 @@ func createSrResultCode(p *egts.Package, resultCode uint8) ([]byte, error) {
 			TimeFieldExists:          "0",
 			EventIDFieldExists:       "0",
 			ObjectIDFieldExists:      "0",
-			SourceServiceType:        egtsAuthService,
-			RecipientServiceType:     egtsAuthService,
+			SourceServiceType:        egts.AuthService,
+			RecipientServiceType:     egts.AuthService,
 			RecordDataSet:            rds,
 		},
 	}
@@ -130,7 +112,7 @@ func createSrResultCode(p *egts.Package, resultCode uint8) ([]byte, error) {
 		HeaderEncoding:    0,
 		FrameDataLength:   sfd.Length(),
 		PacketIdentifier:  getNextPid(),
-		PacketType:        egtsPtAppdata,
+		PacketType:        egts.PtResponsePacket,
 		ServicesFrameData: &sfd,
 	}
 
