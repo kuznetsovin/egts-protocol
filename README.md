@@ -8,6 +8,7 @@
 - [protobuf](github.com/golang/protobuf/proto)
 - [gommon/log](github.com/labstack/gommon/log)
 - [go.uuid](github.com/satori/go.uuid)
+- [egts](github.com/kuznetsovin/libegts)
 
 По умолчаню все принимаемы пакеты выводятся в лог. 
 

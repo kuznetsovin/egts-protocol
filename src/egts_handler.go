@@ -2,18 +2,21 @@ package main
 
 import (
 	"encoding/binary"
+	"github.com/kuznetsovin/libegts"
 	"github.com/satori/go.uuid"
 	"io"
 	"net"
 	"time"
 )
 
+const egtsPcOk = 0
+
 func handleRecvPkg(conn net.Conn, store Connector) {
 	var (
 		isPkgSave         bool
 		srResultCodePkg   []byte
 		serviceType       uint8
-		srResponsesRecord RecordDataSet
+		srResponsesRecord egts.RecordDataSet
 	)
 	buf := make([]byte, 1024)
 
@@ -52,13 +55,13 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		logger.Debugf("Принят пакет: %X\v", buf)
 		//printDecodePackage(buf)
 
-		pkg := EgtsPackage{}
+		pkg := egts.Package{}
 		receivedTimestamp := time.Now().UTC().Unix()
 		resultCode, err := pkg.Decode(buf[:pkgLen])
 		if err != nil {
 			logger.Errorf("Не удалось расшифровать пакет: %v", err)
 
-			resp, err := pkg.CreatePtResponse(resultCode, serviceType, nil)
+			resp, err := createPtResponse(&pkg, resultCode, serviceType, nil)
 			if err != nil {
 				logger.Errorf("Ошибка сборки ответа EGTS_PT_RESPONSE с ошибкой: %v", err)
 				goto Received
@@ -73,7 +76,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		case egtsPtAppdata:
 			logger.Info("Тип пакета EGTS_PT_APPDATA")
 
-			for _, rec := range *pkg.ServicesFrameData.(*ServiceDataSet) {
+			for _, rec := range *pkg.ServicesFrameData.(*egts.ServiceDataSet) {
 				exportPacket := EgtsParsePacket{
 					PacketID: uint32(pkg.PacketIdentifier),
 				}
@@ -81,10 +84,10 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				isPkgSave = false
 				packetIdBytes := make([]byte, 4)
 
-				srResponsesRecord = append(srResponsesRecord, RecordData{
+				srResponsesRecord = append(srResponsesRecord, egts.RecordData{
 					SubrecordType:   egtsSrRecordResponse,
 					SubrecordLength: 3,
-					SubrecordData: &EgtsSrResponse{
+					SubrecordData: &egts.SrResponse{
 						ConfirmedRecordNumber: rec.RecordNumber,
 						RecordStatus:          egtsPcOk,
 					},
@@ -96,20 +99,20 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 
 				for _, subRec := range rec.RecordDataSet {
 					switch subRecData := subRec.SubrecordData.(type) {
-					case *EgtsSrTermIdentity:
+					case *egts.SrTermIdentity:
 						logger.Debugf("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
-						if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
+						if srResultCodePkg, err = createSrResultCode(&pkg, egtsPcOk); err != nil {
 							logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 						}
-					case *EgtsSrAuthInfo:
+					case *egts.SrAuthInfo:
 						logger.Debugf("Разбор подзаписи EGTS_SR_AUTH_INFO")
-						if srResultCodePkg, err = pkg.CreateSrResultCode(egtsPcOk); err != nil {
+						if srResultCodePkg, err = createSrResultCode(&pkg, egtsPcOk); err != nil {
 							logger.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 						}
-					case *EgtsSrResponse:
+					case *egts.SrResponse:
 						logger.Debugf("Разбор подзаписи EGTS_SR_RESPONSE")
 						goto Received
-					case *EgtsSrPosData:
+					case *egts.SrPosData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_POS_DATA")
 						isPkgSave = true
 
@@ -120,7 +123,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						exportPacket.Speed = subRecData.Speed
 						exportPacket.Course = subRecData.Direction
 						exportPacket.Guid, _ = uuid.NewV4()
-					case *EgtsSrExtPosData:
+					case *egts.SrExtPosData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
 						exportPacket.Nsat = subRecData.Satellites
 						exportPacket.Pdop = subRecData.PositionDilutionOfPrecision
@@ -128,7 +131,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						exportPacket.Vdop = subRecData.VerticalDilutionOfPrecision
 						exportPacket.Ns = subRecData.NavigationSystem
 
-					case *EgtsSrAdSensorsData:
+					case *egts.SrAdSensorsData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_AD_SENSORS_DATA")
 						if subRecData.AnalogSensorFieldExists1 == "1" {
 							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{1, subRecData.AnalogSensor1})
@@ -156,7 +159,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						if subRecData.AnalogSensorFieldExists8 == "1" {
 							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{8, subRecData.AnalogSensor8})
 						}
-					case *EgtsSrAbsCntrData:
+					case *egts.SrAbsCntrData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
 
 						switch subRecData.CounterNumber {
@@ -177,7 +180,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 
 							exportPacket.PacketID = binary.LittleEndian.Uint32(packetIdBytes)
 						}
-					case *EgtsSrLiquidLevelSensor:
+					case *egts.SrLiquidLevelSensor:
 						logger.Debugf("Разбор подзаписи EGTS_SR_LIQUID_LEVEL_SENSOR")
 						sensorData := LiquidSensor{
 							SensorNumber: subRecData.LiquidLevelSensorNumber,
@@ -202,7 +205,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				}
 			}
 
-			resp, err := pkg.CreatePtResponse(resultCode, serviceType, srResponsesRecord)
+			resp, err := createPtResponse(&pkg, resultCode, serviceType, srResponsesRecord)
 			if err != nil {
 				logger.Errorf("Ошибка сборки ответа: %v", err)
 				goto Received
