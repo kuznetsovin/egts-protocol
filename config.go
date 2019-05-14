@@ -12,13 +12,13 @@ import (
 	"github.com/labstack/gommon/log"
 )
 
-type Config struct {
+type settings struct {
 	Srv   service
 	Store map[string]string
 	Log   logSection
 }
 
-func (c *Config) Load(confPath string) error {
+func (c *settings) Load(confPath string) error {
 	if _, err := toml.DecodeFile(confPath, c); err != nil {
 		return fmt.Errorf("Ошибка разбора файла настроек: %v", err)
 	}
@@ -26,11 +26,11 @@ func (c *Config) Load(confPath string) error {
 	return nil
 }
 
-func (c *Config) GetListenAddress() string {
+func (c *settings) getListenAddress() string {
 	return c.Srv.getServerAddress()
 }
 
-func (c *Config) GetLogLevel() log.Lvl {
+func (c *settings) getLogLevel() log.Lvl {
 	return c.Log.getLevel()
 }
 

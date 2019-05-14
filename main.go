@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	config Config
+	config settings
 	logger *log.Logger
 )
 
@@ -27,7 +27,7 @@ func main() {
 	} else {
 		logger.Fatalf("Не задан путь до конфига")
 	}
-	logger.SetLevel(config.GetLogLevel())
+	logger.SetLevel(config.getLogLevel())
 
 	if config.Store != nil {
 		plug, err := plugin.Open(config.Store["plugin"])
@@ -50,13 +50,13 @@ func main() {
 	}
 	defer store.Close()
 
-	l, err := net.Listen("tcp", config.GetListenAddress())
+	l, err := net.Listen("tcp", config.getListenAddress())
 	if err != nil {
 		logger.Fatalf("Не удалось открыть соединение: %v", err)
 	}
 	defer l.Close()
 
-	logger.Infof("Запущен сервер %s...", config.GetListenAddress())
+	logger.Infof("Запущен сервер %s...", config.getListenAddress())
 	for {
 		conn, err := l.Accept()
 		if err != nil {

@@ -6,7 +6,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-type EgtsParsePacket struct {
+type egtsParsePacket struct {
 	Client              uint32         `json:"client"`
 	PacketID            uint32         `json:"packet_id"`
 	NavigationTimestamp int64          `json:"navigation_unix_time"`
@@ -20,23 +20,23 @@ type EgtsParsePacket struct {
 	Nsat                uint8          `json:"nsat"`
 	Ns                  uint16         `json:"ns"`
 	Course              uint8          `json:"course"`
-	Guid                uuid.UUID      `json:"guid"`
-	AnSensors           []AnSensor     `json:"an_sensors"`
-	LiquidSensors       []LiquidSensor `json:"liquid_sensors"`
+	GUID                uuid.UUID      `json:"guid"`
+	AnSensors           []anSensor     `json:"an_sensors"`
+	LiquidSensors       []liquidSensor `json:"liquid_sensors"`
 }
 
-func (eep *EgtsParsePacket) ToBytes() ([]byte, error) {
+func (eep *egtsParsePacket) ToBytes() ([]byte, error) {
 	return json.Marshal(eep)
 }
 
-type LiquidSensor struct {
+type liquidSensor struct {
 	SensorNumber uint8  `json:"sensor_number"`
 	ErrorFlag    string `json:"error_flag"`
 	ValueMm      uint32 `json:"value_mm"`
 	ValueL       uint32 `json:"value_l"`
 }
 
-type AnSensor struct {
+type anSensor struct {
 	SensorNumber uint8  `json:"sensor_number"`
 	Value        uint32 `json:"value"`
 }

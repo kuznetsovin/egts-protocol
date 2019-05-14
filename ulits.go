@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	pidCounter uint32 = 0
-	rnCounter  uint32 = 0
+	pidCounter uint32
+	rnCounter  uint32
 )
 
 func getNextPid() uint16 {

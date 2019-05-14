@@ -78,12 +78,12 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			logger.Info("Тип пакета EGTS_PT_APPDATA")
 
 			for _, rec := range *pkg.ServicesFrameData.(*egts.ServiceDataSet) {
-				exportPacket := EgtsParsePacket{
+				exportPacket := egtsParsePacket{
 					PacketID: uint32(pkg.PacketIdentifier),
 				}
 
 				isPkgSave = false
-				packetIdBytes := make([]byte, 4)
+				packetIDBytes := make([]byte, 4)
 
 				srResponsesRecord = append(srResponsesRecord, egts.RecordData{
 					SubrecordType:   egts.SrRecordResponseType,
@@ -123,7 +123,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						exportPacket.Longitude = subRecData.Longitude
 						exportPacket.Speed = subRecData.Speed
 						exportPacket.Course = subRecData.Direction
-						exportPacket.Guid, _ = uuid.NewV4()
+						exportPacket.GUID = uuid.NewV4()
 					case *egts.SrExtPosData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_EXT_POS_DATA")
 						exportPacket.Nsat = subRecData.Satellites
@@ -135,30 +135,30 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 					case *egts.SrAdSensorsData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_AD_SENSORS_DATA")
 						if subRecData.AnalogSensorFieldExists1 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{1, subRecData.AnalogSensor1})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{1, subRecData.AnalogSensor1})
 						}
 
 						if subRecData.AnalogSensorFieldExists2 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{2, subRecData.AnalogSensor2})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{2, subRecData.AnalogSensor2})
 						}
 
 						if subRecData.AnalogSensorFieldExists3 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{3, subRecData.AnalogSensor3})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{3, subRecData.AnalogSensor3})
 						}
 						if subRecData.AnalogSensorFieldExists4 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{4, subRecData.AnalogSensor4})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{4, subRecData.AnalogSensor4})
 						}
 						if subRecData.AnalogSensorFieldExists5 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{5, subRecData.AnalogSensor5})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{5, subRecData.AnalogSensor5})
 						}
 						if subRecData.AnalogSensorFieldExists6 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{6, subRecData.AnalogSensor6})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{6, subRecData.AnalogSensor6})
 						}
 						if subRecData.AnalogSensorFieldExists7 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{7, subRecData.AnalogSensor7})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{7, subRecData.AnalogSensor7})
 						}
 						if subRecData.AnalogSensorFieldExists8 == "1" {
-							exportPacket.AnSensors = append(exportPacket.AnSensors, AnSensor{8, subRecData.AnalogSensor8})
+							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{8, subRecData.AnalogSensor8})
 						}
 					case *egts.SrAbsCntrData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
@@ -166,24 +166,24 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						switch subRecData.CounterNumber {
 						case 110:
 							// Три младших байта номера передаваемой записи (идет вместе с каждой POS_DATA).
-							binary.BigEndian.PutUint32(packetIdBytes, subRecData.CounterValue)
+							binary.BigEndian.PutUint32(packetIDBytes, subRecData.CounterValue)
 							exportPacket.PacketID = subRecData.CounterValue
 						case 111:
 							// один старший байт номера передаваемой записи (идет вместе с каждой POS_DATA).
 							tmpBuf := make([]byte, 4)
 							binary.BigEndian.PutUint32(tmpBuf, subRecData.CounterValue)
 
-							if len(packetIdBytes) == 4 {
-								packetIdBytes[3] = tmpBuf[3]
+							if len(packetIDBytes) == 4 {
+								packetIDBytes[3] = tmpBuf[3]
 							} else {
-								packetIdBytes = tmpBuf
+								packetIDBytes = tmpBuf
 							}
 
-							exportPacket.PacketID = binary.LittleEndian.Uint32(packetIdBytes)
+							exportPacket.PacketID = binary.LittleEndian.Uint32(packetIDBytes)
 						}
 					case *egts.SrLiquidLevelSensor:
 						logger.Debugf("Разбор подзаписи EGTS_SR_LIQUID_LEVEL_SENSOR")
-						sensorData := LiquidSensor{
+						sensorData := liquidSensor{
 							SensorNumber: subRecData.LiquidLevelSensorNumber,
 							ErrorFlag:    subRecData.LiquidLevelSensorErrorFlag,
 						}
