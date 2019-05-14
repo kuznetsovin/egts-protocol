@@ -1,8 +1,9 @@
-package egts_receiver
+package main
 
 import (
-	"github.com/kuznetsovin/libegts"
 	"sync/atomic"
+
+	"github.com/kuznetsovin/egts.go"
 )
 
 var (
@@ -41,7 +42,7 @@ func createPtResponse(p *egts.Package, resultCode, serviceType uint8, srResponse
 				RecordNumber:             getNextRN(),
 				SourceServiceOnDevice:    "0",
 				RecipientServiceOnDevice: "0",
-				Group:                    "1",
+				Group: "1",
 				RecordProcessingPriority: "00",
 				TimeFieldExists:          "0",
 				EventIDFieldExists:       "0",
@@ -89,7 +90,7 @@ func createSrResultCode(p *egts.Package, resultCode uint8) ([]byte, error) {
 			RecordNumber:             getNextRN(),
 			SourceServiceOnDevice:    "0",
 			RecipientServiceOnDevice: "0",
-			Group:                    "1",
+			Group: "1",
 			RecordProcessingPriority: "00",
 			TimeFieldExists:          "0",
 			EventIDFieldExists:       "0",

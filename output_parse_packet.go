@@ -1,7 +1,8 @@
-package egts_receiver
+package main
 
 import (
 	"encoding/json"
+
 	"github.com/satori/go.uuid"
 )
 

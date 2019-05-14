@@ -1,12 +1,13 @@
-package egts_receiver
+package main
 
 import (
 	"encoding/binary"
-	"github.com/kuznetsovin/libegts"
-	"github.com/satori/go.uuid"
 	"io"
 	"net"
 	"time"
+
+	"github.com/kuznetsovin/egts.go"
+	"github.com/satori/go.uuid"
 )
 
 const (

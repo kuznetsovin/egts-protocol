@@ -1,4 +1,4 @@
-package egts_receiver
+package main
 
 /*
 Описание конфигурационного файла
@@ -6,9 +6,10 @@ package egts_receiver
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/BurntSushi/toml"
 	"github.com/labstack/gommon/log"
-	"time"
 )
 
 type Config struct {

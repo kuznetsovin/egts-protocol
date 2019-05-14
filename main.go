@@ -1,10 +1,11 @@
-package egts_receiver
+package main
 
 import (
-	"github.com/labstack/gommon/log"
 	"net"
 	"os"
 	"plugin"
+
+	"github.com/labstack/gommon/log"
 )
 
 var (
