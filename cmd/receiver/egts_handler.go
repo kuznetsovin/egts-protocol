@@ -55,8 +55,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			return
 		}
 
-		logger.Debugf("Принят пакет: %X\v", buf)
-
 		pkg := egts.Package{}
 		receivedTimestamp := time.Now().UTC().Unix()
 		resultCode, err := pkg.Decode(buf[:pkgLen])
