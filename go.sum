@@ -2,8 +2,10 @@ github.com/BurntSushi/toml v0.3.1 h1:WXkYYl6Yr3qBf1K79EBnL4mak0OimBfB0XUf9Vl28OQ
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/golang/protobuf v1.3.1 h1:YF8+flBXS5eO826T4nzqPrxfhQThhXl0YzfuUPu4SBg=
 github.com/golang/protobuf v1.3.1/go.mod h1:6lQm79b+lXiMfvg/cZm0SGofjICqVBUtrP5yJMmIC1U=
-github.com/kuznetsovin/egts.go v0.0.0-20190514095734-7cc7887dc860 h1:5OwaI+B81th1OD7hoaFaASEhCEe6jI4fjbNwXr63buc=
-github.com/kuznetsovin/egts.go v0.0.0-20190514095734-7cc7887dc860/go.mod h1:dYfzle4zm/CYvVX3JgXHk8dnXuYgLRLUu8ltQ467gJs=
+github.com/google/go-cmp v0.3.0 h1:crn/baboCvb5fXaQ0IJ1SGTsTVrWpDsCWC8EGETZijY=
+github.com/google/go-cmp v0.3.0/go.mod h1:8QqcDgzrUqlUb/G2PQTWiueGozuR1884gddMywk6iLU=
+github.com/kuznetsovin/egts.go v0.0.0-20190514121832-d9ba019879f0 h1:XfrKBFuO47/1ROOrQRsUFZghZGn1+kTAhoT347ZJk20=
+github.com/kuznetsovin/egts.go v0.0.0-20190514121832-d9ba019879f0/go.mod h1:mgSY4a5nWJJykFvlJMVDJWKiw/W69RgYlBsyqCRetd8=
 github.com/labstack/gommon v0.2.8 h1:JvRqmeZcfrHC5u6uVleB4NxxNbzx6gpbJiQknDbKQu0=
 github.com/labstack/gommon v0.2.8/go.mod h1:/tj9csK2iPSBvn+3NLM9e52usepMtrd5ilFYA+wQNJ4=
 github.com/lib/pq v1.1.1 h1:sJZmqHoEaY7f+NPP8pgLB/WxulyR3fewgCM2qaSlBb4=

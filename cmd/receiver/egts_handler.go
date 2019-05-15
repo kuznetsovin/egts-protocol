@@ -6,8 +6,8 @@ import (
 	"net"
 	"time"
 
-	"github.com/kuznetsovin/egts.go"
-	"github.com/satori/go.uuid"
+	egts "github.com/kuznetsovin/egts/pkg/egtslib"
+	uuid "github.com/satori/go.uuid"
 )
 
 const (

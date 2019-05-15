@@ -1,24 +1,16 @@
-# EGTS receiver
+# Приемщик EGTS
 
-Simple example EGTS receiver realization. For parsing protocol binary message used library [libegts](github.com/kuznetsovin/libegts).
+Реаализация сервиса приема данных по протоколу ЕГТС. Разбор пакета с данными делается с помощью 
+библиотеки [egtslib](pkg/egtslib/README.md).
 
-For compile required libraries:
+Приемщик сохраняет все записи из пакета, которые содержат позапись местонахождения (EGTS_SR_POS_DATA). 
 
-- [toml](github.com/BurntSushi/toml)
-- [protobuf](github.com/golang/protobuf/proto)
-- [gommon/log](github.com/labstack/gommon/log)
-- [go.uuid](github.com/satori/go.uuid)
-- [libegts](github.com/kuznetsovin/libegts)
+Хранилища для выходных записей реализованы в форме плагинов:
 
-By default received message output to console if it includes gps coordinates section (EGTS_SR_POS_DATA). 
+- [PostgreSQL](pkg/store-plugins/postgresql/README.md)
+- [RabbitMQ](pkg/store-plugins/rabbitmq/README.md)
 
-Besides you can connect different plugins for working with parsing data. This plugins setup in ```store``` section 
-in config file. Receiver have several plugins out of the box:
-
-- [PostgreSQL](plugin_stores/postgresql/README.md)
-- [RabbitMQ](plugin_stores/rabbitmq/README.md)
-
-If you want create another plugin, then you must implementation ```Connector``` interface in you code:
+Есл необходим новый плагин, то он реализуется четез определение интерфейса ```Connector```:
 
 ```go
 type Connector interface {
