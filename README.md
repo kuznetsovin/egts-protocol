@@ -1,14 +1,14 @@
 # Приемщик EGTS
 
 Реаализация сервиса приема данных по протоколу ЕГТС. Разбор пакета с данными делается с помощью 
-библиотеки [egtslib](pkg/egtslib/README.md).
+библиотеки [egtslib](pkg/egtslib/).
 
 Приемщик сохраняет все записи из пакета, которые содержат позапись местонахождения (EGTS_SR_POS_DATA). 
 
 Хранилища для выходных записей реализованы в форме плагинов:
 
-- [PostgreSQL](pkg/store-plugins/postgresql/README.md)
-- [RabbitMQ](pkg/store-plugins/rabbitmq/README.md)
+- [PostgreSQL](pkg/store-plugins/postgresql/)
+- [RabbitMQ](pkg/store-plugins/rabbitmq/)
 
 Есл необходим новый плагин, то он реализуется четез определение интерфейса ```Connector```:
 
