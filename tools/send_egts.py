@@ -1,20 +1,25 @@
+#!/usr/bin/env python3
 from time import sleep
+import argparse
 
 import socket
 
-# TEST_FILE = '/Users/kuznetsovin/Projects/TMS/tools/receiver_testing/bnso_30277669.csv'
-# TEST_FILE = '/Users/kuznetsovin/Projects/TMS/tools/receiver_testing/test_egts.csv'
-TEST_FILE = 'test2.csv'
-
 if __name__ == '__main__':
-    TEST_ADDR = ('195.88.196.133', 5020)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-s", "--host", help="Адрес сервера для приема ЕГТС", default='localhost', type=str)
+    parser.add_argument("-p", "--port", help="Порт сервера для приема ЕГТС", default=6000, type=int)
+    parser.add_argument("file", help="Тестовый файл с пакетами", type=str)
+    
+    args = parser.parse_args()
+
+    TEST_ADDR = (args.host, args.port)
 
     client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client.connect(TEST_ADDR)
 
     BUFF = 2048
 
-    with open(TEST_FILE) as f:
+    with open(args.file) as f:
         for rec in f.readlines():
             print("send: {}".format(rec))
             package = bytes.fromhex(rec[:-1])            
