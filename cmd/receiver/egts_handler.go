@@ -55,7 +55,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			logger.Warnf("Соединение %s закрыто по таймауту", conn.RemoteAddr())
 			return
 		default:
-			logger.Errorf("Ошибка при получении:", err)
+			logger.Errorf("Ошибка при получении: %v", err)
 			conn.Close()
 			return
 		}
