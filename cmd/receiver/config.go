@@ -47,8 +47,7 @@ type store struct {
 type service struct {
 	Host       string
 	Port       string
-	ConLiveSec int  `toml:"con_live_sec"`
-	DebugMode  bool `toml:"debug_mode"`
+	ConLiveSec int `toml:"con_live_sec"`
 }
 
 func (s *service) getEmptyConnTTL() time.Duration {

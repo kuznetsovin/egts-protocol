@@ -20,8 +20,9 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		srResultCodePkg   []byte
 		serviceType       uint8
 		srResponsesRecord egts.RecordDataSet
+		recvPacket        []byte
 	)
-	buf := make([]byte, 4096)
+	buf := make([]byte, 2048)
 
 	if store == nil {
 		logger.Errorf("Не корректная ссылка на объект хранилища")
@@ -29,26 +30,37 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		return
 	}
 	logger.Warnf("Установлено соединение с %s", conn.RemoteAddr())
-
+	isNewPacket := true
+	pkgLen := uint16(0)
 	for {
 	Received:
 		serviceType = 0
 		srResponsesRecord = nil
 		srResultCodePkg = nil
 
-		pkgLen, err := conn.Read(buf)
+		recvLen, err := conn.Read(buf)
 
 		connTimer := time.NewTimer(config.Srv.getEmptyConnTTL())
 		switch err {
 		case nil:
 			connTimer.Reset(config.Srv.getEmptyConnTTL())
-			logger.Debugf("Принят пакет: %X\v", buf[:pkgLen])
 			// если пакет не егтс формата закрываем соединение
-			if buf[0] != 0x01 {
-				conn.Close()
-				logger.Warnf("Пакет не соответствует формату ЕГТС. Закрыто соедиение %s", conn.RemoteAddr())
-				return
+			if isNewPacket {
+				if buf[0] != 0x01 {
+					conn.Close()
+					logger.Warnf("Пакет не соответствует формату ЕГТС. Закрыто соедиение %s", conn.RemoteAddr())
+					return
+				}
+				pkgLen = uint16(buf[3]) + binary.LittleEndian.Uint16(buf[5:])
+				if recvLen < int(pkgLen) {
+					isNewPacket = false
+					goto Received
+				} else {
+					isNewPacket = true
+				}
 			}
+			recvPacket = append(recvPacket, buf[:recvLen]...)
+
 		case io.EOF:
 			<-connTimer.C
 			conn.Close()
@@ -60,9 +72,10 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			return
 		}
 
+		logger.Debugf("Принят пакет: %X\v", recvPacket)
 		pkg := egts.Package{}
 		receivedTimestamp := time.Now().UTC().Unix()
-		resultCode, err := pkg.Decode(buf[:pkgLen])
+		resultCode, err := pkg.Decode(recvPacket)
 		if err != nil {
 			logger.Warn("Ошибка расшифровки пакета")
 			logger.Error(err)
