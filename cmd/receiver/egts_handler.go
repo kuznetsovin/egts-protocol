@@ -21,7 +21,7 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		serviceType       uint8
 		srResponsesRecord egts.RecordDataSet
 	)
-	buf := make([]byte, 2048)
+	buf := make([]byte, 4096)
 
 	if store == nil {
 		logger.Errorf("Не корректная ссылка на объект хранилища")
