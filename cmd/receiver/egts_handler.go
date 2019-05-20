@@ -45,10 +45,10 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 			logger.Debugf("Принят пакет: %X\v", buf[:pkgLen])
 			// если пакет не егтс формата закрываем соединение
 			if buf[0] != 0x01 {
-				logger.Warnf("Пакет не соответствует формату ЕГТС. Закрыто соедиение %s", conn.RemoteAddr())
 				conn.Close()
+				logger.Warnf("Пакет не соответствует формату ЕГТС. Закрыто соедиение %s", conn.RemoteAddr())
 			}
-			break
+			goto Received
 		case io.EOF:
 			<-connTimer.C
 			conn.Close()
