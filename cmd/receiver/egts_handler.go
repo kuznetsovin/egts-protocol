@@ -64,7 +64,8 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		receivedTimestamp := time.Now().UTC().Unix()
 		resultCode, err := pkg.Decode(buf[:pkgLen])
 		if err != nil {
-			logger.Errorf("Не удалось расшифровать пакет: %v", err)
+			logger.Warn("Ошибка расшифровки пакета")
+			logger.Error(err)
 
 			resp, err := createPtResponse(&pkg, resultCode, serviceType, nil)
 			if err != nil {
