@@ -61,14 +61,14 @@ func (e *SrAdSensorsData) Decode(content []byte) error {
 	}
 	flagBits := fmt.Sprintf("%08b", flags)
 
-	e.DigitalInputsOctetExists1 = flagBits[:1]
-	e.DigitalInputsOctetExists2 = flagBits[1:2]
-	e.DigitalInputsOctetExists3 = flagBits[2:3]
-	e.DigitalInputsOctetExists4 = flagBits[3:4]
-	e.DigitalInputsOctetExists5 = flagBits[4:5]
-	e.DigitalInputsOctetExists6 = flagBits[5:6]
-	e.DigitalInputsOctetExists7 = flagBits[6:7]
-	e.DigitalInputsOctetExists8 = flagBits[7:]
+	e.DigitalInputsOctetExists8 = flagBits[:1]
+	e.DigitalInputsOctetExists7 = flagBits[1:2]
+	e.DigitalInputsOctetExists6 = flagBits[2:3]
+	e.DigitalInputsOctetExists5 = flagBits[3:4]
+	e.DigitalInputsOctetExists4 = flagBits[4:5]
+	e.DigitalInputsOctetExists3 = flagBits[5:6]
+	e.DigitalInputsOctetExists2 = flagBits[6:7]
+	e.DigitalInputsOctetExists1 = flagBits[7:]
 
 	if e.DigitalOutputs, err = buf.ReadByte(); err != nil {
 		return fmt.Errorf("Не удалось получить битовые флаги дискретных выходов: %v", err)
@@ -79,14 +79,14 @@ func (e *SrAdSensorsData) Decode(content []byte) error {
 	}
 	flagBits = fmt.Sprintf("%08b", flags)
 
-	e.AnalogSensorFieldExists1 = flagBits[:1]
-	e.AnalogSensorFieldExists2 = flagBits[1:2]
-	e.AnalogSensorFieldExists3 = flagBits[2:3]
-	e.AnalogSensorFieldExists4 = flagBits[3:4]
-	e.AnalogSensorFieldExists5 = flagBits[4:5]
-	e.AnalogSensorFieldExists6 = flagBits[5:6]
-	e.AnalogSensorFieldExists7 = flagBits[6:7]
-	e.AnalogSensorFieldExists8 = flagBits[7:]
+	e.AnalogSensorFieldExists8 = flagBits[:1]
+	e.AnalogSensorFieldExists7 = flagBits[1:2]
+	e.AnalogSensorFieldExists6 = flagBits[2:3]
+	e.AnalogSensorFieldExists5 = flagBits[3:4]
+	e.AnalogSensorFieldExists4 = flagBits[4:5]
+	e.AnalogSensorFieldExists3 = flagBits[5:6]
+	e.AnalogSensorFieldExists2 = flagBits[6:7]
+	e.AnalogSensorFieldExists1 = flagBits[7:]
 
 	if e.DigitalInputsOctetExists1 == "1" {
 		if e.AdditionalDigitalInputsOctet1, err = buf.ReadByte(); err != nil {
@@ -213,14 +213,14 @@ func (e *SrAdSensorsData) Encode() ([]byte, error) {
 
 	buf := new(bytes.Buffer)
 
-	flagsBits := e.DigitalInputsOctetExists1 +
-		e.DigitalInputsOctetExists2 +
-		e.DigitalInputsOctetExists3 +
-		e.DigitalInputsOctetExists4 +
-		e.DigitalInputsOctetExists5 +
-		e.DigitalInputsOctetExists6 +
+	flagsBits := e.DigitalInputsOctetExists8 +
 		e.DigitalInputsOctetExists7 +
-		e.DigitalInputsOctetExists8
+		e.DigitalInputsOctetExists6 +
+		e.DigitalInputsOctetExists5 +
+		e.DigitalInputsOctetExists4 +
+		e.DigitalInputsOctetExists3 +
+		e.DigitalInputsOctetExists2 +
+		e.DigitalInputsOctetExists1
 
 	if flags, err = strconv.ParseUint(flagsBits, 2, 8); err != nil {
 		return result, fmt.Errorf("Не удалось сгенерировать байт байт цифровых выходов ad_sesor_data: %v", err)
