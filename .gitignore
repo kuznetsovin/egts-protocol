@@ -28,3 +28,4 @@ _testmain.go
 bin/
 .vscode/launch.json
 cmd/receiver/debug
+.vscode/sftp.json

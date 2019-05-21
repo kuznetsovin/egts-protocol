@@ -2,22 +2,23 @@ package egts
 
 import (
 	"bytes"
-	"github.com/google/go-cmp/cmp"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 var (
 	srAdSensorsDataBytes = []byte{0x01, 0x0F, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 		0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}
 	testEgtsSrAdSensorsData = SrAdSensorsData{
-		DigitalInputsOctetExists1:     "0",
+		DigitalInputsOctetExists1:     "1",
 		DigitalInputsOctetExists2:     "0",
 		DigitalInputsOctetExists3:     "0",
 		DigitalInputsOctetExists4:     "0",
 		DigitalInputsOctetExists5:     "0",
 		DigitalInputsOctetExists6:     "0",
 		DigitalInputsOctetExists7:     "0",
-		DigitalInputsOctetExists8:     "1",
+		DigitalInputsOctetExists8:     "0",
 		DigitalOutputs:                15,
 		AnalogSensorFieldExists1:      "1",
 		AnalogSensorFieldExists2:      "1",

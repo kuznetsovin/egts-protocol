@@ -57,10 +57,12 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &SrAbsCntrData{}
 		case SrAuthInfoType:
 			rd.SubrecordData = &SrAuthInfo{}
+		case SrCountersDataType:
+			rd.SubrecordData = &SrCountersData{}
 		case SrEgtsPlusDataType:
 			rd.SubrecordData = &StorageRecord{}
 		default:
-			return fmt.Errorf("Не известный пакета: %d", rd.SubrecordType)
+			return fmt.Errorf("Не известный тип подзаписи: %d. Длина: %d. Содержимое: %X", rd.SubrecordType, rd.SubrecordLength, subRecordBytes)
 		}
 
 		if err = rd.SubrecordData.Decode(subRecordBytes); err != nil {
