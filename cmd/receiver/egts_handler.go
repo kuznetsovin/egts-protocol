@@ -11,7 +11,8 @@ import (
 )
 
 const (
-	egtsPcOk = 0
+	egtsPcOk  = 0
+	headerLen = 10
 )
 
 func handleRecvPkg(conn net.Conn, store Connector) {
@@ -22,7 +23,6 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		srResponsesRecord egts.RecordDataSet
 		recvPacket        []byte
 	)
-	buf := make([]byte, 2048)
 
 	if store == nil {
 		logger.Errorf("Не корректная ссылка на объект хранилища")
@@ -30,37 +30,43 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		return
 	}
 	logger.Warnf("Установлено соединение с %s", conn.RemoteAddr())
-	isNewPacket := true
-	pkgLen := uint16(0)
+
 	for {
 	Received:
 		serviceType = 0
 		srResponsesRecord = nil
 		srResultCodePkg = nil
-
-		recvLen, err := conn.Read(buf)
+		recvPacket = nil
 
 		connTimer := time.NewTimer(config.Srv.getEmptyConnTTL())
+
+		// считываем заголовок пакета
+		headerBuf := make([]byte, headerLen)
+		_, err := conn.Read(headerBuf)
+
 		switch err {
 		case nil:
 			connTimer.Reset(config.Srv.getEmptyConnTTL())
-			// если пакет не егтс формата закрываем соединение
-			if isNewPacket {
-				if buf[0] != 0x01 {
-					conn.Close()
-					logger.Warnf("Пакет не соответствует формату ЕГТС. Закрыто соедиение %s", conn.RemoteAddr())
-					return
-				}
-				pkgLen = uint16(buf[3]) + binary.LittleEndian.Uint16(buf[5:])
-				if recvLen < int(pkgLen) {
-					isNewPacket = false
-					goto Received
-				} else {
-					isNewPacket = true
-				}
-			}
-			recvPacket = append(recvPacket, buf[:recvLen]...)
 
+			// если пакет не егтс формата закрываем соединение
+			if headerBuf[0] != 0x01 {
+				conn.Close()
+				logger.Warnf("Пакет не соответствует формату ЕГТС. Закрыто соедиение %s", conn.RemoteAddr())
+				return
+			}
+
+			// вычисляем длину пакета, равную длине заголовка (HL) + длина тела (FDL) + CRC пакета 2 байта из приказа минтранса №285
+			pkgLen := int(uint16(headerBuf[3])+binary.LittleEndian.Uint16(headerBuf[5:7])) + 2
+			// получаем концовку ЕГТС пакета
+			buf := make([]byte, pkgLen-headerLen)
+			if _, err := conn.Read(buf); err != nil {
+				logger.Errorf("Ошибка при получении: %v", err)
+				conn.Close()
+				return
+			}
+
+			// формируем порлный пакет
+			recvPacket = append(headerBuf, buf...)
 		case io.EOF:
 			<-connTimer.C
 			conn.Close()
