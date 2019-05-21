@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"encoding/binary"
 	"io"
 	"net"
@@ -42,10 +41,9 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 		connTimer := time.NewTimer(config.Srv.getEmptyConnTTL())
 
 		// считываем заголовок пакета
-		// headerBuf := make([]byte, headerLen)
-		connBuf := bufio.NewReader(conn)
+		headerBuf := make([]byte, headerLen)
+		_, err := conn.Read(headerBuf)
 
-		headerBuf, err := connBuf.Peek(headerLen)
 		switch err {
 		case nil:
 			connTimer.Reset(config.Srv.getEmptyConnTTL())
@@ -64,11 +62,15 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				pkgLen += bodyLen + 2
 			}
 			// получаем концовку ЕГТС пакета
-			if recvPacket, err = connBuf.Peek(int(pkgLen)); err != nil {
+			buf := make([]byte, pkgLen-headerLen)
+			if _, err := io.ReadFull(conn, buf); err != nil {
 				logger.Errorf("Ошибка при получении тела пакета: %v", err)
 				conn.Close()
 				return
 			}
+
+			// формируем порлный пакет
+			recvPacket = append(headerBuf, buf...)
 		case io.EOF:
 			<-connTimer.C
 			conn.Close()
