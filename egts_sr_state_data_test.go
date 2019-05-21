@@ -2,8 +2,9 @@ package egts
 
 import (
 	"bytes"
-	"github.com/google/go-cmp/cmp"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 var (
@@ -48,7 +49,7 @@ func TestEgtsSrStateDataRs(t *testing.T) {
 	stateDataRDBytes := append([]byte{0x14, 0x05, 0x00}, testSrStateDataBytes...)
 	stateDataRD := RecordDataSet{
 		RecordData{
-			SubrecordType:   SrStateDataType,
+			SubrecordType:   SrType20,
 			SubrecordLength: 5,
 			SubrecordData:   &testEgtsSrStateData,
 		},

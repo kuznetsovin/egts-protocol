@@ -27,8 +27,11 @@ const SrAdSensorsDataType = 18
 //SrCountersDataType код типа подзаписи EGTS_SR_COUNTERS_DATA
 const SrCountersDataType = 19
 
+//SrType20 в зависимости от длины может содержать секцию EGTS_SR_STATE_DATA (если длина 5 байт) или EGTS_SR_ACCEL_DATA
+const SrType20 = 20
+
 //SrStateDataType код типа подзаписи EGTS_SR_STATE_DATA
-const SrStateDataType = 20
+const SrStateDataType = 21
 
 //SrLoopinDataType код типа подзаписи EGTS_SR_TERM_IDENTITY_TYPE
 const SrLoopinDataType = 22
