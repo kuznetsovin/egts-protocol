@@ -50,20 +50,23 @@ func main() {
 	}
 	defer store.Close()
 
-	l, err := net.Listen("tcp", config.getListenAddress())
+	runServer(config.getListenAddress(), store)
+}
+
+func runServer(srvAddress string, store Connector) {
+	l, err := net.Listen("tcp", srvAddress)
 	if err != nil {
 		logger.Fatalf("Не удалось открыть соединение: %v", err)
 	}
 	defer l.Close()
 
-	logger.Infof("Запущен сервер %s...", config.getListenAddress())
+	logger.Infof("Запущен сервер %s...", srvAddress)
 	for {
 		conn, err := l.Accept()
 		if err != nil {
 			logger.Errorf("Ошибка соединения: %v", err)
 		} else {
 			go handleRecvPkg(conn, store)
-
 		}
 	}
 }
