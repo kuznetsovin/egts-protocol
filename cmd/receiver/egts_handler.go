@@ -55,12 +55,16 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 				return
 			}
 
-			// вычисляем длину пакета, равную длине заголовка (HL) + длина тела (FDL) + CRC пакета 2 байта из приказа минтранса №285
-			pkgLen := int(uint16(headerBuf[3])+binary.LittleEndian.Uint16(headerBuf[5:7])) + 2
+			// вычисляем длину пакета, равную длине заголовка (HL) + длина тела (FDL) + CRC пакета 2 байта если есть FDL из приказа минтранса №285
+			bodyLen := binary.LittleEndian.Uint16(headerBuf[5:7])
+			pkgLen := uint16(headerBuf[3])
+			if bodyLen > 0 {
+				pkgLen += bodyLen + 2
+			}
 			// получаем концовку ЕГТС пакета
 			buf := make([]byte, pkgLen-headerLen)
 			if _, err := conn.Read(buf); err != nil {
-				logger.Errorf("Ошибка при получении: %v", err)
+				logger.Errorf("Ошибка при получении тела пакета: %v", err)
 				conn.Close()
 				return
 			}

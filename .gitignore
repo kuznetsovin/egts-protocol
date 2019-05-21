@@ -27,3 +27,4 @@ _testmain.go
 .idea/
 bin/
 .vscode/launch.json
+cmd/receiver/debug
