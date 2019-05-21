@@ -49,6 +49,14 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &SrExtPosData{}
 		case SrAdSensorsDataType:
 			rd.SubrecordData = &SrAdSensorsData{}
+		case SrType20:
+			// признак косвенный в спецификациях его нет
+			if rd.SubrecordLength == uint16(5) {
+				rd.SubrecordData = &SrStateData{}
+			} else {
+				// TODO: добавить секцию EGTS_SR_ACCEL_DATA
+				return fmt.Errorf("Не реализованная секция EGTS_SR_ACCEL_DATA: %d. Длина: %d. Содержимое: %X", rd.SubrecordType, rd.SubrecordLength, subRecordBytes)
+			}
 		case SrStateDataType:
 			rd.SubrecordData = &SrStateData{}
 		case SrLiquidLevelSensorType:
