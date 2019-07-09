@@ -7,7 +7,6 @@ require (
 	github.com/golang/protobuf v1.3.1
 	github.com/google/go-cmp v0.3.0
 	github.com/kr/pretty v0.1.0 // indirect
-	github.com/kuznetsovin/egts.go v0.0.0-20190514121832-d9ba019879f0
 	github.com/labstack/gommon v0.2.8
 	github.com/lib/pq v1.1.1 // indirect
 	github.com/mattn/go-colorable v0.1.1 // indirect
