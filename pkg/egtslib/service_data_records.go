@@ -154,8 +154,8 @@ func (s *ServiceDataSet) Encode() ([]byte, error) {
 		}
 
 		if sdr.TimeFieldExists == "1" {
-			if binary.Write(buf, binary.LittleEndian, sdr.Time); err != nil {
-				return result, fmt.Errorf("Не удалось время формирования записи на стороне отправителя SDR: %v", err)
+			if err := binary.Write(buf, binary.LittleEndian, sdr.Time); err != nil {
+				return result, fmt.Errorf("Не удалось записать время формирования записи на стороне отправителя SDR: %v", err)
 			}
 		}
 
