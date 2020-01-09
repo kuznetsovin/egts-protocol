@@ -2,28 +2,34 @@ package egts
 
 import (
 	"encoding/binary"
+	"errors"
 )
 
 //SrAbsAnSensData структура подзаписи типа EGTS_SR_ABS_AN_SENS_DATA, которая применяется абонентским
 //терминалом для передачи данных о состоянии одного аналогового входа
 type SrAbsAnSensData struct {
-	ASN int `json:"ASN"`
-	ASV int `json:"ASV"`
+	SensorNumber uint8  `json:"SensorNumber"`
+	Value        uint32 `json:"Value"`
 }
 
 //Decode разбирает байты в структуру подзаписи
 func (e *SrAbsAnSensData) Decode(content []byte) error {
-	data := binary.BigEndian.Uint32(content)
-	e.ASN = int(data >> 24)
-	e.ASV = int(data & 0x00ffffff)
+	if len(content) < int(e.Length()) {
+		return errors.New("Некорректный размер данных")
+	}
+	e.SensorNumber = uint8(content[0])
+	e.Value = uint32(binary.LittleEndian.Uint32(content) >> 8)
 	return nil
 }
 
 //Encode преобразовывает подзапись в набор байт
 func (e *SrAbsAnSensData) Encode() ([]byte, error) {
-	content := make([]byte, 4)
-	binary.BigEndian.PutUint32(content, uint32(e.ASN<<24|e.ASV))
-	return content, nil
+	return []byte{
+		byte(e.SensorNumber),
+		byte(e.Value),
+		byte(e.Value >> 8),
+		byte(e.Value >> 16),
+	}, nil
 }
 
 //Length получает длинну закодированной подзаписи
