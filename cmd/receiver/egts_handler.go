@@ -187,6 +187,10 @@ func handleRecvPkg(conn net.Conn, store Connector) {
 						if subRecData.AnalogSensorFieldExists8 == "1" {
 							exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{8, subRecData.AnalogSensor8})
 						}
+					case *egts.SrAbsAnSensData:
+						logger.Debugf("Разбор подзаписи EGTS_SR_ABS_AN_SENS_DATA")
+						exportPacket.AnSensors = append(exportPacket.AnSensors, anSensor{subRecData.SensorNumber, subRecData.Value})
+
 					case *egts.SrAbsCntrData:
 						logger.Debugf("Разбор подзаписи EGTS_SR_ABS_CNTR_DATA")
 
