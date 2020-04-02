@@ -1,0 +1,12 @@
+[srv]
+host = "127.0.0.1"
+port = "6000"
+con_live_sec = 10
+
+[store]
+plugin = "nats.so"
+servers = "nats://localhost:4222"
+topic = "egts"
+
+[log]
+level = "DEBUG"
