@@ -4,9 +4,11 @@ port = "6000"
 con_live_sec = 10
 
 [store]
-plugin = "nats.so"
+plugin = "./bin/plugins/nats.so"
 servers = "nats://localhost:4222"
 topic = "egts"
+user = "guest"
+password = "guest"
 
 [log]
 level = "DEBUG"

@@ -30,7 +30,16 @@ func (c *NatsConnector) Init(cfg map[string]string) error {
 		return fmt.Errorf("Не корректная ссылка на конфигурацию")
 	}
 	c.config = cfg
-	if c.connection, err = natsLib.Connect(c.config["servers"]); err != nil {
+
+	var options = make([]natsLib.Option, 3)
+
+	if user, uOk := c.config["user"]; uOk {
+		if password, pOk := c.config["password"]; pOk {
+			options = append(options, natsLib.UserInfo(user, password))
+		}
+	}
+
+	if c.connection, err = natsLib.Connect(c.config["servers"], options...); err != nil {
 		return fmt.Errorf("Ошибка подключения к nats шине: %v", err)
 	}
 	return err
