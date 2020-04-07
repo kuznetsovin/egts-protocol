@@ -9,6 +9,8 @@
 plugin = "nats.so"
 servers = "nats://localhost:1222, nats://localhost:1223, nats://localhost:1224"
 topic = "egts"
+user = "guest"
+password = "guest"
 
 ```
 
@@ -17,4 +19,6 @@ topic = "egts"
 - *plugin* - путь до библиотеки
 - *servers* - адреса серверов
 - *topic* - топик для отправки сообщений
+- *user* - логин
+- *password* - пароль
 
