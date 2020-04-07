@@ -33,6 +33,8 @@ func (c *NatsConnector) Init(cfg map[string]string) error {
 
 	var options = make([]natsLib.Option, 3)
 
+	options = append(options, natsLib.Name(fmt.Sprintf("EGTS handler, topic: %s", c.config["topic"])))
+
 	if user, uOk := c.config["user"]; uOk {
 		if password, pOk := c.config["password"]; pOk {
 			options = append(options, natsLib.UserInfo(user, password))
