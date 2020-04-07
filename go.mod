@@ -3,6 +3,7 @@ module github.com/kuznetsovin/egts
 go 1.12
 
 require (
+    github.com/nats-io/nats.go v1.9.2
 	github.com/BurntSushi/toml v0.3.1
 	github.com/golang/protobuf v1.3.1
 	github.com/google/go-cmp v0.3.0
