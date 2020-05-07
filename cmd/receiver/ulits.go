@@ -3,7 +3,7 @@ package main
 import (
 	"sync/atomic"
 
-	egts "github.com/kuznetsovin/egts/pkg/egtslib"
+	"github.com/egts/go-egts/egts"
 )
 
 var (
