@@ -1,8 +1,8 @@
-## Плагин для работы с RabbitMQ
+## RabbitMQ plugin
 
-Для работы плагина нужна библиотека для работы с [amqp](github.com/streadway/amqp)
+Plugin depends on [amqp](http://github.com/streadway/amqp) package
 
-Секция настроек выглядит следующим образом:
+Config section:
 
 ```
 [store]
@@ -14,13 +14,13 @@ password = "guest"
 key = ""
 ```
 
-Описание парамеров:
+Parameters description:
 
-- *plugin* - путь до библиотеки
-- *host* - адрес сервера
-- *port* - порт
-- *user* - пользователь
-- *password* - пароль
-- *exchange* - exchange для запасиси
-- *key* - имя конкретной очереди (если нужно)
+- *plugin* - path to *.so library file
+- *host* - rabbitmq server address
+- *port* - rabbitmq port
+- *user* - rabbitmq user
+- *password* - user password
+- *exchange* - exchange for publish
+- *key* - routing key (or queue name)
 

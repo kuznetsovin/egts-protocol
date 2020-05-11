@@ -1,13 +1,13 @@
 # EGTS receiver plugins
 
-Хранилища для выходных записей реализованы в форме плагинов:
+[Egts receiver](https://github.com/egts/egts-receiver) storage realization as plugins:
 
 - [PostgreSQL](./postgresql/)
 - [RabbitMQ](./rabbitmq/)
 - [Tarantool](./tarantool_queue)
 - [Nats](./nats)
 
-Есл необходим новый плагин, то он реализуется четез определение интерфейса ```Connector```:
+That create a new plugin you must implementation ```Connector``` interface:
 
 ```go
 type Connector interface {

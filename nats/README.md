@@ -1,8 +1,8 @@
-## Плагин для работы с NATS
+## NATS plugin
 
-Для работы плагина нужна библиотека для работы с [nats](github.com/nats-io/nats.go)
+Plugin depends on [nats](http://github.com/nats-io/nats.go) package
 
-Секция настроек выглядит следующим образом:
+Config section:
 
 ```
 [store]
@@ -14,11 +14,11 @@ password = "guest"
 
 ```
 
-Описание парамеров:
+Parameters description:
 
-- *plugin* - путь до библиотеки
-- *servers* - адреса серверов
-- *topic* - топик для отправки сообщений
-- *user* - логин
-- *password* - пароль
+- *plugin* - path to *.so library file  
+- *servers* - nats server address
+- *topic* - nats topic, where publish message
+- *user* - nats user
+- *password* - user password
 

@@ -1,8 +1,8 @@
-## Плагин для работы с PostgreSQL
+## PostgreSQL plugin
 
-Для работы плагина нужна библиотека для работы с [pq](github.com/lib/pq)
+Plugin depends on [pq](http://github.com/lib/pq) package
 
-Секция настроек выглядит следующим образом:
+Config section:
 
 ```
 [store]
@@ -14,17 +14,15 @@ password = "guest"
 database = "receiver"
 table = "points"
 sslmode = "disable"
-
 ```
 
-Описание парамеров:
+Parameters description:
 
-- *plugin* - путь до библиотеки
-- *host* - адрес сервера
-- *port* - порт
-- *user* - пользователь
-- *password* - пароль
-- *database* - имя БД
-- *table* - имя таблицы для вставки. У таблицы должно быть поле *point* типа jsonb
-- *sslmode* - режим защищеного соединеия
-
+- *plugin* - path to *.so library file  
+- *host* - postgres server address
+- *port* - postgres port
+- *user* - postgres user
+- *password* - user password
+- *database* - db name
+- *table* - table in db where will be insert data. Table must have *point* field (jsonb type)
+- *sslmode* - postgres ssl mode
