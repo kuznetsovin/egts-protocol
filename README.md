@@ -12,8 +12,8 @@ More information you can read in [article](https://www.swe-notes.ru/post/protoco
 Server save all navigation data from ```EGTS_SR_POS_DATA``` section. If packet have several records with 
 ```EGTS_SR_POS_DATA``` section, it saves all of them. 
 
-Storage for data realized as [plugins](https://github.com/egts/egts-receiver-plugins). Any plugin must have ```[store]```
-section in configure file.
+Storage for data realized as plugins. Any plugin must have ```[store]``` section in configure file. 
+Plugin interface will be described below.
 
 If configure file has't section for a plugin (```[store]```), then packet will be print to stdout.
 
@@ -120,13 +120,6 @@ func main() {
 
 # Store plugins
 
-In receiver storage realization as plugins:
-
-- [PostgreSQL](./receiver/store/postgresql)
-- [RabbitMQ](./receiver/store/rabbitmq)
-- [Tarantool](./receiver/store/tarantool_queue)
-- [Nats](./receiver/store/nats)
-
 That create a new plugin you must implementation ```Connector``` interface:
 
 ```go
@@ -141,3 +134,5 @@ type Connector interface {
 	Close() error
 }
 ```
+
+All plugins available in [store folder](/receiver/store).
