@@ -117,3 +117,27 @@ func main() {
     log.Println("Package: ", result)
 }
 ```
+
+# Store plugins
+
+In receiver storage realization as plugins:
+
+- [PostgreSQL](./receiver/store/postgresql/)
+- [RabbitMQ](./receiver/store/rabbitmq/)
+- [Tarantool](./receiver/store/tarantool_queue)
+- [Nats](./receiver/store/nats)
+
+That create a new plugin you must implementation ```Connector``` interface:
+
+```go
+type Connector interface {
+	// setup store connection
+	Init(map[string]string) error
+	
+	// save to store method
+	Save(interface{ ToBytes() ([]byte, error) }) error
+	
+	// close connection with store
+	Close() error
+}
+```
