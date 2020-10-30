@@ -122,8 +122,8 @@ func main() {
 
 In receiver storage realization as plugins:
 
-- [PostgreSQL](./receiver/store/postgresql/)
-- [RabbitMQ](./receiver/store/rabbitmq/)
+- [PostgreSQL](./receiver/store/postgresql)
+- [RabbitMQ](./receiver/store/rabbitmq)
 - [Tarantool](./receiver/store/tarantool_queue)
 - [Nats](./receiver/store/nats)
 
