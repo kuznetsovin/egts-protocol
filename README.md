@@ -20,8 +20,8 @@ If configure file has't section for a plugin (```[store]```), then packet will b
 ## Install
 
 ```bash
-git clone https://github.com/egts/egts-receiver
-cd egts-receiver/build && ./build-receiver.sh
+git clone https://github.com/kuznetsovin/egts-protocol
+cd egts-protocol/tools && ./build-receiver.sh
 ```
 
 ## Run
