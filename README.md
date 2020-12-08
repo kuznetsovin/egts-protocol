@@ -59,8 +59,8 @@ Example for encoding packet:
 package main 
 
 import (
+    "github.com/kuznetsovin/egts-protocol/app/egts"
     "log"
-    "github.com/kuznetsovin/egts-protocol/receiver/egts"
 )
 
 func main() {
@@ -100,8 +100,8 @@ Example for decoding packet:
 package main 
 
 import (
+    "github.com/kuznetsovin/egts-protocol/app/egts"
     "log"
-    "github.com/kuznetsovin/egts-protocol/receiver/egts"
 )
 
 func main() {
