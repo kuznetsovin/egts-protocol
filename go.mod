@@ -4,7 +4,6 @@ go 1.12
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/egts/go-egts v0.0.0-20200507064830-4026b5076b9e
 	github.com/golang/protobuf v1.3.5
 	github.com/google/go-cmp v0.3.0
 	github.com/kr/pretty v0.1.0 // indirect
