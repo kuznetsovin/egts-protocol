@@ -171,7 +171,7 @@ func (e *SrPosData) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось записать скорость: %v", err)
 	}
 
-	dir := e.Direction &^ (1 << 7)
+	dir := e.Direction &^ (e.DirectionHighestBit << 7)
 	if err = binary.Write(buf, binary.LittleEndian, dir); err != nil {
 		return result, fmt.Errorf("Не удалось записать направление движения: %v", err)
 	}

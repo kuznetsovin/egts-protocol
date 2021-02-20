@@ -168,6 +168,14 @@ func (p *Package) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось записать метод кодирования: %v", err)
 	}
 
+	var sfrd []byte
+	if p.ServicesFrameData != nil {
+		sfrd, err = p.ServicesFrameData.Encode()
+		if err != nil {
+			return result, err
+		}
+	}
+	p.FrameDataLength = uint16(len(sfrd))
 	if err = binary.Write(buf, binary.LittleEndian, p.FrameDataLength); err != nil {
 		return result, fmt.Errorf("Не удалось записать длину секции данных: %v", err)
 	}
@@ -196,18 +204,10 @@ func (p *Package) Encode() ([]byte, error) {
 
 	buf.WriteByte(crc8(buf.Bytes()))
 
-	if p.ServicesFrameData != nil {
-		sfrd, err := p.ServicesFrameData.Encode()
-		if err != nil {
-			return result, err
-		}
-
-		if len(sfrd) > 0 {
-			buf.Write(sfrd)
-
-			if err := binary.Write(buf, binary.LittleEndian, crc16(sfrd)); err != nil {
-				return result, fmt.Errorf("Не удалось записать crc16 пакета: %v", err)
-			}
+	if p.FrameDataLength > 0 {
+		buf.Write(sfrd)
+		if err := binary.Write(buf, binary.LittleEndian, crc16(sfrd)); err != nil {
+			return result, fmt.Errorf("Не удалось записать crc16 пакета: %v", err)
 		}
 	}
 

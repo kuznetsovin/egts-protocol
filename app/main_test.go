@@ -30,6 +30,7 @@ func TestServer(t *testing.T) {
 		runServer(srv, store)
 	}()
 
+	time.Sleep(500 * time.Microsecond)
 	conn, err := net.Dial("tcp", srv)
 	if err != nil {
 		t.Fatal(err)
