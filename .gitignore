@@ -26,6 +26,6 @@ _testmain.go
 
 .idea/
 bin/
-.vscode/launch.json
+.vscode/
 receiver/debug
-.vscode/sftp.json
+.DS_Store
