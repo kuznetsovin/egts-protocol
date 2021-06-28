@@ -8,6 +8,8 @@ import (
 	"strconv"
 )
 
+const DEFAULT_HEADER_LEN = 11
+
 // Package стуркура для описания пакета ЕГТС
 type Package struct {
 	ProtocolVersion           byte       `json:"PRV"`
@@ -158,6 +160,13 @@ func (p *Package) Encode() ([]byte, error) {
 
 	if err = buf.WriteByte(uint8(flags)); err != nil {
 		return result, fmt.Errorf("Не удалось записать флаги: %v", err)
+	}
+
+	if p.HeaderLength == 0 {
+		p.HeaderLength = DEFAULT_HEADER_LEN
+		if p.Route == "1" {
+			p.HeaderLength += 5
+		}
 	}
 
 	if err = buf.WriteByte(p.HeaderLength); err != nil {

@@ -116,13 +116,20 @@ func (s *ServiceDataSet) Decode(serviceDS []byte) error {
 func (s *ServiceDataSet) Encode() ([]byte, error) {
 	var (
 		result []byte
-		err    error
 		flags  uint64
 	)
 
 	buf := new(bytes.Buffer)
 
 	for _, sdr := range *s {
+		rd, err := sdr.RecordDataSet.Encode()
+		if err != nil {
+			return result, err
+		}
+
+		if sdr.RecordLength == 0 {
+			sdr.RecordLength = uint16(len(rd))
+		}
 		if err = binary.Write(buf, binary.LittleEndian, sdr.RecordLength); err != nil {
 			return result, fmt.Errorf("Не удалось записать длину записи SDR: %v", err)
 		}
@@ -167,10 +174,6 @@ func (s *ServiceDataSet) Encode() ([]byte, error) {
 			return result, fmt.Errorf("Не удалось записать идентификатор тип сервиса-получателя SDR: %v", err)
 		}
 
-		rd, err := sdr.RecordDataSet.Encode()
-		if err != nil {
-			return result, err
-		}
 		buf.Write(rd)
 	}
 

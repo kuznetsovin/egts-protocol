@@ -97,12 +97,15 @@ func (rds *RecordDataSet) Encode() ([]byte, error) {
 			return result, err
 		}
 
-		if err := binary.Write(buf, binary.LittleEndian, rd.SubrecordLength); err != nil {
+		srd, err := rd.SubrecordData.Encode()
+		if err != nil {
 			return result, err
 		}
 
-		srd, err := rd.SubrecordData.Encode()
-		if err != nil {
+		if rd.SubrecordLength == 0 {
+			rd.SubrecordLength = uint16(len(srd))
+		}
+		if err := binary.Write(buf, binary.LittleEndian, rd.SubrecordLength); err != nil {
 			return result, err
 		}
 

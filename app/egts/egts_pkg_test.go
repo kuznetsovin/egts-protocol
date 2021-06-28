@@ -2,9 +2,10 @@ package egts
 
 import (
 	"bytes"
-	"github.com/google/go-cmp/cmp"
 	"testing"
 	"time"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 var (
@@ -13,6 +14,134 @@ var (
 		0x7A, 0xB5, 0x3C, 0x35, 0x01, 0xD0, 0x87, 0x2C, 0x01, 0x00, 0x00, 0x00, 0x00, 0xCC, 0x27}
 
 	egtsPkgPosData = Package{
+		ProtocolVersion: 1,
+		SecurityKeyID:   0,
+		Prefix:          "00",
+		Route:           "0",
+		EncryptionAlg:   "00",
+		Compression:     "0",
+		Priority:        "11",
+		// HeaderLength:     11,
+		HeaderEncoding:   0,
+		FrameDataLength:  35,
+		PacketIdentifier: 138,
+		PacketType:       1,
+		HeaderCheckSum:   73,
+		ServicesFrameData: &ServiceDataSet{
+			ServiceDataRecord{
+				// RecordLength:             24,
+				RecordNumber:             97,
+				SourceServiceOnDevice:    "1",
+				RecipientServiceOnDevice: "0",
+				Group:                    "0",
+				RecordProcessingPriority: "11",
+				TimeFieldExists:          "0",
+				EventIDFieldExists:       "0",
+				ObjectIDFieldExists:      "1",
+				ObjectIdentifier:         133552,
+				SourceServiceType:        2,
+				RecipientServiceType:     2,
+				RecordDataSet: RecordDataSet{
+					RecordData{
+						SubrecordType: 16,
+						// SubrecordLength: 21,
+						SubrecordData: &SrPosData{
+							NavigationTime:      time.Date(2018, time.July, 5, 20, 8, 53, 0, time.UTC),
+							Latitude:            55.55389399769574,
+							Longitude:           37.43236696287812,
+							ALTE:                "0",
+							LOHS:                "0",
+							LAHS:                "0",
+							MV:                  "0",
+							BB:                  "0",
+							CS:                  "0",
+							FIX:                 "0",
+							VLD:                 "1",
+							DirectionHighestBit: 1,
+							AltitudeSign:        0,
+							Speed:               200,
+							Direction:           172,
+							Odometer:            []byte{0x01, 0x00, 0x00},
+							DigitalInputs:       0,
+							Source:              0,
+						},
+					},
+				},
+			},
+		},
+		ServicesFrameDataCheckSum: 10188, //52263
+	}
+)
+
+func TestEgtsPackagePosData_Encode(t *testing.T) {
+	egtsPkgPosData := Package{
+		ProtocolVersion:  1,
+		SecurityKeyID:    0,
+		Prefix:           "00",
+		Route:            "0",
+		EncryptionAlg:    "00",
+		Compression:      "0",
+		Priority:         "11",
+		HeaderEncoding:   0,
+		FrameDataLength:  35,
+		PacketIdentifier: 138,
+		PacketType:       1,
+		HeaderCheckSum:   73,
+		ServicesFrameData: &ServiceDataSet{
+			ServiceDataRecord{
+				RecordNumber:             97,
+				SourceServiceOnDevice:    "1",
+				RecipientServiceOnDevice: "0",
+				Group:                    "0",
+				RecordProcessingPriority: "11",
+				TimeFieldExists:          "0",
+				EventIDFieldExists:       "0",
+				ObjectIDFieldExists:      "1",
+				ObjectIdentifier:         133552,
+				SourceServiceType:        2,
+				RecipientServiceType:     2,
+				RecordDataSet: RecordDataSet{
+					RecordData{
+						SubrecordType: 16,
+						SubrecordData: &SrPosData{
+							NavigationTime:      time.Date(2018, time.July, 5, 20, 8, 53, 0, time.UTC),
+							Latitude:            55.55389399769574,
+							Longitude:           37.43236696287812,
+							ALTE:                "0",
+							LOHS:                "0",
+							LAHS:                "0",
+							MV:                  "0",
+							BB:                  "0",
+							CS:                  "0",
+							FIX:                 "0",
+							VLD:                 "1",
+							DirectionHighestBit: 1,
+							AltitudeSign:        0,
+							Speed:               200,
+							Direction:           172,
+							Odometer:            []byte{0x01, 0x00, 0x00},
+							DigitalInputs:       0,
+							Source:              0,
+						},
+					},
+				},
+			},
+		},
+	}
+
+	posDataBytes, err := egtsPkgPosData.Encode()
+	if err != nil {
+		t.Errorf("Ошибка кодирования: %v\n", err)
+	}
+
+	if !bytes.Equal(posDataBytes, egtsPkgPosDataBytes) {
+		t.Errorf("Байтовые строки не совпадают: %v != %v ", posDataBytes, testEgtsPkgBytes)
+	}
+}
+
+func TestEgtsPackagePosData_Decode(t *testing.T) {
+	egtsPkg := Package{}
+	egtsPkgPosData := Package{
 		ProtocolVersion:  1,
 		SecurityKeyID:    0,
 		Prefix:           "00",
@@ -68,23 +197,8 @@ var (
 				},
 			},
 		},
-		ServicesFrameDataCheckSum: 10188, //52263
+		ServicesFrameDataCheckSum: 10188,
 	}
-)
-
-func TestEgtsPackagePosData_Encode(t *testing.T) {
-	posDataBytes, err := egtsPkgPosData.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
-
-	if !bytes.Equal(posDataBytes, egtsPkgPosDataBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", posDataBytes, testEgtsPkgBytes)
-	}
-}
-
-func TestEgtsPackagePosData_Decode(t *testing.T) {
-	egtsPkg := Package{}
 
 	if _, err := egtsPkg.Decode(egtsPkgPosDataBytes); err != nil {
 		t.Errorf("Ошибка декадирования: %v\n", err)
@@ -97,6 +211,64 @@ func TestEgtsPackagePosData_Decode(t *testing.T) {
 
 func TestFullCycleCoding(t *testing.T) {
 	egtsPkg := Package{}
+	egtsPkgPosData := Package{
+		ProtocolVersion:  1,
+		SecurityKeyID:    0,
+		Prefix:           "00",
+		Route:            "0",
+		EncryptionAlg:    "00",
+		Compression:      "0",
+		Priority:         "11",
+		HeaderLength:     11,
+		HeaderEncoding:   0,
+		FrameDataLength:  35,
+		PacketIdentifier: 138,
+		PacketType:       1,
+		HeaderCheckSum:   73,
+		ServicesFrameData: &ServiceDataSet{
+			ServiceDataRecord{
+				RecordLength:             24,
+				RecordNumber:             97,
+				SourceServiceOnDevice:    "1",
+				RecipientServiceOnDevice: "0",
+				Group:                    "0",
+				RecordProcessingPriority: "11",
+				TimeFieldExists:          "0",
+				EventIDFieldExists:       "0",
+				ObjectIDFieldExists:      "1",
+				ObjectIdentifier:         133552,
+				SourceServiceType:        2,
+				RecipientServiceType:     2,
+				RecordDataSet: RecordDataSet{
+					RecordData{
+						SubrecordType:   16,
+						SubrecordLength: 21,
+						SubrecordData: &SrPosData{
+							NavigationTime:      time.Date(2018, time.July, 5, 20, 8, 53, 0, time.UTC),
+							Latitude:            55.55389399769574,
+							Longitude:           37.43236696287812,
+							ALTE:                "0",
+							LOHS:                "0",
+							LAHS:                "0",
+							MV:                  "0",
+							BB:                  "0",
+							CS:                  "0",
+							FIX:                 "0",
+							VLD:                 "1",
+							DirectionHighestBit: 1,
+							AltitudeSign:        0,
+							Speed:               200,
+							Direction:           172,
+							Odometer:            []byte{0x01, 0x00, 0x00},
+							DigitalInputs:       0,
+							Source:              0,
+						},
+					},
+				},
+			},
+		},
+		ServicesFrameDataCheckSum: 10188,
+	}
 
 	if _, err := egtsPkg.Decode(egtsPkgPosDataBytes); err != nil {
 		t.Errorf("Ошибка декадирования: %v\n", err)
