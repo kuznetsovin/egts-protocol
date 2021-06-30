@@ -93,7 +93,47 @@ func (rds *RecordDataSet) Encode() ([]byte, error) {
 	buf := new(bytes.Buffer)
 
 	for _, rd := range *rds {
+		if rd.SubrecordType == 0 {
+			switch rd.SubrecordData.(type) {
+			case *SrPosData:
+				rd.SubrecordType = SrPosDataType
+			case *SrTermIdentity:
+				rd.SubrecordType = SrTermIdentityType
+			case *SrResponse:
+				rd.SubrecordType = SrRecordResponseType
+			case *SrResultCode:
+				rd.SubrecordType = SrResultCodeType
+			case *SrExtPosData:
+				rd.SubrecordType = SrExtPosDataType
+			case *SrAdSensorsData:
+				rd.SubrecordType = SrAdSensorsDataType
+			case *SrStateData:
+				rd.SubrecordType = SrStateDataType
+			case *SrLiquidLevelSensor:
+				rd.SubrecordType = SrLiquidLevelSensorType
+			case *SrAbsCntrData:
+				rd.SubrecordType = SrAbsCntrDataType
+			case *SrAuthInfo:
+				rd.SubrecordType = SrAuthInfoType
+			case *SrCountersData:
+				rd.SubrecordType = SrCountersDataType
+			case *StorageRecord:
+				rd.SubrecordType = SrEgtsPlusDataType
+			case *SrAbsAnSensData:
+				rd.SubrecordType = SrAbsAnSensDataType
+			default:
+				return result, fmt.Errorf("не известен код для данного типа подзаписи")
+			}
+		}
+
 		if err := binary.Write(buf, binary.LittleEndian, rd.SubrecordType); err != nil {
+			return result, err
+		}
+
+		if rd.SubrecordLength == 0 {
+			rd.SubrecordLength = rd.SubrecordData.Length()
+		}
+		if err := binary.Write(buf, binary.LittleEndian, rd.SubrecordLength); err != nil {
 			return result, err
 		}
 
@@ -101,14 +141,6 @@ func (rds *RecordDataSet) Encode() ([]byte, error) {
 		if err != nil {
 			return result, err
 		}
-
-		if rd.SubrecordLength == 0 {
-			rd.SubrecordLength = uint16(len(srd))
-		}
-		if err := binary.Write(buf, binary.LittleEndian, rd.SubrecordLength); err != nil {
-			return result, err
-		}
-
 		buf.Write(srd)
 	}
 

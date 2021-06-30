@@ -16,7 +16,6 @@ var (
 func TestRecordDataSet_Encode(t *testing.T) {
 	testRecordDataSet := RecordDataSet{
 		RecordData{
-			SubrecordType: 16,
 			SubrecordData: &SrPosData{
 				NavigationTime:      time.Date(2018, time.July, 5, 20, 8, 53, 0, time.UTC),
 				Latitude:            55.55389399769574,
@@ -54,7 +53,7 @@ func TestRecordDataSet_Decode(t *testing.T) {
 	rds := RecordDataSet{}
 	testRecordDataSet := RecordDataSet{
 		RecordData{
-			SubrecordType:   16,
+			SubrecordType:   SrPosDataType,
 			SubrecordLength: 21,
 			SubrecordData: &SrPosData{
 				NavigationTime:      time.Date(2018, time.July, 5, 20, 8, 53, 0, time.UTC),
