@@ -65,3 +65,6 @@ const AuthService = 1
 
 //TeledataService тип сервиса TELEDATA_SERVICE
 const TeledataService = 2
+
+//SrDispatcherIdentityType код типа подзаписи EGTS_SR_DISPATCHER_IDENTITY
+const SrDispatcherIdentityType = 5
