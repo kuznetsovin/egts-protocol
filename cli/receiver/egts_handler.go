@@ -6,7 +6,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/kuznetsovin/egts-protocol/app/egts"
+	"github.com/kuznetsovin/egts-protocol/libs/egts"
 	uuid "github.com/satori/go.uuid"
 )
 
