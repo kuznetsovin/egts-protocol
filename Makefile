@@ -1,9 +1,9 @@
 .PHONY: all test
 
-all: test build
+all: test build_receiver
 
-build:
-	go build -o bin/receiver ./app 
+build_receiver:
+	go build -o bin/receiver ./cli/receiver
 
 test:
 	go test ./...
