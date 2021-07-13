@@ -59,7 +59,7 @@ Example for encoding packet:
 package main 
 
 import (
-    "github.com/kuznetsovin/egts-protocol/app/egts"
+    "github.com/kuznetsovin/egts-protocol/libs/egts"
     "log"
 )
 
@@ -100,7 +100,7 @@ Example for decoding packet:
 package main 
 
 import (
-    "github.com/kuznetsovin/egts-protocol/app/egts"
+    "github.com/kuznetsovin/egts-protocol/libs/egts"
     "log"
 )
 
