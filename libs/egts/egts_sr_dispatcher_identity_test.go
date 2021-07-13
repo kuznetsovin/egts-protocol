@@ -1,7 +1,7 @@
 package egts
 
 import (
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -54,23 +54,15 @@ var (
 
 func TestEgtsSrDispatcherIdentity_Encode(t *testing.T) {
 	authInfoPkg, err := testAuthInfoPkg.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(authInfoPkg, srAuthInfoPkgBytes); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+	if assert.NoError(t, err) {
+		assert.Equal(t, authInfoPkg, srAuthInfoPkgBytes)
 	}
 }
 
 func TestEgtsSrDispatcherIdentity_Decode(t *testing.T) {
 	authPkg := Package{}
 
-	if _, err := authPkg.Decode(srDispatcherIdentityPkgBytes); err != nil {
-		t.Errorf("Ошибка декодирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(authPkg, testDispatcherIdentityPkg); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+	if _, err := authPkg.Decode(srDispatcherIdentityPkgBytes); assert.NoError(t, err) {
+		assert.Equal(t, authPkg, testDispatcherIdentityPkg)
 	}
 }

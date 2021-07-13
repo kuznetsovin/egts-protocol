@@ -1,9 +1,7 @@
 package egts
 
 import (
-	"bytes"
-	"github.com/google/go-cmp/cmp"
-	"reflect"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -65,47 +63,33 @@ var (
 
 func TestEgtsSrTermIdentity_Encode(t *testing.T) {
 	sti, err := testEgtsSrTermIdentity.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
 
-	if !bytes.Equal(sti, testEgtsSrTermIdentityBin) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", sti, testEgtsSrTermIdentityBin)
+	if assert.NoError(t, err) {
+		assert.Equal(t, sti, testEgtsSrTermIdentityBin)
 	}
 }
 
 func TestEgtsSrTermIdentity_Decode(t *testing.T) {
 	srTermIdent := SrTermIdentity{}
 
-	if err := srTermIdent.Decode(testEgtsSrTermIdentityBin); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
+	if assert.NoError(t, srTermIdent.Decode(testEgtsSrTermIdentityBin)) {
+		assert.Equal(t, srTermIdent, testEgtsSrTermIdentity)
 	}
-
-	if !reflect.DeepEqual(srTermIdent, testEgtsSrTermIdentity) {
-		t.Errorf("Секция не совпадает %v != %v\n", srTermIdent, testEgtsSrTermIdentity)
-	}
-
 }
 
 func TestEgtsSrTermIdentityPkg_Encode(t *testing.T) {
 	pkg, err := testEgtsSrTermIdentityPkg.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
 
-	if !bytes.Equal(pkg, testEgtsSrTermIdentityPkgBin) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", pkg, testEgtsSrTermIdentityPkgBin)
+	if assert.NoError(t, err) {
+		assert.Equal(t, pkg, testEgtsSrTermIdentityPkgBin)
 	}
 }
 
 func TestEgtsSrTermIdentityPkg_Decode(t *testing.T) {
 	srTermIdentPkg := Package{}
 
-	if _, err := srTermIdentPkg.Decode(testEgtsSrTermIdentityPkgBin); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(srTermIdentPkg, testEgtsSrTermIdentityPkg); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+	_, err := srTermIdentPkg.Decode(testEgtsSrTermIdentityPkgBin)
+	if assert.NoError(t, err) {
+		assert.Equal(t, srTermIdentPkg, testEgtsSrTermIdentityPkg)
 	}
 }

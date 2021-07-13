@@ -1,11 +1,10 @@
 package main
 
 import (
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"os"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestConfigLoad(t *testing.T) {
@@ -26,37 +25,34 @@ exchange = "receiver"
 level = "DEBUG"`
 
 	file, err := ioutil.TempFile("/tmp", "config.toml")
-	if err != nil {
-		t.Fatal(err)
+	if !assert.NoError(t, err) {
+		return
 	}
 	defer os.Remove(file.Name())
 
-	if _, err = file.WriteString(cfg); err != nil {
-		t.Fatal(err)
+	if _, err = file.WriteString(cfg); assert.NoError(t, err) {
+		return
 	}
 
 	conf := settings{}
-	if err = conf.Load(file.Name()); err != nil {
-		t.Fatal(err)
-	}
-
-	testCfg := settings{
-		Srv: service{
-			Host:       "127.0.0.1",
-			Port:       "5020",
-			ConLiveSec: 10,
+	if assert.NoError(t, conf.Load(file.Name())) {
+		assert.Equal(t, settings{
+			Srv: service{
+				Host:       "127.0.0.1",
+				Port:       "5020",
+				ConLiveSec: 10,
+			},
+			Store: map[string]string{
+				"exchange": "receiver",
+				"host":     "localhost",
+				"password": "guest",
+				"plugin":   "rabbitmq.so",
+				"port":     "5672",
+				"user":     "guest",
+			},
+			Log: logSection{Level: "DEBUG"},
 		},
-		Store: map[string]string{
-			"exchange": "receiver",
-			"host":     "localhost",
-			"password": "guest",
-			"plugin":   "rabbitmq.so",
-			"port":     "5672",
-			"user":     "guest",
-		},
-		Log: logSection{Level: "DEBUG"},
-	}
-	if diff := cmp.Diff(testCfg, conf); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+			conf,
+		)
 	}
 }

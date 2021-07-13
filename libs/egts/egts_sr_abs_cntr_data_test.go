@@ -1,8 +1,7 @@
 package egts
 
 import (
-	"bytes"
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -16,25 +15,18 @@ var (
 
 func TestEgtsSrAbsCntrData_Encode(t *testing.T) {
 	posDataBytes, err := testEgtsSrAbsCntrData.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
-
-	if !bytes.Equal(posDataBytes, srAbsCntrDataBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", posDataBytes, srAbsCntrDataBytes)
+	if assert.NoError(t, err) {
+		assert.Equal(t, posDataBytes, srAbsCntrDataBytes)
 	}
 }
 
 func TestEgtsSrAbsCntrData_Decode(t *testing.T) {
 	adSensData := SrAbsCntrData{}
 
-	if err := adSensData.Decode(srAbsCntrDataBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
+	if err := adSensData.Decode(srAbsCntrDataBytes); assert.NoError(t, err) {
+		assert.Equal(t, adSensData, testEgtsSrAbsCntrData)
 	}
 
-	if diff := cmp.Diff(adSensData, testEgtsSrAbsCntrData); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
-	}
 }
 
 // проверяем что рекордсет работает правильно с данным типом подзаписи
@@ -50,19 +42,11 @@ func TestEgtsSrAbsCntrDataRs(t *testing.T) {
 	testStruct := RecordDataSet{}
 
 	testBytes, err := egtsSrAbsCntrDataRD.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
+	if assert.NoError(t, err) {
+		assert.Equal(t, testBytes, egtsSrAbsCntrDataRDBytes)
 
-	if !bytes.Equal(testBytes, egtsSrAbsCntrDataRDBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", testBytes, egtsSrAbsCntrDataRDBytes)
-	}
-
-	if err = testStruct.Decode(egtsSrAbsCntrDataRDBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(egtsSrAbsCntrDataRD, testStruct); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+		if err = testStruct.Decode(egtsSrAbsCntrDataRDBytes); assert.NoError(t, err) {
+			assert.Equal(t, egtsSrAbsCntrDataRD, testStruct)
+		}
 	}
 }

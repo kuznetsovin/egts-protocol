@@ -1,8 +1,7 @@
 package egts
 
 import (
-	"bytes"
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -33,23 +32,16 @@ var (
 func TestEgtsPkgResp_Encode(t *testing.T) {
 
 	posDataBytes, err := egtsPkgResp.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
-
-	if !bytes.Equal(posDataBytes, testEgtsPkgBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", posDataBytes, testEgtsPkgBytes)
+	if assert.NoError(t, err) {
+		assert.Equal(t, posDataBytes, testEgtsPkgBytes)
 	}
 }
 
 func TestEgtsPkgResp_Decode(t *testing.T) {
 	egtsPkg := Package{}
 
-	if _, err := egtsPkg.Decode(testEgtsPkgBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(egtsPkg, egtsPkgResp); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+	_, err := egtsPkg.Decode(testEgtsPkgBytes)
+	if assert.NoError(t, err) {
+		assert.Equal(t, egtsPkg, egtsPkgResp)
 	}
 }

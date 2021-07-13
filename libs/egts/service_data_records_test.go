@@ -1,10 +1,8 @@
 package egts
 
 import (
-	"bytes"
+	"github.com/stretchr/testify/assert"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 func TestServiceDataRecord_Encode(t *testing.T) {
@@ -27,12 +25,8 @@ func TestServiceDataRecord_Encode(t *testing.T) {
 	testServiceDataRecordBytes := []byte{0x00, 0x00, 0x61, 0x00, 0x99, 0xB0, 0x09, 0x02, 0x00, 0x02, 0x02}
 
 	sdr, err := testServiceDataRecord.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
-
-	if !bytes.Equal(sdr, testServiceDataRecordBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", sdr, testServiceDataRecordBytes)
+	if assert.NoError(t, err) {
+		assert.Equal(t, sdr, testServiceDataRecordBytes)
 	}
 }
 
@@ -55,12 +49,7 @@ func TestServiceDataRecord_Decode(t *testing.T) {
 		},
 	}
 	testServiceDataRecordBytes := []byte{0x18, 0x00, 0x61, 0x00, 0x99, 0xB0, 0x09, 0x02, 0x00, 0x02, 0x02}
-
-	if err := sdr.Decode(testServiceDataRecordBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(sdr, testServiceDataRecord); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+	if assert.NoError(t, sdr.Decode(testServiceDataRecordBytes)) {
+		assert.Equal(t, sdr, testServiceDataRecord)
 	}
 }

@@ -1,8 +1,7 @@
 package egts
 
 import (
-	"bytes"
-	"github.com/google/go-cmp/cmp"
+	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
@@ -19,26 +18,18 @@ var (
 )
 
 func TestEgtsSrLiquidLevelSensor_Encode(t *testing.T) {
-
 	pkgBytes, err := testSrLiquidLevelSensor.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
 
-	if !bytes.Equal(pkgBytes, testSrLiquidLevelSensorBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", pkgBytes, testSrLiquidLevelSensorBytes)
+	if assert.NoError(t, err) {
+		assert.Equal(t, pkgBytes, testSrLiquidLevelSensorBytes)
 	}
 }
 
 func TestEgtsSrLiquidLevelSensor_Decode(t *testing.T) {
 	liquidLev := SrLiquidLevelSensor{}
 
-	if err := liquidLev.Decode(testSrLiquidLevelSensorBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(liquidLev, testSrLiquidLevelSensor); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+	if assert.NoError(t, liquidLev.Decode(testSrLiquidLevelSensorBytes)) {
+		assert.Equal(t, liquidLev, testSrLiquidLevelSensor)
 	}
 }
 
@@ -55,19 +46,11 @@ func TestEgtsSrLiquidLevelSensorRs(t *testing.T) {
 	testStruct := RecordDataSet{}
 
 	testBytes, err := liquidLevelRD.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
+	if assert.NoError(t, err) {
+		assert.Equal(t, testBytes, liquidLevelRDRDBytes)
 
-	if !bytes.Equal(testBytes, liquidLevelRDRDBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", testBytes, liquidLevelRDRDBytes)
-	}
-
-	if err = testStruct.Decode(liquidLevelRDRDBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(liquidLevelRD, testStruct); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+		if assert.NoError(t, testStruct.Decode(liquidLevelRDRDBytes)) {
+			assert.Equal(t, liquidLevelRD, testStruct)
+		}
 	}
 }

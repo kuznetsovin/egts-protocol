@@ -1,10 +1,8 @@
 package egts
 
 import (
-	"bytes"
+	"github.com/stretchr/testify/assert"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 var (
@@ -23,24 +21,16 @@ var (
 func TestEgtsPkgSrStateData_Encode(t *testing.T) {
 
 	pkgBytes, err := testEgtsSrStateData.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
-
-	if !bytes.Equal(pkgBytes, testSrStateDataBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", pkgBytes, testSrStateDataBytes)
+	if assert.NoError(t, err) {
+		assert.Equal(t, pkgBytes, testSrStateDataBytes)
 	}
 }
 
 func TestEgtsPkgSrStateData_Decode(t *testing.T) {
 	stStateData := SrStateData{}
 
-	if err := stStateData.Decode(testSrStateDataBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(stStateData, testEgtsSrStateData); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+	if assert.NoError(t, stStateData.Decode(testSrStateDataBytes)) {
+		assert.Equal(t, stStateData, testEgtsSrStateData)
 	}
 }
 
@@ -57,19 +47,11 @@ func TestEgtsSrStateDataRs(t *testing.T) {
 	testStruct := RecordDataSet{}
 
 	testBytes, err := stateDataRD.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
+	if assert.NoError(t, err) {
+		assert.Equal(t, testBytes, stateDataRDBytes)
 
-	if !bytes.Equal(testBytes, stateDataRDBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", testBytes, stateDataRDBytes)
-	}
-
-	if err = testStruct.Decode(stateDataRDBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
-	}
-
-	if diff := cmp.Diff(testStruct, stateDataRD); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
+		if assert.NoError(t, testStruct.Decode(stateDataRDBytes)) {
+			assert.Equal(t, stateDataRD, testStruct)
+		}
 	}
 }

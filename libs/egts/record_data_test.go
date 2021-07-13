@@ -1,11 +1,9 @@
 package egts
 
 import (
-	"bytes"
+	"github.com/stretchr/testify/assert"
 	"testing"
 	"time"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 var (
@@ -40,12 +38,8 @@ func TestRecordDataSet_Encode(t *testing.T) {
 	}
 
 	rdBytes, err := testRecordDataSet.Encode()
-	if err != nil {
-		t.Errorf("Ошибка кодирования: %v\n", err)
-	}
-
-	if !bytes.Equal(rdBytes, testRecordDataBytes) {
-		t.Errorf("Байтовые строки не совпадают: %v != %v ", rdBytes, testRecordDataBytes)
+	if assert.NoError(t, err) {
+		assert.Equal(t, rdBytes, testRecordDataBytes)
 	}
 }
 
@@ -77,13 +71,7 @@ func TestRecordDataSet_Decode(t *testing.T) {
 			},
 		},
 	}
-
-	if err := rds.Decode(testRecordDataBytes); err != nil {
-		t.Errorf("Ошибка декадирования: %v\n", err)
+	if assert.NoError(t, rds.Decode(testRecordDataBytes)) {
+		assert.Equal(t, rds, testRecordDataSet)
 	}
-
-	if diff := cmp.Diff(rds, testRecordDataSet); diff != "" {
-		t.Errorf("Записи не совпадают: (-нужно +сейчас)\n%s", diff)
-	}
-
 }

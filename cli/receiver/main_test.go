@@ -1,7 +1,7 @@
 package main
 
 import (
-	"bytes"
+	"github.com/stretchr/testify/assert"
 	"net"
 	"testing"
 	"time"
@@ -32,18 +32,14 @@ func TestServer(t *testing.T) {
 
 	time.Sleep(500 * time.Microsecond)
 	conn, err := net.Dial("tcp", srv)
-	if err != nil {
-		t.Fatal(err)
+	if assert.NoError(t, err) {
+		_ = conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
+		_, _ = conn.Write(message)
+
+		buf := make([]byte, 29)
+		_, _ = conn.Read(buf)
+
+		assert.Equal(t, buf, response)
 	}
 	defer conn.Close()
-
-	_ = conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
-	_, _ = conn.Write(message)
-
-	buf := make([]byte, 29)
-	_, _ = conn.Read(buf)
-
-	if !bytes.Equal(buf, response) {
-		t.Errorf("Ответне совпадает: %X != %X ", buf, response)
-	}
 }
