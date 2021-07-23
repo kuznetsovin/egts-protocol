@@ -26,3 +26,11 @@ Parameters description:
 - *database* - db name
 - *table* - table in db where will be insert data. Table must have *point* field (jsonb type)
 - *sslmode* - postgres ssl mode
+
+Simple db table for inserting data example:
+
+```sql
+create table points ( 
+    point jsonb
+);
+```
