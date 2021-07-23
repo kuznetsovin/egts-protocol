@@ -135,4 +135,4 @@ type Connector interface {
 }
 ```
 
-All plugins available in [store folder](/receiver/store).
+All plugins available in [store folder](/libs/store).
