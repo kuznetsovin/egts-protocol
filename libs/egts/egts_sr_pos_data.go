@@ -26,10 +26,10 @@ type SrPosData struct {
 	AltitudeSign        uint8     `json:"ALTS"`
 	Speed               uint16    `json:"SPD"`
 	Direction           byte      `json:"DIR"`
-	Odometer            []byte    `json:"ODM"`
+	Odometer            uint32    `json:"ODM"`
 	DigitalInputs       byte      `json:"DIN"`
 	Source              byte      `json:"SRC"`
-	Altitude            []byte    `json:"ALT"`
+	Altitude            uint32    `json:"ALT"`
 	SourceData          int16     `json:"SRCD"`
 }
 
@@ -106,7 +106,8 @@ func (e *SrPosData) Decode(content []byte) error {
 	if _, err = buf.Read(bytesTmpBuf); err != nil {
 		return fmt.Errorf("Не удалось получить пройденное расстояние (пробег) в км: %v", err)
 	}
-	e.Odometer = bytesTmpBuf
+	bytesTmpBuf = append(bytesTmpBuf, 0x00)
+	e.Odometer = binary.LittleEndian.Uint32(bytesTmpBuf)
 
 	if e.DigitalInputs, err = buf.ReadByte(); err != nil {
 		return fmt.Errorf("Не удалось получить битовые флаги, определяют состояние основных дискретных входов: %v", err)
@@ -117,10 +118,11 @@ func (e *SrPosData) Decode(content []byte) error {
 	}
 
 	if e.ALTE == "1" {
+		bytesTmpBuf = []byte{0, 0, 0, 0}
 		if _, err = buf.Read(bytesTmpBuf); err != nil {
 			return fmt.Errorf("Не удалось получить высоту над уровнем моря: %v", err)
 		}
-		e.Altitude = bytesTmpBuf
+		e.Altitude = binary.LittleEndian.Uint32(bytesTmpBuf)
 	}
 
 	//TODO: разобраться с разбором SourceData
@@ -176,7 +178,9 @@ func (e *SrPosData) Encode() ([]byte, error) {
 		return result, fmt.Errorf("Не удалось записать направление движения: %v", err)
 	}
 
-	if _, err = buf.Write(e.Odometer); err != nil {
+	bytesTmpBuf := make([]byte, 4)
+	binary.LittleEndian.PutUint32(bytesTmpBuf, e.Odometer)
+	if _, err = buf.Write(bytesTmpBuf[:3]); err != nil {
 		return result, fmt.Errorf("Не удалось запсиать пройденное расстояние (пробег) в км: %v", err)
 	}
 
@@ -189,7 +193,9 @@ func (e *SrPosData) Encode() ([]byte, error) {
 	}
 
 	if e.ALTE == "1" {
-		if _, err = buf.Write(e.Altitude); err != nil {
+		bytesTmpBuf = []byte{0, 0, 0, 0}
+		binary.LittleEndian.PutUint32(bytesTmpBuf, e.Altitude)
+		if _, err = buf.Write(bytesTmpBuf[:3]); err != nil {
 			return result, fmt.Errorf("Не удалось записать высоту над уровнем моря: %v", err)
 		}
 	}
