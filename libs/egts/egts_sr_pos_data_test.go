@@ -25,7 +25,7 @@ var (
 		AltitudeSign:        0,
 		Speed:               200,
 		Direction:           172,
-		Odometer:            []byte{0x01, 0x00, 0x00},
+		Odometer:            1,
 		DigitalInputs:       0,
 		Source:              0,
 	}
