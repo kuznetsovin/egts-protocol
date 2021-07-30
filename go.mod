@@ -4,14 +4,14 @@ go 1.12
 
 require (
 	github.com/BurntSushi/toml v0.3.1
-	github.com/golang/protobuf v1.3.5
+	github.com/golang/protobuf v1.4.2
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/labstack/gommon v0.2.8
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-colorable v0.1.1 // indirect
 	github.com/mattn/go-isatty v0.0.7 // indirect
-	github.com/nats-io/nats-server/v2 v2.1.6 // indirect
-	github.com/nats-io/nats.go v1.9.2
+	github.com/nats-io/nats-server/v2 v2.2.0 // indirect
+	github.com/nats-io/nats.go v1.10.1-0.20210228004050-ed743748acac
 	github.com/satori/go.uuid v1.2.0
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	github.com/stretchr/testify v1.3.0
