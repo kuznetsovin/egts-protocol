@@ -39,18 +39,16 @@ make
 [srv]
 host = "127.0.0.1"
 port = "6000"
-con_live_sec = 10
-
-[log]
-level = "DEBUG"
+con_ttl = 10
+log_level = "DEBUG"
 ```
 
 Parameters description:
 
 - *host* - bind address  
 - *port* - bind port 
-- *con_live_sec* - if server not received data longer time in the parameter, then the connection is closed. 
-- *log* - logging level
+- *conn_ttl* - if server not received data longer time in the parameter, then the connection is closed. 
+- *log_level* - logging level
 
 ## Usage only Golang EGTS library
 
@@ -121,7 +119,7 @@ func main() {
 
 # Store plugins
 
-That create a new plugin you must implementation ```Connector``` interface:
+That create a new plugin you must implement ```Connector``` interface:
 
 ```go
 type Connector interface {
