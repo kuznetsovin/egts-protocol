@@ -78,7 +78,7 @@ func (s *Server) handleConn(conn net.Conn) {
 
 		// считываем заголовок пакета
 		headerBuf := make([]byte, headerLen)
-		_, err := conn.Read(headerBuf)
+		_, err := io.ReadFull(conn, headerBuf)
 
 		switch err {
 		case nil:
