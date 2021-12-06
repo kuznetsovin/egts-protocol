@@ -1,4 +1,4 @@
-package main
+package storage
 
 //Connector интерфейс для подключения внешних хранилищ
 type Connector interface {

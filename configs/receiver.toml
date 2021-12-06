@@ -1,7 +1,7 @@
-[srv]
 host = "127.0.0.1"
 port = "6000"
 con_live_sec = 10
+log_level = "DEBUG"
 
 # [store]
 # plugin = "rabbitmq.so"
@@ -10,6 +10,3 @@ con_live_sec = 10
 # user = "guest"
 # password = "guest"
 # exchange = "receiver"
-
-[log]
-level = "DEBUG"

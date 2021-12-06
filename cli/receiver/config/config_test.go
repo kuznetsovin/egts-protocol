@@ -1,4 +1,4 @@
-package main
+package config
 
 import (
 	"github.com/stretchr/testify/assert"
@@ -8,10 +8,10 @@ import (
 )
 
 func TestConfigLoad(t *testing.T) {
-	cfg := `[srv]
-host = "127.0.0.1"
+	cfg := `host = "127.0.0.1"
 port = "5020"
-con_live_sec = 10
+con_ttl = 10
+log_level = "DEBUG"
 
 [store]
 plugin = "rabbitmq.so"
@@ -20,9 +20,7 @@ port = "5672"
 user = "guest"
 password = "guest"
 exchange = "receiver"
-
-[log]
-level = "DEBUG"`
+`
 
 	file, err := ioutil.TempFile("/tmp", "config.toml")
 	if !assert.NoError(t, err) {
@@ -34,14 +32,12 @@ level = "DEBUG"`
 		return
 	}
 
-	conf := settings{}
-	if assert.NoError(t, conf.Load(file.Name())) {
-		assert.Equal(t, settings{
-			Srv: service{
-				Host:       "127.0.0.1",
-				Port:       "5020",
-				ConLiveSec: 10,
-			},
+	conf, err := New(file.Name())
+	if assert.NoError(t, err) {
+		assert.Equal(t, Settings{
+			Host:    "127.0.0.1",
+			Port:    "5020",
+			ConnTTl: 10,
 			Store: map[string]string{
 				"exchange": "receiver",
 				"host":     "localhost",
@@ -50,7 +46,7 @@ level = "DEBUG"`
 				"port":     "5672",
 				"user":     "guest",
 			},
-			Log: logSection{Level: "DEBUG"},
+			LogLevel: "DEBUG",
 		},
 			conf,
 		)
