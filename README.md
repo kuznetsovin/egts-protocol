@@ -21,7 +21,8 @@ If configure file has't section for a plugin (```[store]```), then packet will b
 
 ```bash
 git clone https://github.com/kuznetsovin/egts-protocol
-cd egts-protocol/tools && ./build-receiver.sh
+cd egts-protocol
+make
 ```
 
 ## Run

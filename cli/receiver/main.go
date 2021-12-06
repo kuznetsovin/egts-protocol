@@ -6,6 +6,7 @@ import (
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage"
 	log "github.com/sirupsen/logrus"
 	"os"
+	"plugin"
 )
 
 func main() {
@@ -24,28 +25,26 @@ func main() {
 
 	log.SetLevel(cfg.GetLogLevel())
 
-	//if config.Store != nil {
-	//	plug, err := plugin.Open(config.Store["plugin"])
-	//	if err != nil {
-	//		logger.Fatalf("Не удалость загрузить плагин хранилища: %v", err)
-	//	}
-	//
-	//	connector, err := plug.Lookup("Connector")
-	//	if err != nil {
-	//		logger.Fatalf("Не удалось загрузить коннектор: %v", err)
-	//	}
-	//
-	//	store = connector.(Connector)
-	//} else {
-	//	store = defaultConnector{}
-	//}
+	if cfg.Store != nil {
+		plug, err := plugin.Open(cfg.Store["plugin"])
+		if err != nil {
+			log.WithField("err", err).Fatal("Не удалось загрузить плагин хранилища")
+		}
 
-	store = storage.LogConnector{}
+		connector, err := plug.Lookup("Connector")
+		if err != nil {
+			log.WithField("err", err).Fatal("Не удалось загрузить коннектор")
+		}
 
-	//if err := store.Init(config.Store); err != nil {
-	//	logger.Fatal(err)
-	//}
-	//defer store.Close()
+		store = connector.(storage.Connector)
+	} else {
+		store = storage.LogConnector{}
+	}
+
+	if err := store.Init(cfg.Store); err != nil {
+		log.Fatal(err)
+	}
+	defer store.Close()
 
 	srv := server.New(cfg.GetListenAddress(), cfg.GetEmptyConnTTL(), store)
 
