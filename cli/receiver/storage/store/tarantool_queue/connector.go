@@ -1,4 +1,4 @@
-package main
+package tarantool_queue
 
 /*
 Плагин для работы с Tarantool queue.
@@ -25,13 +25,13 @@ import (
 	"time"
 )
 
-type TarantoolQueueConnector struct {
+type Connector struct {
 	connection *tarantool.Connection
 	queue      queue.Queue
 	config     map[string]string
 }
 
-func (c *TarantoolQueueConnector) Init(cfg map[string]string) error {
+func (c *Connector) Init(cfg map[string]string) error {
 	if cfg == nil {
 		return fmt.Errorf("Не корректная ссылка на конфигурацию")
 	}
@@ -68,7 +68,7 @@ func (c *TarantoolQueueConnector) Init(cfg map[string]string) error {
 	return err
 }
 
-func (c *TarantoolQueueConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c *Connector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	if msg == nil {
 		return fmt.Errorf("Не корректная ссылка на пакет")
 	}
@@ -85,8 +85,6 @@ func (c *TarantoolQueueConnector) Save(msg interface{ ToBytes() ([]byte, error) 
 	return nil
 }
 
-func (c *TarantoolQueueConnector) Close() error {
+func (c *Connector) Close() error {
 	return c.connection.Close()
 }
-
-var Connector TarantoolQueueConnector

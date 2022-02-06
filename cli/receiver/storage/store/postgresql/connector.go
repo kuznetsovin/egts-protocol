@@ -1,4 +1,4 @@
-package main
+package postgresql
 
 /*
 Плагин для работы с PostgreSQL.
@@ -23,12 +23,12 @@ import (
 	_ "github.com/lib/pq"
 )
 
-type PostgreSQLConnector struct {
+type Connector struct {
 	connection *sql.DB
 	config     map[string]string
 }
 
-func (c *PostgreSQLConnector) Init(cfg map[string]string) error {
+func (c *Connector) Init(cfg map[string]string) error {
 	var (
 		err error
 	)
@@ -41,10 +41,14 @@ func (c *PostgreSQLConnector) Init(cfg map[string]string) error {
 	if c.connection, err = sql.Open("postgres", connStr); err != nil {
 		return fmt.Errorf("Ошибка подключения к postgresql: %v", err)
 	}
+
+	if err = c.connection.Ping(); err != nil {
+		return fmt.Errorf("postgresql недоступен: %v", err)
+	}
 	return err
 }
 
-func (c *PostgreSQLConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c *Connector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	if msg == nil {
 		return fmt.Errorf("Не корректная ссылка на пакет")
 	}
@@ -61,8 +65,6 @@ func (c *PostgreSQLConnector) Save(msg interface{ ToBytes() ([]byte, error) }) e
 	return nil
 }
 
-func (c *PostgreSQLConnector) Close() error {
+func (c *Connector) Close() error {
 	return c.connection.Close()
 }
-
-var Connector PostgreSQLConnector
