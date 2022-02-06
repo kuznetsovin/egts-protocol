@@ -6,17 +6,18 @@ package config
 
 import (
 	log "github.com/sirupsen/logrus"
+	"os"
 	"time"
 
-	"github.com/BurntSushi/toml"
+	"gopkg.in/yaml.v2"
 )
 
 type Settings struct {
-	Host     string
-	Port     string
-	ConnTTl  int `toml:"conn_ttl"`
-	Store    map[string]string
-	LogLevel string
+	Host     string                       `yaml:"host"`
+	Port     string                       `yaml:"port"`
+	ConnTTl  int                          `yaml:"conn_ttl"`
+	LogLevel string                       `yaml:"log_level"`
+	Store    map[string]map[string]string `yaml:"storage"`
 }
 
 func (s *Settings) GetEmptyConnTTL() time.Duration {
@@ -50,6 +51,10 @@ func (s *Settings) GetLogLevel() log.Level {
 
 func New(confPath string) (Settings, error) {
 	c := Settings{}
-	_, err := toml.DecodeFile(confPath, &c)
+	data, err := os.ReadFile(confPath)
+	if err != nil {
+		return c, err
+	}
+	err = yaml.Unmarshal(data, &c)
 	return c, err
 }

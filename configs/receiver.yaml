@@ -1,0 +1,33 @@
+host: "127.0.0.1"
+port: "6000"
+con_live_sec: 10
+log_level: "DEBUG"
+
+store:
+#  rabbitmq:
+#    host: "localhost"
+#    port: "5672"
+#    user: "guest"
+#    password: "guest"
+#    exchange: "receiver"
+#  postgresql:
+#    host: "localhost"
+#    port: "5432"
+#    user: "postgres"
+#    password: "postgres"
+#    database: "receiver"
+#    table: "points"
+#    sslmode: "disable"
+#  nats:
+#    plugin: "nats.so"
+#    servers: "nats://localhost:1222, nats://localhost:1223, nats://localhost:1224"
+#    topic: "receiver"
+#  tarantool_queue:
+#    host: "localhost"
+#    port: "5672"
+#    user: "user"
+#    password: "pass"
+#    max_recons: 5
+#    timeout: 1
+#    reconnect: 1
+#    queue: "points"

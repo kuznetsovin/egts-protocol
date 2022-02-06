@@ -1,4 +1,4 @@
-package main
+package nats
 
 /*
 Плагин для работы с NATS.
@@ -17,12 +17,12 @@ import (
 	natsLib "github.com/nats-io/nats.go"
 )
 
-type NatsConnector struct {
+type Connector struct {
 	connection *natsLib.Conn
 	config     map[string]string
 }
 
-func (c *NatsConnector) Init(cfg map[string]string) error {
+func (c *Connector) Init(cfg map[string]string) error {
 	var (
 		err error
 	)
@@ -47,7 +47,7 @@ func (c *NatsConnector) Init(cfg map[string]string) error {
 	return err
 }
 
-func (c *NatsConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c *Connector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	if msg == nil {
 		return fmt.Errorf("Не корректная ссылка на пакет")
 	}
@@ -63,9 +63,7 @@ func (c *NatsConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	return nil
 }
 
-func (c *NatsConnector) Close() error {
+func (c *Connector) Close() error {
 	c.connection.Close()
 	return nil
 }
-
-var Connector NatsConnector

@@ -1,15 +1,63 @@
-package server
+package main
 
 import (
+	"database/sql"
+	"github.com/kuznetsovin/egts-protocol/cli/receiver/config"
+	"github.com/kuznetsovin/egts-protocol/cli/receiver/server"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage"
+	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
+	"io/ioutil"
 	"net"
+	"os"
 	"testing"
 	"time"
 )
 
-func TestServer(t *testing.T) {
-	srvAddr := "127.0.0.1:5020"
+func TestIntegration(t *testing.T) {
+	cfg := `host: "127.0.0.1"
+port: "5020"
+conn_ttl: 10
+log_level: "DEBUG"
+
+storage:
+  postgresql:
+    host: "localhost"
+    port: "5432"
+    user: "postgres"
+    password: "postgres"
+    database: "receiver"
+    table: "points"
+    sslmode: "disable"
+`
+
+	file, err := ioutil.TempFile("/tmp", "config.yaml")
+	if !assert.NoError(t, err) {
+		return
+	}
+	defer os.Remove(file.Name())
+
+	if _, err = file.WriteString(cfg); !assert.NoError(t, err) {
+		return
+	}
+
+	conf, err := config.New(file.Name())
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	storages := storage.NewRepository()
+	err = storages.LoadStorages(conf.Store)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	go func() {
+		srv := server.New(conf.GetListenAddress(), conf.GetEmptyConnTTL(), storages)
+		srv.Run()
+	}()
+	time.Sleep(time.Second)
+
 	message := []byte{0x01, 0x00, 0x00, 0x0B, 0x00, 0xB1, 0x00, 0xE8, 0x04, 0x01, 0x4E, 0xA6, 0x00, 0xA1, 0x0A, 0x81, 0x34, 0xF6, 0xE9, 0x01,
 		0x02, 0x02, 0x10, 0x1A, 0x00, 0x4F, 0x5F, 0xE5, 0x10, 0x00, 0xBE, 0xCD, 0x9E, 0x80, 0x7F, 0x8B, 0x35, 0x93, 0x9B, 0x80, 0x2F, 0xF9, 0x80,
 		0x02, 0x01, 0x00, 0x92, 0x00, 0x00, 0x00, 0x00, 0x11, 0x06, 0x00, 0x0E, 0x46, 0x00, 0x00, 0x00, 0x0C, 0x12, 0x1C, 0x00, 0x01, 0x0F, 0xFF,
@@ -22,22 +70,7 @@ func TestServer(t *testing.T) {
 	response := []byte{0x1, 0x0, 0x0, 0xb, 0x0, 0x10, 0x0, 0xe9, 0x4, 0x0, 0xa1, 0xe8, 0x4, 0x0, 0x6, 0x0, 0x1, 0x0, 0x20, 0x2, 0x2, 0x0, 0x3,
 		0x0, 0xa1, 0xa, 0x0, 0x5e, 0xb6}
 
-	s := &TestConnector{}
-	_ = s.Init(nil)
-
-	r := storage.NewRepository()
-	r.AddStore(s)
-
-	srv := New(srvAddr, 3*time.Second, r)
-	defer srv.Stop()
-
-	// запускаем сервер
-	go func() {
-		srv.Run()
-	}()
-
-	time.Sleep(500 * time.Microsecond)
-	conn, err := net.Dial("tcp", srvAddr)
+	conn, err := net.Dial("tcp", conf.Host+":"+conf.Port)
 	if assert.NoError(t, err) {
 		_ = conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
 		_, _ = conn.Write(message)
@@ -47,25 +80,32 @@ func TestServer(t *testing.T) {
 
 		assert.Equal(t, response, buf)
 
-		assert.Equal(t, len(s.ch), 1)
 	}
 	defer conn.Close()
+
+	numOfRecs, err := extractTestPostgresPacket()
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	assert.Equal(t, 1, numOfRecs)
 }
 
-type TestConnector struct {
-	ch chan []byte
+func extractTestPostgresPacket() (int, error) {
+	conn, _ := sql.Open("postgres", "dbname=receiver host=localhost port=5432 user=postgres password=postgres sslmode=disable")
+	var result int
+
+	rows, err := conn.Query("SELECT COUNT(*) FROM points")
+	if err != nil {
+		return result, err
+	}
+
+	for rows.Next() {
+		if err = rows.Scan(&result); err != nil {
+			return result, err
+		}
+	}
+
+	_, err = conn.Exec("TRUNCATE TABLE points")
+	return result, err
 }
-
-func (t *TestConnector) Init(c map[string]string) error {
-	t.ch = make(chan []byte, 2)
-	return nil
-}
-
-func (t *TestConnector) Save(p interface{ ToBytes() ([]byte, error) }) error {
-	v, err := p.ToBytes()
-	t.ch <- v
-
-	return err
-}
-
-func (t *TestConnector) Close() error { return nil }

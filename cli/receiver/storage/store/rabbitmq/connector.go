@@ -1,4 +1,4 @@
-package main
+package rabbitmq
 
 /*
 Плагин для работы с RabbitMQ через amqp.
@@ -20,13 +20,13 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type RabbitMQConnector struct {
+type Connector struct {
 	connection *amqp.Connection
 	channel    *amqp.Channel
 	config     map[string]string
 }
 
-func (c *RabbitMQConnector) Init(cfg map[string]string) error {
+func (c *Connector) Init(cfg map[string]string) error {
 	var (
 		err error
 	)
@@ -47,7 +47,7 @@ func (c *RabbitMQConnector) Init(cfg map[string]string) error {
 	return err
 }
 
-func (c *RabbitMQConnector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
+func (c *Connector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	if msg == nil {
 		return fmt.Errorf("Не корректная ссылка на пакет")
 	}
@@ -71,7 +71,7 @@ func (c *RabbitMQConnector) Save(msg interface{ ToBytes() ([]byte, error) }) err
 	return nil
 }
 
-func (c *RabbitMQConnector) Close() error {
+func (c *Connector) Close() error {
 	var err error
 	if c != nil {
 		if c.channel != nil {
@@ -87,5 +87,3 @@ func (c *RabbitMQConnector) Close() error {
 	}
 	return err
 }
-
-var Connector RabbitMQConnector
