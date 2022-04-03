@@ -26,6 +26,8 @@ func main() {
 
 	storages := storage.NewRepository()
 	if err := storages.LoadStorages(cfg.Store); err != nil {
+		log.Errorf("ошибка загрузка хранилища: %v", err)
+
 		// TODO: clear after test
 		store := storage.LogConnector{}
 		if err := store.Init(nil); err != nil {

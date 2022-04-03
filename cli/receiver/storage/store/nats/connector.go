@@ -4,10 +4,8 @@ package nats
 Плагин для работы с NATS.
 Плагин отправляет пакет в топик NATS messaging system.
 
-Раздел настроек, которые должны отвечають в конфиге для подключения плагина:
+Раздел настроек, которые должны отвечають в конфиге для подключения хранилища:
 
-[store]
-plugin = "nats.so"
 servers = "nats://localhost:1222, nats://localhost:1223, nats://localhost:1224"
 topic = "receiver"
 */

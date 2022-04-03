@@ -3,7 +3,7 @@ port: "6000"
 con_live_sec: 10
 log_level: "DEBUG"
 
-store:
+storage:
 #  rabbitmq:
 #    host: "localhost"
 #    port: "5672"
@@ -18,6 +18,11 @@ store:
 #    database: "receiver"
 #    table: "points"
 #    sslmode: "disable"
+#  redis:
+#    server: "redis:6379"
+#    queue: "egts"
+#    password: ""
+#    db: "0"
 #  nats:
 #    plugin: "nats.so"
 #    servers: "nats://localhost:1222, nats://localhost:1223, nats://localhost:1224"

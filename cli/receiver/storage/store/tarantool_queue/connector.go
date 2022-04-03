@@ -3,10 +3,8 @@ package tarantool_queue
 /*
 Плагин для работы с Tarantool queue.
 
-Раздел настроек, которые должны отвечають в конфиге для подключения плагина:
+Раздел настроек, которые должны отвечають в конфиге для подключения хранилища:
 
-[store]
-plugin = "tarantool_queue.so"
 host = "localhost"
 port = "5672"
 user = "user"
