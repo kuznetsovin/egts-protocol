@@ -2,10 +2,10 @@ package storage
 
 import (
 	"errors"
-	"fmt"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/nats"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/postgresql"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/rabbitmq"
+	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/redis"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/tarantool_queue"
 )
 
@@ -69,11 +69,12 @@ func (r *Repository) LoadStorages(storages map[string]map[string]string) error {
 			db = &nats.Connector{}
 		case "tarantool_queue":
 			db = &tarantool_queue.Connector{}
+		case "redis":
+			db = &redis.Connector{}
 		default:
 			return UnknownStorage
 		}
 
-		fmt.Println(params)
 		if err := db.Init(params); err != nil {
 			return err
 		}
