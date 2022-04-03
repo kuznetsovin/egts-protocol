@@ -28,19 +28,59 @@ make
 ## Run
 
 ```bash
-./receiver config.toml
+./bin/receiver -c config.yaml
 ```
 
-```config.toml``` - configure file
+```config.yaml``` - configure file
+
+## Docker
+
+Build image
+
+```bash
+make docker
+```
+
+Start container:
+
+```bash
+docker run --name egts-receiver egts:latest
+```
+
+Start container with custom port and config:
+```bash
+docker run --name egts-receiver -v ./configs:/etc/egts-receiver -p 6000:6000 egts:latest
+```
+
+Example docker-compose:
+
+```yaml
+version: '3'
+
+services:
+  redis:
+    image: redis:latest
+    container_name: egts_redis
+
+  egts:
+    image: egts:latest
+    container_name: egts_receiver
+    ports:
+      - "6000:6000"
+
+    volumes:
+      - ./configs:/etc/egts-receviver/
+```
 
 ## Config format
 
-```toml
-[srv]
-host = "127.0.0.1"
-port = "6000"
-con_ttl = 10
-log_level = "DEBUG"
+```yaml
+host: "127.0.0.1"
+port: "6000"
+con_live_sec: 10
+log_level: "DEBUG"
+
+storage:
 ```
 
 Parameters description:
@@ -49,6 +89,7 @@ Parameters description:
 - *port* - bind port 
 - *conn_ttl* - if server not received data longer time in the parameter, then the connection is closed. 
 - *log_level* - logging level
+- *storage* - section with storage configs. (see [example](./configs/receiver.yaml))
 
 ## Usage only Golang EGTS library
 

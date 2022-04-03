@@ -2,6 +2,9 @@
 
 all: build_receiver build_packet_gen
 
+docker:
+	docker build -t egts:latest .
+
 build_receiver:
 	go build -o bin/receiver ./cli/receiver
 
