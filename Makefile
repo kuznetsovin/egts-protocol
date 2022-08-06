@@ -1,4 +1,5 @@
 .PHONY: all test
+TEST_CONFIG_PATH = $(shell pwd)/configs/config.test.yaml
 
 all: build_receiver build_packet_gen
 
@@ -12,4 +13,11 @@ build_packet_gen:
 	go build -o bin/packet_gen ./cli/packet-gen
 
 test:
-	go test ./...
+	docker-compose -f docker-compose-test-env.yml up -d
+	sleep 10
+	TEST_CONFIG=$(TEST_CONFIG_PATH) go test ./...
+	make clean
+
+clean:
+	go clean -testcache
+	docker-compose -f docker-compose-test-env.yml down

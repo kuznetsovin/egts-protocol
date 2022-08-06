@@ -73,7 +73,7 @@ func (c *Connector) Save(msg interface{ ToBytes() ([]byte, error) }) error {
 	}
 
 	if err := c.conn.Publish(context.Background(), c.queue, innerPkg).Err(); err != nil {
-		panic(err)
+		return fmt.Errorf("Ошибка отправки  пакета в redis: %v", err)
 	}
 
 	return nil

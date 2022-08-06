@@ -7,18 +7,18 @@ storage:
   postgresql:
     host: "localhost"
     port: "5432"
-    user: "postgres"
-    password: "postgres"
+    user: "egts"
+    password: "egts"
     database: "receiver"
     table: "points"
+    sslmode: disable
   redis:
-    server: "redis:6379"
+    server: "localhost:6379"
     queue: "egts"
     password: ""
     db: "0"
   mysql:
-    uri: ""
-    database: "receiver"
+    uri: "egts:egts@/receiver"
     table: "points"
 #  rabbitmq:
 #    host: "localhost"

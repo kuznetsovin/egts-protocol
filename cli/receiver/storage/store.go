@@ -2,6 +2,8 @@ package storage
 
 import (
 	"errors"
+
+	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/mysql"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/nats"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/postgresql"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage/store/rabbitmq"
@@ -71,6 +73,8 @@ func (r *Repository) LoadStorages(storages map[string]map[string]string) error {
 			db = &tarantool_queue.Connector{}
 		case "redis":
 			db = &redis.Connector{}
+		case "mysql":
+			db = &mysql.Connector{}
 		default:
 			return UnknownStorage
 		}

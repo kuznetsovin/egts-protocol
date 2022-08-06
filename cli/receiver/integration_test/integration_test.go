@@ -1,26 +1,62 @@
 package main
 
 import (
+	"net"
+	"os"
+	"testing"
+	"time"
+
+	"github.com/kuznetsovin/egts-protocol/cli/receiver/config"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/server"
 	"github.com/kuznetsovin/egts-protocol/cli/receiver/storage"
 	"github.com/stretchr/testify/assert"
-	"net"
-	"testing"
-	"time"
 )
 
-func TestServer(t *testing.T) {
-	test_addr := "localhost:5020"
-	storages := storage.NewRepository()
-	store := storage.LogConnector{}
-	defer store.Close()
-	if err := store.Init(nil); !assert.NoError(t, err) {
+func TestIntegration(t *testing.T) {
+
+	test_conf := os.Getenv("TEST_CONFIG")
+	assert.NotEmpty(t, test_conf)
+
+	conf, err := config.New(test_conf)
+	if !assert.NoError(t, err) {
 		return
 	}
-	storages.AddStore(store)
+
+	pg_conf, ok := conf.Store["postgresql"]
+	if !assert.True(t, ok) {
+		return
+	}
+
+	pg_store, err := initTestPostgresql(pg_conf)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	redis_conf, ok := conf.Store["redis"]
+	if !assert.True(t, ok) {
+		return
+	}
+
+	redis_store := initTestRedis(redis_conf)
+
+	mysql_conf, ok := conf.Store["mysql"]
+	if !assert.True(t, ok) {
+		return
+	}
+
+	mysql_store, err := initTestMysql(mysql_conf)
+	if !assert.NoError(t, err) {
+		return
+	}
+
+	storages := storage.NewRepository()
+	err = storages.LoadStorages(conf.Store)
+	if !assert.NoError(t, err) {
+		return
+	}
 
 	go func() {
-		srv := server.New(test_addr, time.Duration(2 * time.Second), storages)
+		srv := server.New(conf.GetListenAddress(), conf.GetEmptyConnTTL(), storages)
 		srv.Run()
 	}()
 	time.Sleep(time.Second)
@@ -37,7 +73,7 @@ func TestServer(t *testing.T) {
 	response := []byte{0x1, 0x0, 0x0, 0xb, 0x0, 0x10, 0x0, 0xe9, 0x4, 0x0, 0xa1, 0xe8, 0x4, 0x0, 0x6, 0x0, 0x1, 0x0, 0x20, 0x2, 0x2, 0x0, 0x3,
 		0x0, 0xa1, 0xa, 0x0, 0x5e, 0xb6}
 
-	conn, err := net.Dial("tcp", test_addr)
+	conn, err := net.Dial("tcp", conf.Host+":"+conf.Port)
 	if assert.NoError(t, err) {
 		_ = conn.SetWriteDeadline(time.Now().Add(2 * time.Second))
 		_, _ = conn.Write(message)
@@ -49,4 +85,16 @@ func TestServer(t *testing.T) {
 
 	}
 	defer conn.Close()
+
+	if res, err := pg_store.pointCount(); assert.NoError(t, err) {
+		assert.Equal(t, 1, res)
+	}
+
+	if err = redis_store.receivedPoint(); !assert.NoError(t, err) {
+		return
+	}
+
+	if res, err := mysql_store.pointCount(); assert.NoError(t, err) {
+		assert.Equal(t, 1, res)
+	}
 }
