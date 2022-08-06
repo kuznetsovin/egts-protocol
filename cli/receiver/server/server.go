@@ -154,12 +154,19 @@ func (s *Server) handleConn(conn net.Conn) {
 				serviceType = rec.SourceServiceType
 				log.Info("Тип сервиса ", serviceType)
 
-				exportPacket.Client = rec.ObjectIdentifier
+				// если в секции с данными есть oid то обновляем его
+				if rec.ObjectIDFieldExists == "1" {
+					exportPacket.Client = rec.ObjectIdentifier
+				}
 
 				for _, subRec := range rec.RecordDataSet {
 					switch subRecData := subRec.SubrecordData.(type) {
 					case *egts.SrTermIdentity:
 						log.Debug("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
+
+						// на случай если секция с данными не содержит oid
+						exportPacket.Client = subRecData.TerminalIdentifier
+
 						if srResultCodePkg, err = createSrResultCode(pkg.PacketIdentifier, egtsPcOk); err != nil {
 							log.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
 						}
