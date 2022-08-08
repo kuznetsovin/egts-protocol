@@ -8,7 +8,7 @@ import (
 )
 
 type mysqlTest struct {
-	conn *sql.DB
+	conn  *sql.DB
 	table string
 }
 

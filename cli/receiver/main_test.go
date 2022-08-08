@@ -20,7 +20,7 @@ func TestServer(t *testing.T) {
 	storages.AddStore(store)
 
 	go func() {
-		srv := server.New(test_addr, time.Duration(2 * time.Second), storages)
+		srv := server.New(test_addr, time.Duration(2*time.Second), storages)
 		srv.Run()
 	}()
 	time.Sleep(time.Second)

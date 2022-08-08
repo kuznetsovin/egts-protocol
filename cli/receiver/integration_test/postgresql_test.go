@@ -8,7 +8,7 @@ import (
 )
 
 type postgresqlTest struct {
-	conn *sql.DB
+	conn  *sql.DB
 	table string
 }
 

@@ -8,12 +8,12 @@ import (
 )
 
 type redisTest struct {
-	conn   *redis.Client
+	conn       *redis.Client
 	subscriber *redis.PubSub
 }
 
 func (r *redisTest) receivedPoint() error {
-	ctx, cancel := context.WithTimeout(context.Background(), 2 * time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
 	defer cancel()
 
 	if _, err := r.subscriber.ReceiveMessage(ctx); err != nil {
@@ -26,7 +26,7 @@ func (r *redisTest) receivedPoint() error {
 func initTestRedis(conf map[string]string) redisTest {
 	result := redisTest{}
 
-	result.conn = redis.NewClient(&redis.Options{ Addr: conf["server"] })
+	result.conn = redis.NewClient(&redis.Options{Addr: conf["server"]})
 	result.subscriber = result.conn.Subscribe(context.Background(), conf["queue"])
 
 	return result
