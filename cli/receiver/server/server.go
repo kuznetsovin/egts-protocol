@@ -59,6 +59,7 @@ func (s *Server) handleConn(conn net.Conn) {
 		serviceType       uint8
 		srResponsesRecord egts.RecordDataSet
 		recvPacket        []byte
+		client            uint32
 	)
 
 	if s.store == nil {
@@ -156,7 +157,7 @@ func (s *Server) handleConn(conn net.Conn) {
 
 				// если в секции с данными есть oid то обновляем его
 				if rec.ObjectIDFieldExists == "1" {
-					exportPacket.Client = rec.ObjectIdentifier
+					client = rec.ObjectIdentifier
 				}
 
 				for _, subRec := range rec.RecordDataSet {
@@ -165,7 +166,7 @@ func (s *Server) handleConn(conn net.Conn) {
 						log.Debug("Разбор подзаписи EGTS_SR_TERM_IDENTITY")
 
 						// на случай если секция с данными не содержит oid
-						exportPacket.Client = subRecData.TerminalIdentifier
+						client = subRecData.TerminalIdentifier
 
 						if srResultCodePkg, err = createSrResultCode(pkg.PacketIdentifier, egtsPcOk); err != nil {
 							log.Errorf("Ошибка сборки EGTS_SR_RESULT_CODE: %v", err)
@@ -267,6 +268,7 @@ func (s *Server) handleConn(conn net.Conn) {
 					}
 				}
 
+				exportPacket.Client = client
 				if isPkgSave {
 					if err := s.store.Save(&exportPacket); err != nil {
 						log.WithField("err", err).Error("Ошибка сохранения телеметрии")

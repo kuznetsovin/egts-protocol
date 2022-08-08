@@ -1,5 +1,5 @@
 host: "127.0.0.1"
-port: "6000"
+port: "7000"
 con_live_sec: 10
 log_level: "DEBUG"
 
