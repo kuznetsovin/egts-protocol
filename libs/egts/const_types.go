@@ -6,6 +6,9 @@ const SrRecordResponseType = 0
 //SrTermIdentityType код типа подзаписи EGTS_SR_TERM_IDENTITY
 const SrTermIdentityType = 1
 
+// SrModuleDataType код типа подзаписи EGTS_SR_MODULE_DATA
+const SrModuleDataType = 2
+
 //SrResultCodeType код типа подзаписи EGTS_SR_RESULT_CODE
 const SrResultCodeType = 9
 
