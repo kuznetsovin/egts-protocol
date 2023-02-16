@@ -51,6 +51,7 @@ func (p *Package) Decode(content []byte, opt ...func(*Options)) (uint8, error) {
 	}
 
 	secretKey := options.secretKey
+
 	var (
 		err   error
 		flags byte
