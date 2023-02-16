@@ -10,7 +10,9 @@ import (
 
 const DEFAULT_HEADER_LEN = 11
 
-// Package стуркура для описания пакета ЕГТС
+var errSecretKey = fmt.Errorf("package is encrypted but secret key is nil")
+
+// Package структура для описания пакета ЕГТС
 type Package struct {
 	ProtocolVersion           byte       `json:"PRV"`
 	SecurityKeyID             byte       `json:"SKID"`
@@ -32,8 +34,25 @@ type Package struct {
 	ServicesFrameDataCheckSum uint16     `json:"SFRCS"`
 }
 
+type SecretKey interface {
+	Decode([]byte) ([]byte, error)
+	Encode(data []byte) ([]byte, error)
+}
+
+type Options struct {
+	secretKey SecretKey
+}
+
+//type Option func(key *SecretKey)
+
 // Decode разбирает набор байт в структуру пакета
-func (p *Package) Decode(content []byte) (uint8, error) {
+func (p *Package) Decode(content []byte, opt ...func(*Options)) (uint8, error) {
+	options := &Options{}
+	for _, o := range opt {
+		o(options)
+	}
+
+	secretKey := options.secretKey
 	var (
 		err   error
 		flags byte
@@ -57,6 +76,8 @@ func (p *Package) Decode(content []byte) (uint8, error) {
 	p.EncryptionAlg = flagBits[3:5] // flags << 4, flags << 3
 	p.Compression = flagBits[5:6]   // flags << 2
 	p.Priority = flagBits[6:]       // flags << 1, flags << 0
+
+	isEncrypted := p.EncryptionAlg != "00"
 
 	if p.HeaderLength, err = buf.ReadByte(); err != nil {
 		return egtsPcIncHeaderform, fmt.Errorf("Не удалось получить длину заголовка: %v", err)
@@ -120,6 +141,16 @@ func (p *Package) Decode(content []byte) (uint8, error) {
 		return egtsPcUnsType, fmt.Errorf("Неизвестный тип пакета: %d", p.PacketType)
 	}
 
+	if isEncrypted {
+		if secretKey == nil {
+			return egtsPcDecryptError, errSecretKey
+		}
+		dataFrameBytes, err = secretKey.Decode(dataFrameBytes)
+		if err != nil {
+			return egtsPcDecryptError, err
+		}
+	}
+
 	if err = p.ServicesFrameData.Decode(dataFrameBytes); err != nil {
 		return egtsPcDecryptError, err
 	}
@@ -137,12 +168,20 @@ func (p *Package) Decode(content []byte) (uint8, error) {
 }
 
 // Encode кодирует струткуру в байтовую строку
-func (p *Package) Encode() ([]byte, error) {
+func (p *Package) Encode(opt ...func(*Options)) ([]byte, error) {
 	var (
 		result []byte
 		err    error
 		flags  uint64
 	)
+
+	options := &Options{}
+	for _, o := range opt {
+		o(options)
+	}
+
+	secretKey := options.secretKey
+
 	buf := new(bytes.Buffer)
 
 	if err = buf.WriteByte(p.ProtocolVersion); err != nil {
@@ -182,6 +221,16 @@ func (p *Package) Encode() ([]byte, error) {
 		sfrd, err = p.ServicesFrameData.Encode()
 		if err != nil {
 			return result, err
+		}
+
+		if p.EncryptionAlg != "00" {
+			if secretKey == nil {
+				return result, errSecretKey
+			}
+			sfrd, err = secretKey.Encode(sfrd)
+			if err != nil {
+				return result, err
+			}
 		}
 	}
 	p.FrameDataLength = uint16(len(sfrd))
