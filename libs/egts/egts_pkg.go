@@ -40,7 +40,7 @@ type SecretKey interface {
 }
 
 type Options struct {
-	secretKey SecretKey
+	Secret SecretKey
 }
 
 // Decode разбирает набор байт в структуру пакета
@@ -50,7 +50,7 @@ func (p *Package) Decode(content []byte, opt ...func(*Options)) (uint8, error) {
 		o(options)
 	}
 
-	secretKey := options.secretKey
+	secretKey := options.Secret
 
 	var (
 		err   error
@@ -179,7 +179,7 @@ func (p *Package) Encode(opt ...func(*Options)) ([]byte, error) {
 		o(options)
 	}
 
-	secretKey := options.secretKey
+	secretKey := options.Secret
 
 	buf := new(bytes.Buffer)
 
