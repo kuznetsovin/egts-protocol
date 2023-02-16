@@ -43,8 +43,6 @@ type Options struct {
 	secretKey SecretKey
 }
 
-//type Option func(key *SecretKey)
-
 // Decode разбирает набор байт в структуру пакета
 func (p *Package) Decode(content []byte, opt ...func(*Options)) (uint8, error) {
 	options := &Options{}
