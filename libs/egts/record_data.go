@@ -41,6 +41,8 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 			rd.SubrecordData = &SrPosData{}
 		case SrTermIdentityType:
 			rd.SubrecordData = &SrTermIdentity{}
+		case SrModuleDataType:
+			rd.SubrecordData = &SrModuleData{}
 		case SrRecordResponseType:
 			rd.SubrecordData = &SrResponse{}
 		case SrResultCodeType:
