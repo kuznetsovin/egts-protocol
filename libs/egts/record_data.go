@@ -4,19 +4,21 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+
+	log "github.com/sirupsen/logrus"
 )
 
-//RecordData структура секции подзапси у записи ServiceDataRecord
+// RecordData структура секции подзапси у записи ServiceDataRecord
 type RecordData struct {
 	SubrecordType   byte       `json:"SRT"`
 	SubrecordLength uint16     `json:"SRL"`
 	SubrecordData   BinaryData `json:"SRD"`
 }
 
-//RecordDataSet описывает массив с подзаписями протокола ЕГТС
+// RecordDataSet описывает массив с подзаписями протокола ЕГТС
 type RecordDataSet []RecordData
 
-//Decode разбирает байты в структуру подзаписи
+// Decode разбирает байты в структуру подзаписи
 func (rds *RecordDataSet) Decode(recDS []byte) error {
 	var (
 		err error
@@ -76,19 +78,21 @@ func (rds *RecordDataSet) Decode(recDS []byte) error {
 		case SrDispatcherIdentityType:
 			rd.SubrecordData = &SrDispatcherIdentity{}
 		default:
-			return fmt.Errorf("Не известный тип подзаписи: %d. Длина: %d. Содержимое: %X", rd.SubrecordType, rd.SubrecordLength, subRecordBytes)
+			log.Infof("Не известный тип подзаписи: %d. Длина: %d. Содержимое: %X", rd.SubrecordType, rd.SubrecordLength, subRecordBytes)
+			continue
 		}
 
 		if err = rd.SubrecordData.Decode(subRecordBytes); err != nil {
 			return err
 		}
+
 		*rds = append(*rds, rd)
 	}
 
 	return err
 }
 
-//Encode преобразовывает подзапись в набор байт
+// Encode преобразовывает подзапись в набор байт
 func (rds *RecordDataSet) Encode() ([]byte, error) {
 	var (
 		result []byte
@@ -153,7 +157,7 @@ func (rds *RecordDataSet) Encode() ([]byte, error) {
 	return result, err
 }
 
-//Length получает длину массива записей
+// Length получает длину массива записей
 func (rds *RecordDataSet) Length() uint16 {
 	var result uint16
 
