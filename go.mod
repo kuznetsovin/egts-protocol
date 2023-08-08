@@ -8,8 +8,8 @@ require (
 	github.com/golang/protobuf v1.5.2
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/lib/pq v1.1.1
-	github.com/nats-io/nats-server/v2 v2.2.0 // indirect
-	github.com/nats-io/nats.go v1.10.1-0.20210228004050-ed743748acac
+	github.com/nats-io/nats-server/v2 v2.7.4 // indirect
+	github.com/nats-io/nats.go v1.13.1-0.20220308171302-2f2f6968e98d
 	github.com/sirupsen/logrus v1.8.1
 	github.com/streadway/amqp v0.0.0-20190404075320-75d898a42a94
 	github.com/stretchr/testify v1.5.1
