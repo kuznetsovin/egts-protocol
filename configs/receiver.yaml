@@ -26,6 +26,7 @@ storage:
 #    user: "guest"
 #    password: "guest"
 #    exchange: "receiver"
+#    virtual_host: ""
 #  nats:
 #    plugin: "nats.so"
 #    servers: "nats://localhost:1222, nats://localhost:1223, nats://localhost:1224"
