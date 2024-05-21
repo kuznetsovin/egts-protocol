@@ -33,7 +33,7 @@ func (c *Connector) Init(cfg map[string]string) error {
 	}
 
 	c.config = cfg
-	conStr := fmt.Sprintf("amqp://%s:%s@%s:%s/", c.config["user"], c.config["password"], c.config["host"], c.config["port"])
+	conStr := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", c.config["user"], c.config["password"], c.config["host"], c.config["port"], c.config["virtual_host"])
 	if c.connection, err = amqp.Dial(conStr); err != nil {
 		return fmt.Errorf("Ошибка установки соединеия RabbitMQ: %v", err)
 	}
